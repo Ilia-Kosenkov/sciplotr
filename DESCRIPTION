@@ -1,0 +1,22 @@
+Package: sciplotr
+Title: GGplots with scientific themes
+Version: 0.0.1
+Authors@R: 
+    person(given = "Ilia",
+           family = "Kosenkov",
+           role = c("aut", "cre"),
+           email = "ilia.kosenkov.at.gm@gmail.com")
+Imports:
+	grid,
+	gtable,
+	ggplot2,
+	rlang,
+	assertthat
+Depends:
+    R (>= 3.5.0)
+Description: What the package does (one paragraph).
+License: GPL2 + file LICENSE
+Encoding: UTF-8
+LazyData: true
+ByteCompile: true
+RoxygenNote: 6.1.1

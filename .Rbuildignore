@@ -1,0 +1,11 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^.*sln$
+^.*xproj$
+^.*gz$
+.vs$
+Examples
+UnitTests
+.*md$
+.*tex$
+Compile.R
