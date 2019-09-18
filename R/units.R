@@ -66,22 +66,22 @@ new_margin <- function(...) {
 }
 
 
-f_u_ <- function(x, data = NULL) {
+f_u_ <- function(x, .data = NULL) {
     assert_that(is_formula(x))
     val <- vctrs::vec_cast(eval_tidy(f_lhs(x)), double(), to_arg = "")
     vec_assert(val, size = 1L)
 
     unit <- f_rhs(x)
     assert_that(rlang::is_symbol(unit) || rlang::is_string(unit))
-    grid::unit(val, as.character(unit), data = data)
+    grid::unit(val, as.character(unit), data = .data)
 }
 
-u_ <- function(...) {
+u_ <- function(..., .data = NULL) {
     args <- rlang::enquos(...)
     `$` <- function(e1, e2) {
         if (vctrs::vec_is(e1, double(), 1L) || vctrs::vec_is(e1, integer(), 1L)) {
             unit <- as.character(rlang::ensym(e2))
-            return(grid::unit(e1, unit))
+            return(grid::unit(e1, unit, data = .data))
         }
 
         return(eval_tidy(quo(.Primitive("$")(e1, !!ensym(e2)))))
@@ -90,9 +90,9 @@ u_ <- function(...) {
 
     result <- lapply(args, function(arg) {
         if (is_formula(quo_squash(arg)))
-            f_u_(quo_squash(arg))
+            f_u_(quo_squash(arg), .data = .data)
         else
-            rlang::eval_tidy(arg, data = list(`$` = `$`))
+            rlang::eval_tidy(arg, .data = list(`$` = `$`))
         })
 
     rlang::exec(grid::unit.c, !!!result)
