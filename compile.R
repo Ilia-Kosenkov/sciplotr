@@ -28,6 +28,7 @@ if (interactive()) {
     library(gtable)
     library(rlang)
     library(vctrs)
+    purrr::walk(fs::dir_ls("R", glob = "*R"), source)
 } else {
 
     message("Running `roxygen2::roxygenize`...")
