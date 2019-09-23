@@ -14,7 +14,7 @@
 #' @return A theme object.
 #' @export
 theme_scientific <- function(
-    ticks = u_(-1 * 10$pt),
+    ticks = -u_(10$pt),
     text.size = 10,
     title.size = 15,
     text.margin = u_(5$pt),
