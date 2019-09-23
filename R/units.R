@@ -6,11 +6,20 @@
 #' @return Modified \code{unit}
 #' @export
 `/.unit` <- function(e1, e2) {
+    assertthat::assert_that(is.unit(e1))
+
     e2 <- vctrs::vec_cast(e2, double(), x_arg = "e2", to_arg = "")
     vctrs::vec_assert(e2, double(), size = 1L)
     e1 * (1 / e2)
 }
 
+`-.unit` <- function(e1, e2) {
+    assertthat::assert_that(grid::is.unit(e1))
+    if (missing(e2))
+        return(-1 * e1)
+    assertthat::assert_that(grid::is.unit(e2))
+    grid:::unit.arithmetic("-", e1, e2)
+}
 
 f_u_ <- function(x, .data = NULL) {
     assert_that(is_formula(x))
