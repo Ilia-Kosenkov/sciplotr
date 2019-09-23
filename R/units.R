@@ -57,7 +57,6 @@ pt_ <- function(x) u_(x$pt)
 #' @export
 mar_ <- function(...) {
     args <- rlang::enquos(...)
-
     args <- purrr::map(args, u_)
     has_no_names <- rlang::is_null(names(args)) ||
         all(!nzchar(names(args)))
@@ -77,7 +76,7 @@ mar_ <- function(...) {
     else if (vctrs::vec_size(args) == 4L &&  has_no_names) {
         margin <- grid::unit.c(args[[1]], args[[2]], args[[3]], args[[4]])
     }
-    else if (!rlang::is_null(names(args))) {
+    else if (!has_no_names) {
         names(args) <-
             purrr::map_chr(names(args), match.arg,
                 vctrs::vec_c("top", "right", "bottom", "left", "horizontal", "vertical"))
@@ -105,6 +104,49 @@ mar_ <- function(...) {
     margin
 }
 
+at_ <- function(item, what) UseMethod("at_")
+`at_<-` <- function(item, what, value) UseMethod("at_<-")
+
+
+at_.margin <- function(mar, what) {
+    what <- as.character(ensym(what))
+
+    what <- match.arg(what, vec_c("top", "right", "bottom", "left"))
+    pos <- switch(what,
+            "top" = 1L,
+            "right" = 2L,
+            "bottom" = 3L,
+            "left" = 4L)
+    mar[pos]
+}
+
+`at_<-.margin` <- function(mar, what, value) {
+    what <- ensym(what)
+
+    with_mar(mar, !!what := ~value)
+}
+
+with_mar <- function(mar, ...) {
+    args <- list2(...)
+    names <- names(args)
+    assertthat::assert_that(!rlang::is_null(names) && all(nzchar(names)))
+
+    names <- map(names(args), match.arg, vec_c("top", "right", "bottom", "left"))
+
+    names(args) <- names
+
+    args %>%
+        map(as_function) %>%
+        imap(function(item, name) {
+            item(at_(mar, !!name))
+        }) -> new_mar
+
+    vec_c("top", "right", "bottom", "left") %>%
+        rlang::set_names(.) %>%
+        map(~if (is_null(new_mar[[.x]])) at_(mar, !!.x) else new_mar[[.x]]) -> new_mar
+
+    mar_(unit.c(new_mar$top, new_mar$right, new_mar$bottom, new_mar$left))
+}
 
 outermost_op <- function(x)  UseMethod("outermost_op")
 
@@ -155,6 +197,7 @@ as.character.unit.list <- function(x, ...) {
 }
 
 print.unit.list <- function(x, ...) {
+
     print(as.character(x), quote = FALSE, ...)
 }
 
