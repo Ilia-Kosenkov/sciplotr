@@ -3,6 +3,9 @@ CoordSci <-
         setup_panel_params = function(self, scale_x, scale_y, params = list()) {
             append(ggproto_parent(CoordCartesian, self)$setup_panel_params(scale_x, scale_y, params),
                    list(ticks_minor_size_f = self$ticks_minor_size_f))
+            #c(view_scales_from_scale(scale_x, self$limits$x, self$expand),
+              #view_scales_from_scale(scale_y, self$limits$y, self$expand),
+              #list(ticks_minor_size_f = self$ticks_minor_size_f))
         },
         # https://github.com/tidyverse/ggplot2/blob/23e324197e0a5ddd764588d42838b0d96da9b68d/R/coord-cartesian-.r#L116
         render_axis_h = function(panel_params, theme) {
@@ -40,4 +43,3 @@ coord_sci <- function(
             ticks_minor_size_f = ticks.minor.size.f)
 }
 
-(mtcars %>% ggplot(aes(hp, mpg)) + coord_sci() + scale_x_continuous(sec.axis = dup_axis()) + theme_scientific()) %>% print
