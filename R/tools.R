@@ -42,6 +42,19 @@ are_equal_f <- function(x, y, eps = 1) {
     purrr::map2_lgl(x, y, comparator)
 }
 
+`%==%` <- function(e1, e2) {
+    vctrs::vec_recycle_common(!!!vctrs::vec_cast_common(e1, e2)) %->% c(x, y)
+    if (vctrs::vec_is(x, complex()))
+        return(are_equal_f(Re(x), Re(y)) & are_equal_f(Im(x), Im(y)))
+    if (vctrs::vec_is(x, double()))
+        return(are_equal_f(x, y))
+    return(x == y)
+}
+
+`%!=%` <- function(e1, e2) {
+    !(e1 %==% e2)
+}
+
 are_same_all <- function(x, eps = 1) {
     # `eps` is tested in `are_equal_f`
     vec_assert_numeric(x, arg = name_of(x))
@@ -71,7 +84,7 @@ vec_cast_integerish <- function(x, x_arg = "x") {
         return(x)
 
     if (vec_is(x, double())) {
-        diffs <- are_equal_f(0, abs(x) - floor(abs(x)))
+        diffs <- (abs(x) - floor(abs(x))) %==% 0
         inds <- which(!diffs)
         if (vec_is_empty(inds))
             return(vctrs::allow_lossy_cast(vec_cast(x, integer(), x_arg = rlang::as_label(x))))
@@ -85,7 +98,7 @@ vec_assert_integerish <- function(x, size = NULL, x_arg = "x") {
         result <- x
 
     if (vec_is(x, double())) {
-        diffs <- are_equal_f(0, abs(x) - floor(abs(x)))
+        diffs <- (abs(x) - floor(abs(x))) %==% 0
         inds <- which(!diffs)
         if (vec_is_empty(inds))
             result <- vctrs::allow_lossy_cast(vec_cast(x, integer(), x_arg = rlang::as_label(x)))
@@ -107,7 +120,7 @@ unique_f <- function(x, eps = 1L) {
     prod <- outer(x, x, are_equal_f, eps = eps)
 
     purrr::map_int(vctrs::vec_seq_along(x), ~ sum(prod[1:.x, .x])) %>%
-        `==`(1L) %>%
+        `%==%`(1L) %>%
         which -> inds
     x[inds]
 }
@@ -130,17 +143,4 @@ round_interval <- function(rng, by) {
     by <- vec_assert_numeric(by, size = 1L)
 
     by * vctrs::vec_c(floor(rng[1] / by), ceiling(rng[2] / by))
-}
-
-`%==%` <- function(e1, e2) {
-    vctrs::vec_recycle_common(!!!vctrs::vec_cast_common(e1, e2)) %->% c(x, y)
-    if (vctrs::vec_is(x, complex()))
-        return(are_equal_f(Re(x), Re(y)) & are_equal_f(Im(x), Im(y)))
-    if (vctrs::vec_is(x, double()))
-        return(are_equal_f(x, y))
-    return(x == y)
-}
-
-`%!=%` <- function(e1, e2) {
-    !(e1 %==% e2)
 }
