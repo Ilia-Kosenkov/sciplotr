@@ -25,14 +25,22 @@ are_equal_f <- function(x, y, eps = 1) {
         diff <- abs(p - q)
 
         delta <- eps * .Machine$double.eps
+        # Assuming that -0 == 0 and therefore p_abs and q_abs
+        # cannot be 0 at the same time
+        if (p_abs == 0 && q_abs == 0)
+            rlang::abort("Should not happen", "impossible_exception", trace = rlang::trace_back())
+        else if (p_abs == 0)
+            fact <- q_abs
+        else if (q_abs == 0)
+            fact <- p_abs
+        else
+            fact <- min(vctrs::vec_c(p_abs, q_abs))
 
-        return(diff < (min(vctrs::vec_c(p_abs, q_abs, 1)) * delta))
+        return(diff < fact * delta)
     }
 
     purrr::map2_lgl(x, y, comparator)
 }
-
-
 
 are_same_all <- function(x, eps = 1) {
     # `eps` is tested in `are_equal_f`
@@ -124,6 +132,15 @@ round_interval <- function(rng, by) {
     by * vctrs::vec_c(floor(rng[1] / by), ceiling(rng[2] / by))
 }
 
-`%==%` <- function(e1, e2) UseMethod("%==%")
-`%==%.double` <- function(e1, e2) are_equal_f(e1, e2)
-`%==%.default` <- function(e1, e2) e1 == e2
+`%==%` <- function(e1, e2) {
+    vctrs::vec_recycle_common(!!!vctrs::vec_cast_common(e1, e2)) %->% c(x, y)
+    if (vctrs::vec_is(x, complex()))
+        return(are_equal_f(Re(x), Re(y)) & are_equal_f(Im(x), Im(y)))
+    if (vctrs::vec_is(x, double()))
+        return(are_equal_f(x, y))
+    return(x == y)
+}
+
+`%!=%` <- function(e1, e2) {
+    !(e1 %==% e2)
+}
