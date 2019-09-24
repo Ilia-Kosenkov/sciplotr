@@ -1,8 +1,16 @@
-identity_sci_trans <- function(n = 5, modifier = vctrs::vec_c(1, 2, 2.5, 5), n_small = 100L) {
-
+identity_sci_trans <- function(n = 5L, modifier = vctrs::vec_c(1, 2, 2.5, 5), n_small = 50L) {
     trans_new("identity_sci", "force", "force",
               breaks = simple_breaks(n = n, modifier = modifier),
               minor_breaks = simple_minor_breaks(n = n_small))
+}
+
+log10_sci_trans <- function() {
+    trans <- function(x) log10(x)
+    inv <- function(x) 10 ^ x
+    trans_new("log10_sci", trans, inv,
+              breaks = simple_log10_breaks(),
+              minor_breaks = simple_log10_minor_breaks(),
+              domain = vctrs::vec_c(1e-300, Inf))
 }
 
 simple_breaks <- function(n = 5, modifier = vctrs::vec_c(1, 2, 2.5, 5), ...) {
@@ -12,13 +20,30 @@ simple_breaks <- function(n = 5, modifier = vctrs::vec_c(1, 2, 2.5, 5), ...) {
             return(numeric())
         }
         rng <- range(x)
-        generate_simple_breaks(rng, fancy_step(rng, n, modifier)) %>% print
+        generate_simple_breaks(rng, fancy_step(rng, n, modifier))
     }
 }
 
-simple_minor_breaks <- function(n = 100L) {
+simple_minor_breaks <- function(n = 50L) {
     function(b, limits, m) {
-        generate_simple_minor_breaks(b, limits, n = n) %>% print
+        generate_simple_minor_breaks(b, limits, n = n)
+    }
+}
+
+simple_log10_breaks <- function(n = 5L) {
+    function(x) {
+        x <- x[is.finite(x)]
+        if (vec_is_empty(x)) {
+            return(numeric())
+        }
+        rng <- range(x)
+        generate_simple_log10_breaks(rng, n)
+    }
+}
+
+simple_log10_minor_breaks <- function(n = 30L) {
+    function(b, limits, m) {
+        generate_simple_log10_minor_breaks(b, limits, n = n)
     }
 }
 
@@ -43,26 +68,29 @@ generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
         return(vctrs::new_double(0))
 
     diffs <- diff(breaks)
-    if (!are_same_all(diffs))
-        # Probably can handle this case also
-        stop("Unequally spaced major breaks")
+    # Temporarily ignore this
+    #if (!are_same_all(diffs, eps = 1))
+        ## Probably can handle this case also
+            ##stop("Unequally spaced major breaks")
+        #print(RLibs::glue_fmt("{diffs:%26.16e}"))
+
 
     df <- diffs[1L]
 
-    digit <- df / log10_floor(df)
-
+    digit <- round(df / log10_floor(df))
+    
     modifier <- vec_c(1, 2, 2.5, 5)
 
-    if (digit == 2L)
+    if (are_equal_f(digit, 2L))
         modifier <- vec_c(1, 5)
-    if (digit == 3L)
+    if (are_equal_f(digit, 3L))
         modifier <- vec_c(1, 3)
-    if (digit == 5L)
+    if (are_equal_f(digit, 5L))
         modifier <- vec_c(1, 2.5, 5)
 
     modifier <- vec_c(0.1 * modifier, modifier, 10 * modifier)
 
-    step <- 0.1 * df
+    step <- 0.1 * log10_floor(df)
 
     extra_rng <- vec_c(min(breaks) - df, max(breaks) + df)
     diff(extra_rng) / (step * modifier)
@@ -70,7 +98,7 @@ generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
     sizes <- abs(diff(extra_rng) / (step * modifier) - n)
 
     ind <- which(are_equal_f(sizes, min(sizes)))
-
+    
     small_breaks <- generate_simple_breaks(vec_c(0, df), modifier[ind] * step)
 
     extended_breaks <-
@@ -80,6 +108,66 @@ generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
 
     extended_breaks <- outer_unique(extended_breaks, breaks)$x
 
-   extended_breaks[extended_breaks >= limits[1] & extended_breaks <= limits[2]]
+    extended_breaks[extended_breaks >= limits[1] & extended_breaks <= limits[2]]
 }
 
+generate_simple_log10_breaks <- function(lim, n = 5L) {
+    tick_set <- list(
+                    #vctrs::vec_c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50),
+                    vctrs::vec_c(0.1, 0.5, 1, 5, 10, 50),
+                    vctrs::vec_c(0.1, 1, 10))
+    if (diff(log10(lim)) <= 1L) {
+        mult <- log10_floor(min(lim))
+        y_dig <- lim / mult
+        step <- fancy_step(y_dig, n = n, modifier = scales::discard(tick_set[[1]], vctrs::vec_c(1, 10)))
+        
+        breaks <- mult * generate_simple_breaks(y_dig, step)
+    }
+    else {
+        breaks <- 10 ^ generate_simple_breaks(log10(lim), 1)
+        get_breaks <- function(tcks)
+            purrr::map(breaks, ~ tcks * .x) %>%
+            purrr::flatten_dbl %>%
+            scales::discard(lim) %>%
+            unique_f(eps = 1)
+
+        breaks <- purrr::map(tick_set, get_breaks)
+        delta_lens <- abs(purrr::map_int(breaks, vctrs::vec_size) - n)
+        id <- which(are_equal_f(delta_lens, min(delta_lens)))
+
+        breaks <- breaks[[id]]
+    }
+    return(breaks)
+}
+
+generate_simple_log10_minor_breaks <- function(brs, lim, n = 30L) {
+    brs <- 10 ^ brs %T>% print
+    lim <- 10 ^ lim %T>% print
+    tick_set <- list(
+                    vctrs::vec_c(0.1 * (1:9), 1:9, 10 * (1:9)),
+                    vctrs::vec_c(0.1, 0.5, 1, 5, 10, 50),
+                    vctrs::vec_c(0.1, 1, 10))
+
+    if (diff(log10(lim)) <= 1L) {
+        mult <- log10_floor(min(lim))
+        y_dig <- lim / mult
+        breaks <- mult * (generate_simple_minor_breaks(brs / mult, y_dig, n = n)  %T>% print)
+    }
+    else {
+        brs_2 <- unique_f(log10_floor(brs))
+        get_breaks <- function(tcks)
+            purrr::map(brs_2, ~ tcks * .x) %>%
+            purrr::flatten_dbl %>%
+            scales::discard(lim) %>%
+            unique_f
+
+        breaks <- purrr::map(tick_set, get_breaks)
+        delta_lens <- abs(purrr::map_int(breaks, vctrs::vec_size) - n)
+        id <- which(are_equal_f(delta_lens, min(delta_lens)))
+
+        breaks <- breaks[[id]]
+        breaks <- breaks[outer_unique_which(brs, breaks)$y]
+    }
+    breaks <- log10(breaks)
+    return(breaks)
+}
