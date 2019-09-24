@@ -11,7 +11,8 @@ Imports:
 	gtable,
 	ggplot2,
 	rlang,
-	assertthat
+	assertthat,
+	purrr
 Depends:
     R (>= 3.5.0)
 Description: What the package does (one paragraph).
