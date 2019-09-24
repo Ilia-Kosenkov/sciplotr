@@ -123,3 +123,7 @@ round_interval <- function(rng, by) {
 
     by * vctrs::vec_c(floor(rng[1] / by), ceiling(rng[2] / by))
 }
+
+`%==%` <- function(e1, e2) UseMethod("%==%")
+`%==%.double` <- function(e1, e2) are_equal_f(e1, e2)
+`%==%.default` <- function(e1, e2) e1 == e2
