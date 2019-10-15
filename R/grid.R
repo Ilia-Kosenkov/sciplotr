@@ -21,6 +21,11 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+postprocess_axes <- function(gg_table, axes_margin = NULL, text_matgin = NULL) {
+    get_grobs_size(gg_table, "background")
+}
+
+### Required
 get_grob_ids_raw <- function(grid, pattern) {
     grid$layout %>%
         rowid_to_column %>%
@@ -38,20 +43,47 @@ get_grobs <- function(grid, pattern) {
     grid$grobs[ids] %>% set_names(grob_names)
 }
 
+### Required
 get_grobs_layout <- function(grid, pattern) {
-    assert_that(passes(is_string(pattern)))
-    assert_that(not(is_missing(grid)))
+    vctrs::vec_assert(pattern, character(), 1L)
 
     get_grob_ids_raw(grid, pattern) %->% c(grob_names, ids)
 
     grid$layout %>%
-        slice(ids) %>%
-        mutate(data = pmap(list(l, r, t, b), vec_c)) %>%
-        select(name, data) %$% {
-            set_names(data, name) %>%
-                map(~allow_lossy_cast(vec_cast(.x, integer())))
+        dplyr::slice(ids) %>%
+        dplyr::mutate(data = purrr::pmap(list(l, r, t, b), vctrs::vec_c)) %>%
+        dplyr::select(name, data) %$% {
+            rlang::set_names(data, name) %>%
+                purrr::map(~vctrs::allow_lossy_cast(vctrs::vec_cast(.x, integer())))
         }
 }
+
+
+### Required
+get_cell_size <- function(grid, x, y) {
+
+    vctrs::vec_assert(x, integer(), 1L)
+    vctrs::vec_assert(y, integer(), 1L)
+    assertthat::assert_that(
+        x >= 1L, x <= length(grid$widths),
+        y >= 1L, y <= length(grid$heights))
+
+    x <- vctrs::vec_cast(x, integer())
+    y <- vctrs::vec_cast(y, integer())
+
+    grid::unit.c(grid$widths[x], grid$heights[y])
+}
+
+
+### Requried
+get_grobs_size <- function(grid, pattern) {
+    layout <- get_grobs_layout(grid, pattern)
+
+    layout %>% purrr::map(~list(
+            width = sum(grid$widths[seq(from = .x[1], to = .x[2], by = 1L)]),
+            height = sum(grid$heights[seq(from = .x[3], to = .x[4], by = 1L)])))
+}
+
 
 set_grobs_layout <- function(grid, pattern, layout) {
     assert_that(passes(is_string(pattern)))
@@ -107,18 +139,7 @@ update_grobs <- function(grid, pattern, ...) {
     grid
 }
 
-get_cell_size <- function(grid, x, y) {
 
-    assert_that(not(is_empty(grid)))
-    vec_assert(x, integer(), 1)
-    vec_assert(y, integer(), 1)
-    assert_that(vec_within(x, 1L, length(grid$widths)), vec_within(y, 1L, length(grid$heights)))
-
-    x <- vec_cast(x, integer())
-    y <- vec_cast(y, integer())
-
-    unit.c(grid$widths[x], grid$heights[y])
-}
 
 set_grid_width <- function(grid, x, unit) {
 
