@@ -325,3 +325,4 @@ $RECYCLE.BIN/
 # Test results
 **/Rplots.pdf
 *.fth
+R/injection.R

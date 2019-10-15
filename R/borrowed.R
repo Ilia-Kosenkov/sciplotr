@@ -180,3 +180,186 @@ draw_view_scale_axis <- function(view_scale, axis_position, theme,
         theme = theme,
         ticks_minor_size_f = ticks_minor_size_f)
 }
+
+## https://github.com/tidyverse/ggplot2/blob/23e324197e0a5ddd764588d42838b0d96da9b68d/R/coord-cartesian-.r#L139
+#view_scales_from_scale <- function(scale, coord_limits = NULL, expand = TRUE) {
+    #expansion <- ggplot2:::default_expansion(scale, expand = expand)
+    #limits <- scale$get_limits()
+    #continuous_range <- ggplot2:::expand_limits_scale(scale, expansion, limits, coord_limits = coord_limits) %>% print
+    #aesthetic <- scale$aesthetics[1]
+
+    #view_scales <- list(
+        #ggplot2:::view_scale_primary(scale, limits, continuous_range),
+        #sec = ggplot2:::view_scale_secondary(scale, limits, continuous_range),
+        #arrange = scale$axis_order(),
+        #range = continuous_range) %>% print
+
+    #names(view_scales) <- c(aesthetic, paste0(aesthetic, ".", names(view_scales)[-1]))
+
+    #view_scales
+#}s
+# https://github.com/tidyverse/ggplot2/blob/23e324197e0a5ddd764588d42838b0d96da9b68d/R/axis-secondary.R#L82
+sec_axis_sci <- function(
+    axis_trans = NULL,
+    name = waiver(),
+    breaks = waiver(),
+    labels = waiver(),
+    breaks_trans = waiver()) {
+    # sec_axis() historically accpeted two-sided formula, so be permissive.
+    if (length(axis_trans) > 2) axis_trans <- axis_trans[c(1, 3)]
+
+    axis_trans <- as_function(axis_trans)
+
+    if (rlang::is_null(breaks_trans) || ggplot2:::is.waive(breaks_trans))
+        breaks_trans <- identity_sci_trans()
+
+    ggproto(NULL, AxisSecondarySci,
+        breaks_trans = breaks_trans,
+        trans = axis_trans,
+        name = name,
+        breaks = breaks,
+        labels = labels
+      )
+}
+
+# https://github.com/tidyverse/ggplot2/blob/23e324197e0a5ddd764588d42838b0d96da9b68d/R/axis-secondary.R#L127
+AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
+    breaks_trans = NULL,
+    #trans = NULL,
+    #axis = NULL,
+    #name = waiver(),
+    #breaks = waiver(),
+    #labels = waiver(),
+
+    ## This determines the quality of the remapping from the secondary axis and
+    ## back to the primary axis i.e. the exactness of the placement of the
+    ## breakpoints of the secondary axis.
+    #detail = 1000,
+
+    #empty = function(self) {
+        #is.null(self$trans)
+    #},
+    # Inherit settings from the primary axis/scale
+    init = function(self, scale) {
+        if (self$empty()) return()
+        if (!is.function(self$trans)) stop("transformation for secondary axes must be a function", call. = FALSE)
+        if (ggplot2:::is.derived(self$name) && !ggplot2:::is.waive(scale$name)) self$name <- scale$name
+        if (ggplot2:::is.derived(self$breaks)) self$breaks <- scale$breaks
+        if (ggplot2:::is.waive(self$breaks)) self$breaks <- scale$trans$breaks
+        if (ggplot2:::is.derived(self$labels)) self$labels <- scale$labels
+        if (rlang::is_null(self$breaks_trans) || ggplot2:::is.waive(self$breaks_trans))
+            self$breaks_trans <- identity_sci_trans()
+        if (ggplot2:::is.derived(self$breaks_trans))
+            self$breaks_trans <- scale$trans
+        
+    },
+
+    transform_range = function(self, range) {
+        self$trans(range)
+    },
+
+    mono_test = function(self, scale) {
+        range <- scale$range$range
+        along_range <- seq(range[1], range[2], length.out = self$detail)
+        old_range <- scale$trans$inverse(along_range)
+
+        # Create mapping between primary and secondary range
+        full_range <- self$transform_range(old_range)
+
+        # Test for monotonicity
+        if (length(unique(sign(diff(full_range)))) != 1)
+            stop("transformation for secondary axes must be monotonic")
+    },
+
+    break_info = function(self, range, scale) {
+        if (self$empty()) return()
+        
+        # Test for monotonicity on unexpanded range
+        self$mono_test(scale)
+
+        # Get scale's original range before transformation
+        along_range <- seq(range[1], range[2], length.out = self$detail)
+        old_range <- scale$trans$inverse(along_range)
+
+        # Create mapping between primary and secondary range
+        full_range <- self$transform_range(old_range)
+
+        # Get break info for the secondary axis
+        new_range <- range(full_range, na.rm = TRUE)
+
+        # patch for date and datetime scales just to maintain functionality
+        # works only for linear secondary transforms that respect the time or date transform
+        if (scale$trans$name %in% c("date", "time")) {
+            temp_scale <- self$create_scale(new_range, trans = scale$trans)
+            range_info <- temp_scale$break_info()
+            old_val_trans <- rescale(range_info$major, from = c(0, 1), to = range)
+            old_val_minor_trans <- rescale(range_info$minor, from = c(0, 1), to = range)
+        } 
+        else {
+            temp_scale <- self$create_scale(new_range) #%T>% print
+            #print(temp_scale$break_info())
+            range_info <- temp_scale$break_info() #%T>% print
+            
+            # Map the break values back to their correct position on the primary scale
+            old_val <- lapply(range_info$major_source, function(x) which.min(abs(full_range - x)))
+            old_val <- old_range[unlist(old_val)]
+            old_val_trans <- scale$trans$transform(old_val)
+
+            old_val_minor <- lapply(range_info$minor_source, function(x) which.min(abs(full_range - x)))
+            old_val_minor <- old_range[unlist(old_val_minor)]
+            old_val_minor_trans <- scale$trans$transform(old_val_minor)
+
+            # rescale values from 0 to 1
+            range_info$major[] <- round(
+                rescale(
+                    scale$map(old_val_trans, range(old_val_trans)),
+                    from = range),
+                digits = 3)
+            range_info$minor[] <- round(
+                rescale(
+                    scale$map(old_val_minor_trans, range(old_val_minor_trans)),
+                    from = range),
+                digits = 3)
+        }
+
+        # The _source values should be in (primary) scale_transformed space,
+        # so that the coord doesn't have to know about the secondary scale transformation
+        # when drawing the axis. The values in user space are useful for testing.
+        range_info$major_source_user <- range_info$major_source
+        range_info$minor_source_user <- range_info$minor_source
+        range_info$major_source[] <- old_val_trans
+        range_info$minor_source[] <- old_val_minor_trans
+
+        names(range_info) <- paste0("sec.", names(range_info))
+        range_info
+    },
+
+    # Temporary scale for the purpose of calling break_info()
+    create_scale = function(self, range, trans = self$breaks_trans) {
+        print(trans)
+        scale <- ggproto(NULL, ScaleContinuousPosition,
+                name = self$name,
+                breaks = self$breaks,
+                labels = self$labels,
+                limits = range,
+                expand = c(0, 0),
+                trans = trans)
+        scale$train(range)
+        scale
+    }#,
+    #make_title = function(title) {
+        #title
+    #}
+)
+
+(RLibs::read_smart(fs::path("work_set.fth")) %>%
+    filter(Filter == "H") %>%
+    ggplot(aes(JD, Flux ^ 2)) +
+    geom_point() +
+    coord_sci() +
+    theme_scientific(plot.margin = mar_(1 ~ cm)) +
+    scale_y_log10_sci(sec.axis = sec_axis(~-2.5 * log10(. / 1e-45))) +
+    #scale_y_sci()) %>% print
+    scale_x_sci(sec.axis = weak_dup_axis_sci())) %>%
+    #egg::expose_layout() %>% print
+    print

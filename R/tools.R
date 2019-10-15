@@ -25,7 +25,8 @@ are_equal_f <- function(x, y, eps = 1) {
         diff <- abs(p - q)
 
         delta <- eps * .Machine$double.eps
-        # Assuming that -0 == 0 and therefore p_abs and q_abs
+        # According to IEEE-754 https://en.wikipedia.org/wiki/IEEE_754
+        # -0 and 0 are equal, therefore p_abs and q_abs
         # cannot be 0 at the same time
         if (p_abs == 0 && q_abs == 0)
             rlang::abort("Should not happen", "impossible_exception", trace = rlang::trace_back())
