@@ -229,7 +229,9 @@ flatten_unit <- function(x) {
         result <- as_list_unit(x)
     else
         stop("Invalid input type")
+    names(result) <- NULL
     flatten(result)
+    #grid:::unit.list.from.list(result)
 }
 
 unit_max <- function(..., .item_wise = FALSE) {

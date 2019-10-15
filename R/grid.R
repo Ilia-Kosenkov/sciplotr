@@ -21,16 +21,45 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-postprocess_axes <- function(gg_table, axes_margin = NULL, text_matgin = NULL) {
-    get_grobs_size(gg_table, "background")
+postprocess_axes <- function(
+    gg_table,
+    axes_margin = NULL, text_matgin = NULL) {
+    # Assuming label occupies exactly one grid cell
+
+    x_pos <- get_grobs_layout(gg_table, "xlab") %>%
+        purrr::map_int(3)
+
+    y_pos <- get_grobs_layout(gg_table, "ylab") %>%
+        purrr::map_int(1)
+
+    if (rlang::is_null(axes_margin)) {
+        x_val <- unit_max(gg_table$heights[pos])
+        gg_table$heights[pos] <- x_val
+
+        y_val <- unit_max(gg_table$widths[pos])
+        gg_table$widths[pos] <- y_val
+
+    }
+    else {
+        gg_table$heights[x_pos["xlab-t"]] <- at_(axes_margin, t)
+        gg_table$heights[x_pos["xlab-b"]] <- at_(axes_margin, b)
+
+        gg_table$widths[y_pos["ylab-l"]] <- at_(axes_margin, l)
+        gg_table$widths[y_pos["ylab-r"]] <- at_(axes_margin, r)
+    }
+
+    get_grobs_layout(gg_table, "axis") %>% print
+
+
+    gg_table
 }
 
 ### Required
 get_grob_ids_raw <- function(grid, pattern) {
     grid$layout %>%
-        rowid_to_column %>%
-        filter(str_detect(name, pattern)) %>%
-        transmute(Name = name, Id = rowid) %>%
+        tibble::rowid_to_column %>%
+        dplyr::filter(stringr::str_detect(name, pattern)) %>%
+        dplyr::transmute(Name = name, Id = rowid) %>%
         as.list
 }
 
@@ -84,6 +113,18 @@ get_grobs_size <- function(grid, pattern) {
             height = sum(grid$heights[seq(from = .x[3], to = .x[4], by = 1L)])))
 }
 
+### Requried
+set_grid_height <- function(grid, y, unit) {
+
+    vctrs::vec_assert(y, integer(), 1)
+    assertthat::assert_that(y >= 1, y <= length(grdi$heights))
+    assert_that(is.unit(unit), length(unit) == 1L)
+
+    y <- vctrs::vec_cast(y, integer())
+
+    grid$heights[y] <- unit
+    grid
+}
 
 set_grobs_layout <- function(grid, pattern, layout) {
     assert_that(passes(is_string(pattern)))
@@ -154,18 +195,7 @@ set_grid_width <- function(grid, x, unit) {
     grid
 }
 
-set_grid_height <- function(grid, y, unit) {
 
-    assert_that(not(is_empty(grid)))
-    vec_assert(y, integer(), 1)
-    assert_that(vec_within(y, 1, length(grdi$heights)))
-    assert_that(is.unit(unit), length(unit) == 1L)
-
-    y <- vec_cast(y, integer())
-
-    grid$heights[y] <- unit
-    grid
-}
 
 remove_grid_column <- function(grid, column) {
     assert_that(not(is_empty(grid)))
