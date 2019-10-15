@@ -201,7 +201,7 @@ draw_view_scale_axis <- function(view_scale, axis_position, theme,
 # https://github.com/tidyverse/ggplot2/blob/23e324197e0a5ddd764588d42838b0d96da9b68d/R/axis-secondary.R#L82
 sec_axis_sci <- function(
     axis_trans = NULL,
-    name = waiver(),
+    name = name_filler(),
     breaks = waiver(),
     labels = waiver(),
     breaks_trans = waiver()) {
@@ -358,7 +358,7 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
     geom_point() +
     coord_sci() +
     theme_scientific(plot.margin = mar_(1 ~ cm)) +
-    scale_y_log10_sci(sec.axis = sec_axis(~-2.5 * log10(. / 1e-45))) +
+    scale_y_log10_sci(sec.axis = sec_axis_sci(~-2.5 * log10(. / 1e-45))) +
     #scale_y_sci()) %>% print
     scale_x_sci(sec.axis = weak_dup_axis_sci())) %>%
     #egg::expose_layout() %>% print
