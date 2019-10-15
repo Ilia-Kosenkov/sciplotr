@@ -336,7 +336,6 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
 
     # Temporary scale for the purpose of calling break_info()
     create_scale = function(self, range, trans = self$breaks_trans) {
-        print(trans)
         scale <- ggproto(NULL, ScaleContinuousPosition,
                 name = self$name,
                 breaks = self$breaks,
@@ -352,14 +351,32 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
     #}
 )
 
-(RLibs::read_smart(fs::path("work_set.fth")) %>%
-    filter(Filter == "H") %>%
-    ggplot(aes(JD, Flux ^ 2)) +
+#(RLibs::read_smart(fs::path("work_set.fth")) %>%
+    #filter(Filter == "H") %>%
+    #ggplot(aes(JD, Flux ^ 2)) +
+    #geom_point() +
+    #coord_sci() +
+    #theme_scientific(plot.margin = mar_(1 ~ cm)) +
+    #scale_y_log10_sci(sec.axis = sec_axis_sci(~-2.5 * log10(. / 1e-45))) +
+    #scale_x_sci(sec.axis = weak_dup_axis_sci())) %>%
+    #egg::expose_layout() %>%
+    #print
+
+
+(mtcars %>%
+    ggplot(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
     geom_point() +
+    theme_scientific(
+        plot.margin = mar_(0 ~ cm)) +
     coord_sci() +
-    theme_scientific(plot.margin = mar_(1 ~ cm)) +
-    scale_y_log10_sci(sec.axis = sec_axis_sci(~-2.5 * log10(. / 1e-45))) +
-    #scale_y_sci()) %>% print
-    scale_x_sci(sec.axis = weak_dup_axis_sci())) %>%
-    #egg::expose_layout() %>% print
+    scale_x_sci(expand = expansion(vctrs::vec_c(0.05, 0.2), 0),
+        sec.axis = weak_dup_axis_sci()) +
+    scale_y_sci(
+        name = NULL,
+        sec.axis = sec_axis_sci(~., labels = labels_filler())) +
+    facet_grid(rows = vars(gear), cols = vars(cyl), 
+        labeller = facet_labeller())
+        ) %T>%
+            {assign("temp_plot", ., envir = .GlobalEnv) } %>%
+    #egg::expose_layout() %>%
     print

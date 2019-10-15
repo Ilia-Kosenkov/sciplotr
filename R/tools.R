@@ -145,3 +145,18 @@ round_interval <- function(rng, by) {
 
     by * vctrs::vec_c(floor(rng[1] / by), ceiling(rng[2] / by))
 }
+
+name_filler <- function() ""
+
+labels_filler <- function() function(x) vctrs::vec_recycle("", vctrs::vec_size(x))
+
+facet_labeller <- function(modifier = NULL) {
+    if (rlang::is_null(modifier))
+        return(ggplot2::label_value)
+
+    mod <- rlang::as_function(modifier)
+
+    function(labels, multi_line = TRUE) {
+        mod(labels)
+    }
+}

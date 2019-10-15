@@ -70,5 +70,16 @@ theme_scientific <- function(
                      ggplot2::element_text(size = title.size,
                          margin = with_mar(title.margin, b := ~.x - ticks),
                          colour = text.color),
+    #---------------------------------#
+            legend.position = vctrs::vec_c(1, 0),
+            legend.justification = vctrs::vec_c(1.05, -0.05),
+            legend.background = element_blank(),
+            legend.spacing = u_(0 ~ npc),
+    #---------------------------------#
+            strip.placement = "outside",
+            strip.background = element_blank(),
+            strip.text = element_text(size = title.size, margin = title.margin),
+            strip.switch.pad.grid = u_(0 ~ npc),
+            strip.switch.pad.wrap = u_(0 ~ npc),
              ...))
 }
