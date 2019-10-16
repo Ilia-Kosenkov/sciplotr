@@ -27,58 +27,60 @@ postprocess_axes <- function(
     unit_strategy = unit_max) {
     # Assuming label occupies exactly one grid cell
 
-    x_lab_pos <- get_grobs_layout(gg_table, "xlab") %>%
-        purrr::map_int(3)
-
-    y_lab_pos <- get_grobs_layout(gg_table, "ylab") %>%
-        purrr::map_int(1)
-
+    grobs <- get_grobs_desc(gg_table, "lab") %>% print
+        
     if (rlang::is_null(text_margin)) {
-        x_val <- unit_strategy(gg_table$heights[x_lab_pos])
-        gg_table$heights[x_lab_pos] <- x_val
+        inds <- grobs %>% filter(Type == "xlab") %>% pull(T)
+        x_val <- grobs %>% filter(Type == "xlab") %>% pull(Height) %>% unit_strategy
+        gg_table$heights[inds] <- x_val
 
-        y_val <- unit_strategy(gg_table$widths[y_lab_pos])
-        gg_table$widths[y_lab_pos] <- y_val
+        inds <- grobs %>% filter(Type == "ylab") %>% pull(L)
+        y_val <- grobs %>% filter(Type == "ylab") %>% pull(Width) %>% unit_strategy
+        gg_table$widths[inds] <- y_val
 
     }
     else {
-        gg_table$heights[x_lab_pos["xlab-t"]] <- at_(text_margin, t)
-        gg_table$heights[x_lab_pos["xlab-b"]] <- at_(text_margin, b)
+        inds <- grobs %>% filter(Type == "xlab", Side == "t") %>% pull(T)
+        gg_table$heights[inds] <- at_(text_margin, t)
 
-        gg_table$widths[y_lab_pos["ylab-l"]] <- at_(text_margin, l)
-        gg_table$widths[y_lab_pos["ylab-r"]] <- at_(text_margin, r)
+        inds <- grobs %>% filter(Type == "xlab", Side == "b") %>% pull(T)
+        gg_table$heights[inds] <- at_(text_margin, b)
+
+        inds <- grobs %>% filter(Type == "ylab", Side == "l") %>% pull(L)
+        gg_table$widths[inds] <- at_(text_margin, l)
+
+        inds <- grobs %>% filter(Type == "ylab", Side == "r") %>% pull(L)
+        gg_table$widths[inds] <- at_(text_margin, r)
     }
 
-    ax_t_pos <- get_grobs_layout(gg_table, "axis-t") %>%
-        purrr::map_int(3)
+    #ax_t_pos <- get_grobs_layout(gg_table, "axis-t") %>%
+        #purrr::map_int(3)
 
-    ax_b_pos <- get_grobs_layout(gg_table, "axis-b") %>%
-        purrr::map_int(3)
+    #ax_b_pos <- get_grobs_layout(gg_table, "axis-b") %>%
+        #purrr::map_int(3)
 
-    ax_l_pos <- get_grobs_layout(gg_table, "axis-l") %>%
-        purrr::map_int(1)
+    #ax_l_pos <- get_grobs_layout(gg_table, "axis-l") %>%
+        #purrr::map_int(1)
 
-    ax_r_pos <- get_grobs_layout(gg_table, "axis-r") %>%
-        purrr::map_int(1)
+    #ax_r_pos <- get_grobs_layout(gg_table, "axis-r") %>%
+        #purrr::map_int(1)
 
-    if (rlang::is_null(axes_margin)) {
-        x_val <- unit_strategy(gg_table$heights[vctrs::vec_c(ax_t_pos, ax_b_pos)])
-        gg_table$heights[vctrs::vec_c(ax_t_pos, ax_b_pos)] <- x_val
+    #if (rlang::is_null(axes_margin)) {
+        #x_val <- unit_strategy(gg_table$heights[vctrs::vec_c(ax_t_pos, ax_b_pos)])
+        #gg_table$heights[vctrs::vec_c(ax_t_pos, ax_b_pos)] <- x_val
 
-        y_val <- unit_strategy(gg_table$widths[vctrs::vec_c(ax_l_pos, ax_r_pos)])
-        gg_table$widths[vctrs::vec_c(ax_l_pos, ax_r_pos)] <- y_val
-    }
-    else {
-        gg_table$heights[ax_t_pos] <- at_(axes_margin, t)
-        gg_table$heights[ax_b_pos] <- at_(axes_margin, b)
+        #y_val <- unit_strategy(gg_table$widths[vctrs::vec_c(ax_l_pos, ax_r_pos)])
+        #gg_table$widths[vctrs::vec_c(ax_l_pos, ax_r_pos)] <- y_val
+    #}
+    #else {
+        #gg_table$heights[ax_t_pos] <- at_(axes_margin, t)
+        #gg_table$heights[ax_b_pos] <- at_(axes_margin, b)
 
-        gg_table$widths[ax_l_pos] <- at_(axes_margin, l)
-        gg_table$widths[ax_r_pos] <- at_(axes_margin, r)
-    }
+        #gg_table$widths[ax_l_pos] <- at_(axes_margin, l)
+        #gg_table$widths[ax_r_pos] <- at_(axes_margin, r)
+    #}
 
-    print(gg_table)
-    print(gg_table$widths)
-    print(gg_table$heights)
+
     gg_table
 }
 
@@ -162,7 +164,7 @@ at_.margin <- function(mar, what) {
     with_mar(mar, !!what := ~value)
 }
 
-
+### Requried
 get_grobs_desc <- function(grid, pattern) {
     layout <- get_grobs_layout(grid, pattern)
     grobs <- tibble::tibble(GrobName = names(layout))
@@ -190,5 +192,3 @@ get_grobs_desc <- function(grid, pattern) {
 
     grobs %>% inner_join(layout, by = "GrobName")
 }
-
-tbl %>% get_grobs_desc("panel") %>% print
