@@ -160,3 +160,19 @@ facet_labeller <- function(modifier = NULL) {
         mod(labels)
     }
 }
+
+separate_1 <- function(tbl, col, name = quo_text(enquo(col)), keep = FALSE) {
+    tbl %>%
+        dplyr::pull({{ col }}) %>%
+        purrr::map(as.list) %>%
+        purrr::map(~rlang::set_names(.x, paste(name, seq_along(.x), sep = ""))) %>%
+        dplyr::bind_rows -> temp
+
+    tbl %>%
+        dplyr::mutate(!!!purrr::map(temp, ~ rlang::quo(!!.x))) -> tbl
+
+    if (!keep)
+        tbl %>% select(-{{ col }}) -> tbl
+
+        tbl
+}
