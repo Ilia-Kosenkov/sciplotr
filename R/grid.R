@@ -27,7 +27,7 @@ postprocess_axes <- function(
     unit_strategy = unit_max) {
     # Assuming label occupies exactly one grid cell
 
-    grobs <- get_grobs_desc(gg_table, "lab") %>% print
+    grobs <- get_grobs_desc(gg_table, "lab")
         
     if (rlang::is_null(text_margin)) {
         inds <- grobs %>% filter(Type == "xlab") %>% pull(T)
@@ -53,33 +53,55 @@ postprocess_axes <- function(
         gg_table$widths[inds] <- at_(text_margin, r)
     }
 
-    #ax_t_pos <- get_grobs_layout(gg_table, "axis-t") %>%
-        #purrr::map_int(3)
+    grobs <- get_grobs_desc(gg_table, "axis") %>% print
 
-    #ax_b_pos <- get_grobs_layout(gg_table, "axis-b") %>%
-        #purrr::map_int(3)
 
-    #ax_l_pos <- get_grobs_layout(gg_table, "axis-l") %>%
-        #purrr::map_int(1)
+    if (rlang::is_null(axes_margin)) {
+        subset <- filter(grobs, vctrs::vec_in(Side, vctrs::vec_c("t", "b")))
+        inds <- pull(subset, T)
+        x_val <- unit_strategy(pull(subset, Height))
+        gg_table$heights[inds] <- x_val
 
-    #ax_r_pos <- get_grobs_layout(gg_table, "axis-r") %>%
-        #purrr::map_int(1)
+        subset <- filter(grobs, vctrs::vec_in(Side, vctrs::vec_c("l", "r")))
+        inds <- pull(subset, L)
+        y_val <- unit_strategy(pull(subset, Width))
+        gg_table$widths[inds] <- y_val
+    }
+    else {
+        subset <- grobs %>% filter(Side == "t")
+        inds <- subset %>% filter(T == min(T)) %>% pull("T")
+        gg_table$heights[inds] <- at_(axes_margin, t)
 
-    #if (rlang::is_null(axes_margin)) {
-        #x_val <- unit_strategy(gg_table$heights[vctrs::vec_c(ax_t_pos, ax_b_pos)])
-        #gg_table$heights[vctrs::vec_c(ax_t_pos, ax_b_pos)] <- x_val
+        inds <- subset %>% filter(T != min(T)) %>% pull("T")
+        if (vctrs::vec_size(inds) > 0)
+            gg_table$heights[inds] <- u_(0 ~ null)
 
-        #y_val <- unit_strategy(gg_table$widths[vctrs::vec_c(ax_l_pos, ax_r_pos)])
-        #gg_table$widths[vctrs::vec_c(ax_l_pos, ax_r_pos)] <- y_val
-    #}
-    #else {
-        #gg_table$heights[ax_t_pos] <- at_(axes_margin, t)
-        #gg_table$heights[ax_b_pos] <- at_(axes_margin, b)
+        subset <- grobs %>% filter(Side == "b")
+        inds <- subset %>% filter(T == max(T)) %>% pull("T")
+        gg_table$heights[inds] <- at_(axes_margin, b)
 
-        #gg_table$widths[ax_l_pos] <- at_(axes_margin, l)
-        #gg_table$widths[ax_r_pos] <- at_(axes_margin, r)
-    #}
+        inds <- subset %>% filter(T != max(T)) %>% pull("T")
+        if (vctrs::vec_size(inds) > 0)
+            gg_table$heights[inds] <- u_(0 ~ null)
 
+
+        subset <- grobs %>% filter(Side == "l")
+        inds <- subset %>% filter(L == min(L)) %>% pull("L")
+        gg_table$widths[inds] <- at_(axes_margin, l)
+
+        inds <- subset %>% filter(L != min(L)) %>% pull("L")
+        if (vctrs::vec_size(inds) > 0)
+            gg_table$widths[inds] <- u_(0 ~ null)
+
+
+        subset <- grobs %>% filter(Side == "r")
+        inds <- subset %>% filter(L == max(L)) %>% pull("L")
+        gg_table$widths[inds] <- at_(axes_margin, r)
+
+        inds <- subset %>% filter(L != max(L)) %>% pull("L")
+        if (vctrs::vec_size(inds) > 0) 
+            gg_table$widths[inds] <- u_(0 ~ null)
+    }
 
     gg_table
 }
