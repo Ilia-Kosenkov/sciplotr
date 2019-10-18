@@ -74,12 +74,16 @@ theme_scientific <- function(
             legend.position = vctrs::vec_c(1, 0),
             legend.justification = vctrs::vec_c(1.05, -0.05),
             legend.background = element_blank(),
-            legend.spacing = u_(0 ~ npc),
+            legend.spacing = u_(0 ~ null),
     #---------------------------------#
             strip.placement = "outside",
             strip.background = element_blank(),
             strip.text = element_text(size = title.size, margin = title.margin),
-            strip.switch.pad.grid = u_(0 ~ npc),
-            strip.switch.pad.wrap = u_(0 ~ npc),
+            strip.switch.pad.grid = u_(0 ~ null),
+            strip.switch.pad.wrap = u_(0 ~ null),
+    #---------------------------------#
+            panel.spacing = u_(0 ~ null),
+    #---------------------------------#
+
              ...))
 }

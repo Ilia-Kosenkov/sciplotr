@@ -63,8 +63,9 @@ FacetSci <- ggproto("FacetSci", FacetWrap,
 
 
         ## Here there are 4 x n axes, 4 per each plot
+        ## Secondary? axes have less precision than primary
         axes <- render_axes(ranges, ranges, coord, theme, transpose = TRUE)
-
+        assign("tmp", axes, envir = .GlobalEnv)
         if (length(params$facets) == 0) {
             # Add a dummy label
             labels_df <- new_data_frame(list("(all)" = "(all)"), n = 1)
@@ -128,7 +129,7 @@ FacetSci <- ggproto("FacetSci", FacetWrap,
         axis_mat_y_right <- empty_table
         axis_mat_y_right[panel_pos] <- axes$y$right[layout$SCALE_Y]
 
-        
+
         #if (!params$free$x) {
             #axis_mat_x_top[-1,] <- list(zeroGrob())
             #axis_mat_x_bottom[-nrow,] <- list(zeroGrob())
@@ -191,9 +192,7 @@ FacetSci <- ggproto("FacetSci", FacetWrap,
         panel_table <- ggplot2:::weave_tables_col(panel_table, axis_mat_y_left, -1, axis_width_left, "axis-l", 3)
         panel_table <- ggplot2:::weave_tables_col(panel_table, axis_mat_y_right, 0, axis_width_right, "axis-r", 3)
         
-
         strip_padding <- convertUnit(theme$strip.switch.pad.wrap, "cm")
-        print(theme$strip.switch.pad.wrap)
         strip_name <- paste0("strip-", substr(params$strip.position, 1, 1))
         strip_mat <- empty_table
 
@@ -230,7 +229,6 @@ FacetSci <- ggproto("FacetSci", FacetWrap,
             panel_table <- ggplot2:::weave_tables_col(panel_table, col_shift = placement, col_width = strip_pad)
         }
         #}
-
         panel_table
     }
 )
@@ -252,22 +250,25 @@ FacetSci <- ggproto("FacetSci", FacetWrap,
     geom_point() +
     theme_scientific(
         plot.margin = mar_(0 ~ cm)) +
-        coord_sci() +
-        scale_x_sci(expand = expansion(vctrs::vec_c(0.05, 0.2), 0),
+    coord_sci() +
+    scale_x_sci(#expand = expansion(vctrs::vec_c(0.05, 0.2), 0),
         sec.axis = weak_dup_axis_sci()) +
-        scale_y_sci(
+    scale_y_sci(
         sec.axis = sec_axis_sci(~., name = derive(), labels = labels_filler())) +
-        facet_sci(~gear, ncol = 1,
+    facet_wrap(~gear, ncol = 1,
         labeller = facet_labeller())
-        ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
+    ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
 #egg::expose_layout() %>%
 #print
 
-egg::expose_layout(plt)
+#egg::expose_layout(plt)
 plt %>% ggplot_build %>% ggplot_gtable %>%
     postprocess_axes(
-        axes_margin = mar_(h = u_(1 ~ cm), v = u_(0.5 ~ cm)),
-        text_margin = mar_(h = u_(1 ~ cm), v = u_(0.5 ~cm))) -> tbl
+        axes_margin = mar_(h = u_(1.5 ~ cm), v = u_(1.5 ~ cm)),
+        text_margin = mar_(h = u_(1 ~ cm), v = u_(1 ~ cm))
+        ) -> tbl
 grid.newpage()
 grid.draw(tbl)
+print(tibble(top = tbl$grobs[[7]]$children[[2]]$grobs[[2]]$x,
+             bot = tbl$grobs[[8]]$children[[2]]$grobs[[1]]$x))
 #gtable::gtable_show_layout(tbl)

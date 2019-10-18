@@ -1,5 +1,6 @@
 CoordSci <-
     ggproto("CoordSci", CoordCartesian,
+        # https://github.com/tidyverse/ggplot2/blob/115c3960d0fd068f1ca4cfe4650c0e0474aabba5/R/coord-cartesian-.r#L99
         setup_panel_params = function(self, scale_x, scale_y, params = list()) {
             append(ggproto_parent(CoordCartesian, self)$setup_panel_params(scale_x, scale_y, params),
                    list(ticks_minor_size_f = self$ticks_minor_size_f))
@@ -14,7 +15,7 @@ CoordSci <-
             arrange_scales <- panel_params[arrange_scale_keys]
 
             ticks_minor_size_f <- panel_params$ticks_minor_size_f
-
+            
             list(
                  top = draw_view_scale_axis(arrange_scales[[1]], "top", theme, ticks_minor_size_f),
                  bottom = draw_view_scale_axis(arrange_scales[[2]], "bottom", theme, ticks_minor_size_f))

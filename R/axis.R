@@ -169,6 +169,12 @@ draw_view_scale_axis <- function(view_scale, axis_position, theme,
     if (is.null(view_scale) || view_scale$is_empty()) {
         return(zeroGrob())
     }
+    ### BUG HERE: view_scale$rescale() on secondary axis causes issues
+    #cat("\r\n")
+    #print(axis_position)
+    #print(view_scale$scale)
+    #print(view_scale$limits)
+    #print(view_scale$continuous_range)
 
     draw_axis(
         break_positions = view_scale$break_positions(),
@@ -181,23 +187,30 @@ draw_view_scale_axis <- function(view_scale, axis_position, theme,
         ticks_minor_size_f = ticks_minor_size_f)
 }
 
-## https://github.com/tidyverse/ggplot2/blob/23e324197e0a5ddd764588d42838b0d96da9b68d/R/coord-cartesian-.r#L139
+### https://github.com/tidyverse/ggplot2/blob/23e324197e0a5ddd764588d42838b0d96da9b68d/R/coord-cartesian-.r#L139
 #view_scales_from_scale <- function(scale, coord_limits = NULL, expand = TRUE) {
     #expansion <- ggplot2:::default_expansion(scale, expand = expand)
-    #limits <- scale$get_limits()
+    #print(scale)
+    #limits <- scale$get_limits() %>% print
     #continuous_range <- ggplot2:::expand_limits_scale(scale, expansion, limits, coord_limits = coord_limits) %>% print
     #aesthetic <- scale$aesthetics[1]
 
     #view_scales <- list(
+        #### BUG HERE: different behaviour of these functions
         #ggplot2:::view_scale_primary(scale, limits, continuous_range),
+        #### BUG HERE
         #sec = ggplot2:::view_scale_secondary(scale, limits, continuous_range),
         #arrange = scale$axis_order(),
-        #range = continuous_range) %>% print
+        #range = continuous_range)
+
+    #### Check `scales:::rescale.numeric`
+    #print(view_scales$sec$scale$rescaler)
 
     #names(view_scales) <- c(aesthetic, paste0(aesthetic, ".", names(view_scales)[-1]))
 
     #view_scales
-#}s
+#}
+
 # https://github.com/tidyverse/ggplot2/blob/23e324197e0a5ddd764588d42838b0d96da9b68d/R/axis-secondary.R#L82
 sec_axis_sci <- function(
     axis_trans = NULL,
@@ -252,23 +265,6 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
         if (ggplot2:::is.derived(self$breaks_trans))
             self$breaks_trans <- scale$trans
         
-    },
-
-    transform_range = function(self, range) {
-        self$trans(range)
-    },
-
-    mono_test = function(self, scale) {
-        range <- scale$range$range
-        along_range <- seq(range[1], range[2], length.out = self$detail)
-        old_range <- scale$trans$inverse(along_range)
-
-        # Create mapping between primary and secondary range
-        full_range <- self$transform_range(old_range)
-
-        # Test for monotonicity
-        if (length(unique(sign(diff(full_range)))) != 1)
-            stop("transformation for secondary axes must be monotonic")
     },
 
     break_info = function(self, range, scale) {
@@ -345,11 +341,13 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
                 trans = trans)
         scale$train(range)
         scale
-    }#,
-    #make_title = function(title) {
-        #title
-    #}
-)
+        )
+
+# https://github.com/tidyverse/ggplot2/blob/115c3960d0fd068f1ca4cfe4650c0e0474aabba5/R/coord-cartesian-.r#L222
+panel_guides_grob <- function(guides, position, theme) {
+    guide <- ggplot2:::guide_for_position(guides, position) %||% ggplot2:::guide_none()
+    ggplot2:::guide_gengrob(guide, theme)
+}
 
 dup_axis_sci <- function(
     trans = ~.,
