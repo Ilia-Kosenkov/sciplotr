@@ -187,29 +187,7 @@ draw_view_scale_axis <- function(view_scale, axis_position, theme,
         ticks_minor_size_f = ticks_minor_size_f)
 }
 
-### https://github.com/tidyverse/ggplot2/blob/23e324197e0a5ddd764588d42838b0d96da9b68d/R/coord-cartesian-.r#L139
-#view_scales_from_scale <- function(scale, coord_limits = NULL, expand = TRUE) {
-    #expansion <- ggplot2:::default_expansion(scale, expand = expand)
-    #print(scale)
-    #limits <- scale$get_limits() %>% print
-    #continuous_range <- ggplot2:::expand_limits_scale(scale, expansion, limits, coord_limits = coord_limits) %>% print
-    #aesthetic <- scale$aesthetics[1]
 
-    #view_scales <- list(
-        #### BUG HERE: different behaviour of these functions
-        #ggplot2:::view_scale_primary(scale, limits, continuous_range),
-        #### BUG HERE
-        #sec = ggplot2:::view_scale_secondary(scale, limits, continuous_range),
-        #arrange = scale$axis_order(),
-        #range = continuous_range)
-
-    #### Check `scales:::rescale.numeric`
-    #print(view_scales$sec$scale$rescaler)
-
-    #names(view_scales) <- c(aesthetic, paste0(aesthetic, ".", names(view_scales)[-1]))
-
-    #view_scales
-#}
 
 # https://github.com/tidyverse/ggplot2/blob/23e324197e0a5ddd764588d42838b0d96da9b68d/R/axis-secondary.R#L82
 sec_axis_sci <- function(
@@ -341,13 +319,24 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
                 trans = trans)
         scale$train(range)
         scale
+        }
         )
+      
 
 # https://github.com/tidyverse/ggplot2/blob/115c3960d0fd068f1ca4cfe4650c0e0474aabba5/R/coord-cartesian-.r#L222
 panel_guides_grob <- function(guides, position, theme) {
+    print(theme)
     guide <- ggplot2:::guide_for_position(guides, position) %||% ggplot2:::guide_none()
     ggplot2:::guide_gengrob(guide, theme)
 }
+
+#guide_gengrob.axis <- function(guide, theme) {
+    #print(guide)
+    #aesthetic <- names(guide$key)[!grepl("^\\.", names(guide$key))][1]
+    #draw_axis(break_positions = guide$key[[aesthetic]], break_labels = guide$key$.label,
+        #axis_position = guide$position, theme = theme, check.overlap = guide$check.overlap,
+        #angle = guide$angle, n.dodge = guide$n.dodge)
+#}
 
 dup_axis_sci <- function(
     trans = ~.,
