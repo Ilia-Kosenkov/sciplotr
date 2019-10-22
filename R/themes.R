@@ -22,13 +22,14 @@ theme_scientific <- function(
     title.margin = u_(5$pt),
     text.color = "#000000",
     ...) {
-    assertthat::assert_that(grid::is.unit(ticks), length(ticks) == 1L)
+    #assertthat::assert_that(grid::is.unit(ticks), length(ticks) == 1L)
+    #assertthat::assert_that(grid::is.unit(text.margin))
+    #assertthat::assert_that(grid::is.unit(title.margin))
+    #text.size <- vctrs::vec_cast(text.size, double(), x_arg = "text.size", to_arg = "")
+    #title.size <- vctrs::vec_cast(title.size, double(), x_arg = "text.size", to_arg = "")
+    #vec_assert(text.color, character(), 1L)
 
-    assertthat::assert_that(grid::is.unit(text.margin))
-    assertthat::assert_that(grid::is.unit(title.margin))
-    text.size <- vctrs::vec_cast(text.size, double(), x_arg = "text.size", to_arg = "")
-    title.size <- vctrs::vec_cast(title.size, double(), x_arg = "text.size", to_arg = "")
-    vec_assert(text.color, character(), 1L)
+    #ggplot2:::find_args(...) %>% print
 
     text.margin <- mar_(text.margin)
     title.margin <- mar_(title.margin)
