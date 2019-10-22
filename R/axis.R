@@ -1,15 +1,8 @@
-# https://github.com/tidyverse/ggplot2/blob/23e324197e0a5ddd764588d42838b0d96da9b68d/R/guides-axis.r#L19
-draw_axis <- function(break_positions,
-                      # --Extra parameter #1--
-                      break_positions_minor,
-                      # ----------------------
-                      break_labels, axis_position, theme,
-                      check.overlap = FALSE, angle = NULL, n_dodge = 1,
-                      # --Extra parameter #2--
-                      ticks_minor_size_f = 0.5
-                      # ----------------------
-                      ) {
-
+# https://github.com/tidyverse/ggplot2/blob/fa000f786cb0b641600b6de68ae0f96e2ffc5e75/R/guides-axis.r#L180
+draw_axis <- function(break_positions, break_labels, axis_position, theme,
+                      check.overlap = FALSE, angle = NULL, n.dodge = 1,
+                      break_types = vctrs::vec_recycle("major", vctrs::vec_size(break_positions))) {
+    
     axis_position <- match.arg(axis_position, c("top", "bottom", "right", "left"))
     aesthetic <- if (axis_position %in% c("top", "bottom")) "x" else "y"
 
@@ -17,12 +10,18 @@ draw_axis <- function(break_positions,
     line_element_name <- paste0("axis.line.", aesthetic, ".", axis_position)
     tick_element_name <- paste0("axis.ticks.", aesthetic, ".", axis_position)
     tick_length_element_name <- paste0("axis.ticks.length.", aesthetic, ".", axis_position)
+    ## WATCH: obtaining minor tick element
+    tick_minor_length_element_name <- paste0("axis.ticks.minor.length.", aesthetic, ".", axis_position)
+    ##
     label_element_name <- paste0("axis.text.", aesthetic, ".", axis_position)
 
     line_element <- calc_element(line_element_name, theme)
     tick_element <- calc_element(tick_element_name, theme)
     tick_length <- calc_element(tick_length_element_name, theme)
     label_element <- calc_element(label_element_name, theme)
+    ###
+    tick_minor_length <- calc_element(tick_minor_length_element_name, theme)
+    ###
 
     # override label element parameters for rotation
     if (inherits(label_element, "element_text")) {
@@ -57,11 +56,6 @@ draw_axis <- function(break_positions,
 
     # set common parameters
     n_breaks <- length(break_positions)
-
-    ### --Adding small breaks--
-    n_breaks_minor <- length(break_positions_minor)
-    ### -----------------------
-
     opposite_positions <- c("top" = "bottom", "bottom" = "top", "right" = "left", "left" = "right")
     axis_position_opposite <- unname(opposite_positions[axis_position])
 
@@ -69,61 +63,57 @@ draw_axis <- function(break_positions,
     line_grob <- exec(
         element_grob, line_element,
         !!position_dim := unit(c(0, 1), "npc"),
-        !!non_position_dim := unit.c(non_position_panel, non_position_panel)
-      )
+        !!non_position_dim := unit.c(non_position_panel, non_position_panel))
 
     if (n_breaks == 0) {
         return(
-          ggplot2:::absoluteGrob(
-            gList(line_grob),
-            width = grobWidth(line_grob),
-            height = grobHeight(line_grob)))
+            ggplot2:::absoluteGrob(
+                gList(line_grob),
+                width = grobWidth(line_grob),
+                height = grobHeight(line_grob)))
     }
 
     # break_labels can be a list() of language objects
     if (is.list(break_labels)) {
-        if (any(vapply(break_labels, is.language, logical(1)))) {
+        if (any(vapply(break_labels, is.language, logical(1))))
             break_labels <- do.call(expression, break_labels)
-        } else {
+        else
             break_labels <- unlist(break_labels)
-        }
     }
 
     # calculate multiple rows/columns of labels (which is usually 1)
-    dodge_pos <- rep(seq_len(n_dodge), length.out = n_breaks)
+    ## TODO : exclude minor ticks labels?
+    dodge_pos <- rep(seq_len(n.dodge), length.out = n_breaks)
     dodge_indices <- split(seq_len(n_breaks), dodge_pos)
 
-    label_grobs <- lapply(dodge_indices, function(indices) {
-        ggplot2:::draw_axis_labels(
-          break_positions = break_positions[indices],
-          break_labels = break_labels[indices],
-          label_element = label_element,
-          is_vertical = is_vertical,
-          check.overlap = check.overlap)
-    })
+    label_grobs <-
+        lapply(dodge_indices,
+            function(indices) {
+                ggplot2:::draw_axis_labels(
+                    break_positions = break_positions[indices],
+                    break_labels = break_labels[indices],
+                    label_element = label_element,
+                    is_vertical = is_vertical,
+                    check.overlap = check.overlap)
+            })
 
-    ### ---Merging minor and major ticks into one table & sorting----
-    ticks_data <- data.frame(
-        breaks = c(break_positions, break_positions_minor),
-        size = c(rep(1, n_breaks), rep(ticks_minor_size_f, n_breaks_minor)))
-    ticks_data <- ticks_data[order(ticks_data$breaks),]
+    ## Generating variable length ticks
+    tick_length_actual <- rep(tick_length, n_breaks)
+    tick_length_actual[break_types == "minor"] <- tick_minor_length
 
-    # Indices for ordering
-    inds <- as.vector(sapply(seq_len(n_breaks + n_breaks_minor),
-            function(x) x + (tick_coordinate_order - 1) * (n_breaks + n_breaks_minor)))
+    actual_tick_pos <- unit.c(non_position_panel + tick_direction * tick_length_actual,
+                              rep(non_position_panel, n_breaks))
 
-    # Variable-length ticks
-    non_pos_dims <- unit.c(non_position_panel + (tick_direction * tick_length * ticks_data$size),
-                           rep(non_position_panel, n_breaks + n_breaks_minor))[inds]
-
-    # create gtable
+    actual_tick_pos <-
+        actual_tick_pos[as.vector(sapply(1:n_breaks - 1, function(x) x + c(1, n_breaks + 1)[tick_coordinate_order]))]
+    ##
     ticks_grob <- exec(
         element_grob, tick_element,
-        !!position_dim := rep(unit(ticks_data$breaks, "native"), each = 2),
-        !!non_position_dim := non_pos_dims,
-        id.lengths = rep(2, times = n_breaks + n_breaks_minor))
-    ### -------------------------------------------------------------
+        !!position_dim := rep(unit(break_positions, "native"), each = 2),
+        !!non_position_dim := actual_tick_pos,
+        id.lengths = rep(2, times = n_breaks))
 
+    # create gtable
     non_position_sizes <- paste0(non_position_size, "s")
     label_dims <- do.call(unit.c, lapply(label_grobs, measure_labels_non_pos))
     grobs <- c(list(ticks_grob), label_grobs)
@@ -139,55 +129,57 @@ draw_axis <- function(break_positions,
         name = "axis",
         grobs = grobs,
         !!non_position_sizes := grob_dims,
-        !!position_size := unit(1, "npc")
-      )
+        !!position_size := unit(1, "npc"))
 
     # create viewport
     justvp <- exec(
         viewport,
         !!non_position_dim := non_position_panel,
         !!non_position_size := measure_gtable(gt),
-        just = axis_position_opposite
-      )
+        just = axis_position_opposite)
 
     ggplot2:::absoluteGrob(
         gList(line_grob, gt),
         width = gtable_width(gt),
         height = gtable_height(gt),
-        vp = justvp
-      ) -> grb
-    tmp <<- grb
+        vp = justvp)
 }
 
 
-# https://github.com/tidyverse/ggplot2/blob/23e324197e0a5ddd764588d42838b0d96da9b68d/R/coord-cartesian-.r#L156
-draw_view_scale_axis <- function(view_scale, axis_position, theme,
-        # --Extra parameter #1--
-        ticks_minor_size_f
-        # ----------------------
-) {
-    if (is.null(view_scale) || view_scale$is_empty()) {
-        return(zeroGrob())
-    }
-    ### BUG HERE: view_scale$rescale() on secondary axis causes issues
-    #cat("\r\n")
-    #print(axis_position)
-    #print(view_scale$scale)
-    #print(view_scale$limits)
-    #print(view_scale$continuous_range)
 
-    draw_axis(
-        break_positions = view_scale$break_positions(),
-        ### --Calling redefined version with extra breaks supported--
-        break_positions_minor = view_scale$break_positions_minor(),
-        ### ---------------------------------------------------------
-        break_labels = view_scale$get_labels(),
-        axis_position = axis_position,
-        theme = theme,
-        ticks_minor_size_f = ticks_minor_size_f)
+# https://github.com/tidyverse/ggplot2/blob/115c3960d0fd068f1ca4cfe4650c0e0474aabba5/R/coord-cartesian-.r#L222
+panel_guides_grob <- function(guides, position, theme) {
+    guide <- ggplot2:::guide_for_position(guides, position) %||% ggplot2:::guide_none()
+    guide_gengrob(guide, theme)
 }
 
+guide_gengrob.axis <- function(guide, theme) {
+    aesthetic <- names(guide$key)[!grepl("^\\.", names(guide$key))][1]
+    draw_axis(break_positions = guide$key[[aesthetic]], break_labels = guide$key$.label,
+        axis_position = guide$position, theme = theme, check.overlap = guide$check.overlap,
+        angle = guide$angle, n.dodge = guide$n.dodge,
+        break_types = guide$key[[".type"]])
+}
 
+dup_axis_sci <- function(
+    trans = ~.,
+    name = derive(),
+    breaks = derive(),
+    labels = derive(),
+    breaks_trans = derive()) {
+
+    sec_axis_sci(trans, name, breaks, labels, breaks_trans)
+}
+
+weak_dup_axis_sci <- function(
+    trans = ~.,
+    name = name_filler(),
+    breaks = derive(),
+    labels = labels_filler(),
+    breaks_trans = derive()) {
+
+    sec_axis_sci(trans, name, breaks, labels, breaks_trans)
+}
 
 # https://github.com/tidyverse/ggplot2/blob/23e324197e0a5ddd764588d42838b0d96da9b68d/R/axis-secondary.R#L82
 sec_axis_sci <- function(
@@ -216,21 +208,21 @@ sec_axis_sci <- function(
 # https://github.com/tidyverse/ggplot2/blob/23e324197e0a5ddd764588d42838b0d96da9b68d/R/axis-secondary.R#L127
 AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
     breaks_trans = NULL,
-    #trans = NULL,
-    #axis = NULL,
-    #name = waiver(),
-    #breaks = waiver(),
-    #labels = waiver(),
+#trans = NULL,
+#axis = NULL,
+#name = waiver(),
+#breaks = waiver(),
+#labels = waiver(),
 
-    ## This determines the quality of the remapping from the secondary axis and
-    ## back to the primary axis i.e. the exactness of the placement of the
-    ## breakpoints of the secondary axis.
-    #detail = 1000,
+## This determines the quality of the remapping from the secondary axis and
+## back to the primary axis i.e. the exactness of the placement of the
+## breakpoints of the secondary axis.
+#detail = 1000,
 
-    #empty = function(self) {
-        #is.null(self$trans)
-    #},
-    # Inherit settings from the primary axis/scale
+#empty = function(self) {
+#is.null(self$trans)
+#},
+# Inherit settings from the primary axis/scale
     init = function(self, scale) {
         if (self$empty()) return()
         if (!is.function(self$trans)) stop("transformation for secondary axes must be a function", call. = FALSE)
@@ -242,12 +234,12 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
             self$breaks_trans <- identity_sci_trans()
         if (ggplot2:::is.derived(self$breaks_trans))
             self$breaks_trans <- scale$trans
-        
+
     },
 
     break_info = function(self, range, scale) {
         if (self$empty()) return()
-        
+
         # Test for monotonicity on unexpanded range
         self$mono_test(scale)
 
@@ -268,12 +260,12 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
             range_info <- temp_scale$break_info()
             old_val_trans <- rescale(range_info$major, from = c(0, 1), to = range)
             old_val_minor_trans <- rescale(range_info$minor, from = c(0, 1), to = range)
-        } 
+        }
         else {
             temp_scale <- self$create_scale(new_range) #%T>% print
             #print(temp_scale$break_info())
             range_info <- temp_scale$break_info() #%T>% print
-            
+
             # Map the break values back to their correct position on the primary scale
             old_val <- lapply(range_info$major_source, function(x) which.min(abs(full_range - x)))
             old_val <- old_range[unlist(old_val)]
@@ -319,41 +311,13 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
                 trans = trans)
         scale$train(range)
         scale
-        }
+    }
         )
-      
 
-# https://github.com/tidyverse/ggplot2/blob/115c3960d0fd068f1ca4cfe4650c0e0474aabba5/R/coord-cartesian-.r#L222
-panel_guides_grob <- function(guides, position, theme) {
-    print(theme)
-    guide <- ggplot2:::guide_for_position(guides, position) %||% ggplot2:::guide_none()
-    ggplot2:::guide_gengrob(guide, theme)
-}
+ggplot(mtcars, aes(hp, mpg)) +
+    theme_scientific() +
+    scale_x_continuous() +
+    coord_sci() +
+    geom_point() -> plt
 
-#guide_gengrob.axis <- function(guide, theme) {
-    #print(guide)
-    #aesthetic <- names(guide$key)[!grepl("^\\.", names(guide$key))][1]
-    #draw_axis(break_positions = guide$key[[aesthetic]], break_labels = guide$key$.label,
-        #axis_position = guide$position, theme = theme, check.overlap = guide$check.overlap,
-        #angle = guide$angle, n.dodge = guide$n.dodge)
-#}
-
-dup_axis_sci <- function(
-    trans = ~.,
-    name = derive(),
-    breaks = derive(),
-    labels = derive(),
-    breaks_trans = derive()) {
-
-    sec_axis_sci(trans, name, breaks, labels, breaks_trans)
-}
-
-weak_dup_axis_sci <- function(
-    trans = ~.,
-    name = name_filler(),
-    breaks = derive(),
-    labels = labels_filler(),
-    breaks_trans = derive()) {
-
-    sec_axis_sci(trans, name, breaks, labels, breaks_trans)
-}
+print(plt)
