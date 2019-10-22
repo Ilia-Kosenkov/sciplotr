@@ -15,6 +15,7 @@
 #' @export
 theme_scientific <- function(
     ticks = -u_(10$pt),
+    ticks.minor = ticks / 2,
     text.size = 10,
     title.size = 15,
     text.margin = u_(5$pt),
@@ -31,7 +32,7 @@ theme_scientific <- function(
 
     text.margin <- mar_(text.margin)
     title.margin <- mar_(title.margin)
-    return(
+    theme_val <-
         ggplot2::theme_bw() +
         ggplot2::theme(
             panel.grid.major = element_blank(),
@@ -85,5 +86,14 @@ theme_scientific <- function(
             panel.spacing = u_(0 ~ null),
     #---------------------------------#
 
-             ...))
+    ...)
+
+    attrs <- attributes(theme_val)
+    attrs <- attrs[which(attrs != "names")]
+
+    theme_val <- append(theme_val, list(axis.ticks.minor.length = ticks.minor))
+
+    attributes(theme_val) <- append(attrs, list(names = names(theme_val)))
+
+    return(theme_val)
 }
