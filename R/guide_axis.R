@@ -6,6 +6,7 @@ guide_train.axis <- function(guide, scale, aesthetic = NULL) {
 
     ## WATCH: adding minor breaks
     breaks_minor <- scale$get_breaks_minor()
+    breaks_minor <- breaks_minor[outer_unique_which(breaks_minor, breaks)$x]
 
     empty_ticks <- vctrs::new_data_frame(
         list(aesthetic = numeric(0), .value = numeric(0), .label = character(0)))
