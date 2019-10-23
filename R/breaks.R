@@ -136,7 +136,7 @@ generate_simple_log10_minor_breaks <- function(brs, lim, n = 30L) {
     if (diff(log10(lim)) <= 1L) {
         mult <- log10_floor(min(lim))
         y_dig <- lim / mult
-        breaks <- mult * (generate_simple_minor_breaks(brs / mult, y_dig, n = n) %T>% print)
+        breaks <- mult * (generate_simple_minor_breaks(brs / mult, y_dig, n = n))
     }
     else {
         brs_2 <- unique_f(log10_floor(brs))
