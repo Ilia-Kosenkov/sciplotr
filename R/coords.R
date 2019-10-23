@@ -32,6 +32,12 @@ CoordSci <-
             list(
               top = panel_guides_grob(panel_params$guides, position = "top", theme = theme),
               bottom = panel_guides_grob(panel_params$guides, position = "bottom", theme = theme))
+        },
+        # https://github.com/tidyverse/ggplot2/blob/115c3960d0fd068f1ca4cfe4650c0e0474aabba5/R/coord-cartesian-.r#L192
+        render_axis_v = function(panel_params, theme) {
+            list(
+              left = panel_guides_grob(panel_params$guides, position = "left", theme = theme),
+              right = panel_guides_grob(panel_params$guides, position = "right", theme = theme))
         }
     )
 
