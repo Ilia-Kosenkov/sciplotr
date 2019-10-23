@@ -97,3 +97,7 @@ theme_scientific <- function(
 
     return(theme_val)
 }
+
+#' @rdname theme_scientific
+#' @export
+theme_sci <- theme_scientific
