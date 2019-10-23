@@ -23,6 +23,13 @@ theme_scientific <- function(
     text.color = "#000000",
     ..., validate = TRUE) {
 
+    assertthat::assert_that(grid::is.unit(ticks), length(ticks) == 1L)
+    assertthat::assert_that(grid::is.unit(ticks.minor), length(ticks.minor) == 1L)
+    vec_assert_numeric(text.size, size = 1L)
+    vec_assert_numeric(title.size, size = 1L)
+    assertthat::assert_that(grid::is.unit(text.margin), grid::is.unit(title.margin))
+    vctrs::vec_assert(text.color, character(), 1L)
+
     text.margin <- mar_(text.margin)
     title.margin <- mar_(title.margin)
     theme_val <-
