@@ -23,7 +23,7 @@ guide_train.axis <- function(guide, scale, aesthetic = NULL) {
     else if (length(breaks) == 0)
         guide$key <- empty_ticks
     else {
-        ticks <- vctrs::new_data_frame(setNames(list(scale$map(breaks)), aesthetic))
+        ticks <- vctrs::new_data_frame(rlang::set_names(list(scale$map(breaks)), aesthetic))
         ticks$.value <- breaks
         ticks$.label <- scale$get_labels(breaks)
 
