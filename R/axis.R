@@ -83,19 +83,24 @@ draw_axis <- function(break_positions, break_labels, axis_position, theme,
 
     # calculate multiple rows/columns of labels (which is usually 1)
     ## TODO : exclude minor ticks labels?
-    dodge_pos <- rep(seq_len(n.dodge), length.out = n_breaks)
-    dodge_indices <- split(seq_len(n_breaks), dodge_pos)
+
+    n_breaks_major <- vctrs::vec_size(break_labels)
+    dodge_pos <- rep(seq_len(n.dodge), length.out = n_breaks_major)#n_breaks)
+    #dodge_indices <- split(seq_len(n_breaks), dodge_pos)
+    dodge_indices <- split(seq_len(n_breaks_major), dodge_pos)
+    labelled_pos <- break_positions[break_types == "major"]
 
     label_grobs <-
         lapply(dodge_indices,
             function(indices) {
                 ggplot2:::draw_axis_labels(
-                    break_positions = break_positions[indices],
+                    break_positions = labelled_pos,#break_positions[indices],
                     break_labels = break_labels[indices],
                     label_element = label_element,
                     is_vertical = is_vertical,
                     check.overlap = check.overlap)
             })
+
 
     ## Generating variable length ticks
     tick_length_actual <- rep(tick_length, n_breaks)
@@ -155,7 +160,8 @@ panel_guides_grob <- function(guides, position, theme) {
 
 guide_gengrob.axis <- function(guide, theme) {
     aesthetic <- names(guide$key)[!grepl("^\\.", names(guide$key))][1]
-    draw_axis(break_positions = guide$key[[aesthetic]], break_labels = guide$key$.label,
+    draw_axis(break_positions = guide$key[[aesthetic]],
+        break_labels = guide$key[guide$key$.type == "major", ".label"],
         axis_position = guide$position, theme = theme, check.overlap = guide$check.overlap,
         angle = guide$angle, n.dodge = guide$n.dodge,
         break_types = guide$key[[".type"]])
@@ -164,8 +170,9 @@ guide_gengrob.axis <- function(guide, theme) {
 
 
 ggplot(mtcars, aes(hp, mpg)) +
-    theme_scientific() +
+    theme_sci() +
     scale_x_sci() +
+    scale_y_sci() +
     coord_sci() +
     geom_point() -> plt
 
