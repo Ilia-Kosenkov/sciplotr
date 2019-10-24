@@ -2,7 +2,6 @@
 draw_axis <- function(break_positions, break_labels, axis_position, theme,
                       check.overlap = FALSE, angle = NULL, n.dodge = 1,
                       break_types = vctrs::vec_recycle("major", vctrs::vec_size(break_positions))) {
-    
     axis_position <- match.arg(axis_position, c("top", "bottom", "right", "left"))
     aesthetic <- if (axis_position %in% c("top", "bottom")) "x" else "y"
 
@@ -155,6 +154,8 @@ draw_axis <- function(break_positions, break_labels, axis_position, theme,
 # https://github.com/tidyverse/ggplot2/blob/115c3960d0fd068f1ca4cfe4650c0e0474aabba5/R/coord-cartesian-.r#L222
 panel_guides_grob <- function(guides, position, theme) {
     guide <- ggplot2:::guide_for_position(guides, position) %||% ggplot2:::guide_none()
+    if(any(vec_in(position, vec_c("top", "bottom"))))
+        print(guide$key)
     guide_gengrob(guide, theme)
 }
 
@@ -171,7 +172,7 @@ guide_gengrob.axis <- function(guide, theme) {
 
 ggplot(mtcars, aes(hp, mpg)) +
     theme_sci() +
-    scale_x_sci() +
+    scale_x_sci(sec.axis = sec_axis_sci(~ .)) +
     scale_y_sci() +
     coord_sci() +
     geom_point() -> plt
