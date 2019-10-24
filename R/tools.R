@@ -146,6 +146,8 @@ round_interval <- function(rng, by) {
     by * vctrs::vec_c(floor(rng[1] / by), ceiling(rng[2] / by))
 }
 
+
+
 name_filler <- function() ""
 
 labels_filler <- function() function(x) vctrs::vec_recycle("", vctrs::vec_size(x))
@@ -175,4 +177,37 @@ separate_1 <- function(tbl, col, name = quo_text(enquo(col)), keep = FALSE) {
         tbl %>% select(-{{ col }}) -> tbl
 
         tbl
+}
+
+lin <- function(x, x0, y0) {
+    dx <- diff(x0)
+    dy <- diff(y0)
+    sz <- vctrs::vec_size(x)
+    if (sz %==% 0L)
+        return(x)
+    else if (sz %==% 1L)
+        (x - x0[1]) * dy / dx + y0[1]
+    else
+        purrr::map_dbl(x, ~ (.x - x0[1]) * dy / dx + y0[1])
+}
+
+
+locate_inrange <- function(x, range) {
+    test <-
+        if (range[1] < range[2])
+            function(x, l, r)
+                x >= l & x < r
+        else
+            function(x, l, r)
+                x <= l & x > r
+
+    tibble::tibble(l = range, r = dplyr::lead(range)) %>%
+        dplyr::mutate(id_l = 1L:n(), id_r = id_l + 1L) %>%
+        dplyr::slice(-n()) -> data
+
+    purrr::map(x,
+        ~ dplyr::filter(data, test(.x, l, r)) %>%
+            magrittr::extract(1, vctrs::vec_c("id_l", "id_r")) %>%
+            purrr::flatten_int %>%
+            unname)
 }

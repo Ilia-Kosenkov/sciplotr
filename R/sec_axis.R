@@ -14,7 +14,6 @@ sec_axis_sci <- function(
         breaks_trans <- identity_sci_trans()
 
     ggproto(NULL, AxisSecondarySci,
-        #breaks_trans = breaks_trans,
         trans = axis_trans,
         name = name,
         breaks = breaks,
@@ -26,7 +25,7 @@ sec_axis_sci <- function(
 
 # https://github.com/tidyverse/ggplot2/blob/fa000f786cb0b641600b6de68ae0f96e2ffc5e75/R/axis-secondary.R#L132
 AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
-    temp_trans = identity_sci_trans(),
+    temp_trans = NULL,
     ###
     # Inherit settings from the primary axis/scale
     init = function(self, scale) {
@@ -37,6 +36,7 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
         if (ggplot2:::is.waive(self$breaks)) self$breaks <- scale$trans$breaks
         if (ggplot2:::is.derived(self$labels)) self$labels <- scale$labels
         if (ggplot2:::is.derived(self$guide)) self$guide <- scale$guide
+        if (rlang::is_null(self$temp_trans)) self$temp_trans <- identity_sci_trans()
     },
 
     ### ------------------ ###
@@ -74,34 +74,20 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
             ## Here the break info is obtained for the sec axis
             range_info <- temp_scale$break_info()
 
+            map_ticks <- function(ticks) {
+                inds <- locate_inrange(ticks, full_range)
+                offset <- purrr::map2_dbl(
+                    ticks, inds,
+                    ~ lin(.x, old_range[.y], vctrs::vec_c(0, 1)))
+                val <- purrr::map2_dbl(
+                    offset, inds,
+                    ~ lin(.x, vctrs::vec_c(0, 1), old_range[.y]))
+                scale$trans$transform(val)
+            }
+
             # Map the break values back to their correct position on the primary scale
-            old_val <- sapply(range_info$major_source, function(x) {
-                which_less <- full_range < x
-                index_lower <- which(which_less & (abs(full_range - x) == min(abs(full_range[which_less] - x))))
-
-                which_greater <- full_range > x
-                index_upper <- which(which_greater & abs(full_range - x) == min(abs(full_range[which_greater] - x)))
-
-                index <- c(index_lower, index_upper)
-                offset <- approx(full_range[index], c(0, 1), x)$y
-                approx(c(0, 1), old_range[index], offset)$y
-            })
-            old_val_trans <- scale$trans$transform(old_val)
-
-
-            old_val_minor <- sapply(range_info$minor_source, function(x) {
-                which_less <- full_range < x
-                index_lower <- which(which_less & (abs(full_range - x) == min(abs(full_range[which_less] - x))))
-
-                which_greater <- full_range > x
-                index_upper <- which(which_greater & abs(full_range - x) == min(abs(full_range[which_greater] - x)))
-
-                index <- c(index_lower, index_upper)
-
-                offset <- approx(full_range[index], c(0, 1), x)$y
-                approx(c(0, 1), old_range[index], offset)$y
-            })
-            old_val_minor_trans <- scale$trans$transform(old_val_minor)
+            old_val_trans <- map_ticks(range_info$major_source)
+            old_val_minor_trans <- map_ticks(range_info$minor_source)
 
             ## Questionable rounding procedure
             # rescale values from 0 to 1
