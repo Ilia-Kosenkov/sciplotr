@@ -211,3 +211,16 @@ locate_inrange <- function(x, range) {
             purrr::flatten_int %>%
             unname)
 }
+
+df_grid <- function(rows, cols, margin = FALSE) {
+    vars <- purrr::map(
+        append(
+            purrr::map(rows, unique),
+            purrr::map(cols, unique)),
+        forcats::as_factor)
+
+    if (margin)
+        vars <- purrr::map(vars, vctrs::vec_c, forcats::as_factor("(all)"))
+
+    tidyr::expand_grid(!!!vars)
+}

@@ -33,52 +33,51 @@ facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
 
 # https://github.com/tidyverse/ggplot2/blob/269be6fe56a71bef2687ac4c1f39992de45ae87a/R/facet-grid-.r#L189
 FacetSci <- ggproto("FacetSci", FacetGrid,
-  compute_layout = function(data, params) {
-      rows <- params$rows
-      cols <- params$cols
+    compute_layout = function(data, params) {
+        rows <- params$rows
+        cols <- params$cols
 
-      dups <- intersect(names(rows), names(cols))
-      if (length(dups) > 0) {
-          stop(
-        "Faceting variables can only appear in row or cols, not both.\n",
-        "Problems: ", paste0(dups, collapse = "'"),
-        call. = FALSE
-      )
-      }
+        dups <- intersect(names(rows), names(cols))
 
-      base_rows <- combine_vars(data, params$plot_env, rows, drop = params$drop)
-      if (!params$as.table) {
-          rev_order <- function(x) factor(x, levels = rev(ulevels(x)))
-          base_rows[] <- lapply(base_rows, rev_order)
-      }
-      base_cols <- combine_vars(data, params$plot_env, cols, drop = params$drop)
-      base <- ggplot2:::df.grid(base_rows, base_cols)
+        if (vctrs::vec_size(dups) > 0)
+            rlang::abort(
+            paste0(
+                "Faceting variables can only appear in row or cols, not both.\n",
+                "Problems: ",
+                paste0(dups, collapse = "'")),
+            "sciplotr_invalid_arg")
 
-      if (nrow(base) == 0) {
-          return(vctrs::new_data_frame(list(PANEL = 1L, ROW = 1L, COL = 1L, SCALE_X = 1L, SCALE_Y = 1L)))
-      }
+        base_rows <- combine_vars(data, params$plot_env, rows, drop = params$drop)
 
-      # Add margins
-      base <- reshape2::add_margins(base, list(names(rows), names(cols)), params$margins)
-      # Work around bug in reshape2
-      base <- unique(base)
+        if (!params$as.table) {
+            rev_order <- function(x) factor(x, levels = rev(ulevels(x)))
+            base_rows[] <- lapply(base_rows, rev_order)
+        }
+        base_cols <- combine_vars(data, params$plot_env, cols, drop = params$drop)
 
-      # Create panel info dataset
-      panel <- id(base, drop = TRUE)
-      panel <- factor(panel, levels = seq_len(attr(panel, "n")))
+        base <- df_grid(base_rows, base_cols, params$margin)
 
-      rows <- if (!length(names(rows))) rep(1L, length(panel)) else id(base[names(rows)], drop = TRUE)
-      cols <- if (!length(names(cols))) rep(1L, length(panel)) else id(base[names(cols)], drop = TRUE)
+        if (vctrs::vec_size(base) %==% 0L) {
+            return(new_data_frame(list(PANEL = 1L, ROW = 1L, COL = 1L, SCALE_X = 1L, SCALE_Y = 1L)))
+        }
 
-      panels <- new_data_frame(c(list(PANEL = panel, ROW = rows, COL = cols), base))
-      panels <- panels[order(panels$PANEL),, drop = FALSE]
-      rownames(panels) <- NULL
 
-      panels$SCALE_X <- if (params$free$x) panels$COL else 1L
-      panels$SCALE_Y <- if (params$free$y) panels$ROW else 1L
+        # Create panel info dataset
+        panel <- id(base, drop = TRUE)
+        panel <- factor(panel, levels = seq_len(attr(panel, "n")))
 
-      panels
-  },
+        rows <- if (!length(names(rows))) rep(1L, length(panel)) else id(base[names(rows)], drop = TRUE)
+        cols <- if (!length(names(cols))) rep(1L, length(panel)) else id(base[names(cols)], drop = TRUE)
+
+        panels <- new_data_frame(c(list(PANEL = panel, ROW = rows, COL = cols), base))
+        panels <- panels[order(panels$PANEL),, drop = FALSE]
+        rownames(panels) <- NULL
+
+        panels$SCALE_X <- if (params$free$x) panels$COL else 1L
+        panels$SCALE_Y <- if (params$free$y) panels$ROW else 1L
+
+        panels
+    },
   draw_panels = function(panels, layout, x_scales, y_scales, ranges, coord, data, theme, params) {
       if ((params$free$x || params$free$y) && !coord$is_free()) {
           stop(snake_class(coord), " doesn't support free scales", call. = FALSE)
@@ -218,7 +217,7 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
     geom_point() +
     scale_x_sci(sec.axis = sec_axis_sci(~.)) +
     scale_y_sci(sec.axis = sec_axis_sci(~.)) +
-    facet_sci(rows = vars(gear),# ncol = 1,
+    facet_sci(vars(gear), vars(am),# ncol = 1,
         labeller = facet_labeller())
     ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
 #egg::expose_layout() %>%
@@ -232,6 +231,6 @@ plt %>%
         ) -> tbl
 grid.newpage()
 grid.draw(tbl)
-print(tbl)
+#print(tbl)
 #print(convertX(sum(tbl$grobs[[7]]$children[[2]]$grobs[[2]]$x - tbl$grobs[[8]]$children[[2]]$grobs[[1]]$x), "native", TRUE))
 #gtable::gtable_show_layout(tbl)
