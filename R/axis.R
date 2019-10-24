@@ -170,11 +170,9 @@ guide_gengrob.axis <- function(guide, theme) {
 
 
 
-ggplot(mtcars, aes(hp, mpg)) +
-    theme_sci() +
+ggplot_sci(mtcars, aes(hp, mpg)) +
     scale_x_sci(sec.axis = sec_axis_sci(~ .)) +
     scale_y_sci() +
-    coord_sci() +
     geom_point() -> plt
 
-print(plt)
+plt %>% postprocess_axes() %>% grid.draw()
