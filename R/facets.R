@@ -233,41 +233,26 @@ FacetSci <- ggproto("FacetSci", FacetWrap,
     }
 )
 
-#(RLibs::read_smart(fs::path("work_set.fth")) %>%
-#filter(Filter == "H") %>%
-#ggplot(aes(JD, Flux ^ 2)) +
-#geom_point() +
-#coord_sci() +
-#theme_scientific(plot.margin = mar_(1 ~ cm)) +
-#scale_y_log10_sci(sec.axis = sec_axis_sci(~-2.5 * log10(. / 1e-45))) +
-#scale_x_sci(sec.axis = weak_dup_axis_sci())) %>%
+
+(mtcars %>%
+    ggplot_sci(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
+    geom_point() +
+    scale_x_sci(sec.axis = sec_axis_sci(~.)) +
+    scale_y_sci(sec.axis = sec_axis_sci(~.)) +
+    facet_sci(~gear, ncol = 1,
+        labeller = facet_labeller())
+    ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
 #egg::expose_layout() %>%
 #print
 
-
-#(mtcars %>%
-    #ggplot(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
-    #geom_point() +
-    #theme_scientific(
-        #plot.margin = mar_(0 ~ cm)) +
-    ##coord_sci() +
-    #scale_x_continuous() +
-    #scale_y_sci() +
-    #facet_wrap(~gear, ncol = 1,
-        #labeller = facet_labeller())# +
-    ##guides(x.sec = guide_axis())
-    #) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
-##egg::expose_layout() %>%
-##print
-
-##egg::expose_layout(plt)
-#plt %>% ggplot_build %>% ggplot_gtable %>%
-    #postprocess_axes(
-        #axes_margin = mar_(h = u_(1.5 ~ cm), v = u_(1.5 ~ cm)),
-        #text_margin = mar_(h = u_(1 ~ cm), v = u_(1 ~ cm))
-        #) -> tbl
-#grid.newpage()
-#grid.draw(tbl)
-#print(tbl$grobs[[7]]$children[[2]]$grobs[[2]]$x)
-#print(tbl$grobs[[8]]$children[[2]]$grobs[[1]]$x)
+#egg::expose_layout(plt)
+plt %>% ggplot_build %>% ggplot_gtable %>%
+    postprocess_axes(
+        axes_margin = mar_(h = u_(1.5 ~ cm), v = u_(1.5 ~ cm)),
+        text_margin = mar_(h = u_(1 ~ cm), v = u_(1 ~ cm))
+        ) -> tbl
+grid.newpage()
+grid.draw(tbl)
+print(tbl$grobs[[7]]$children[[2]]$grobs[[2]]$x)
+print(tbl$grobs[[8]]$children[[2]]$grobs[[1]]$x)
 #gtable::gtable_show_layout(tbl)
