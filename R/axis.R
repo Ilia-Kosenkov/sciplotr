@@ -167,12 +167,3 @@ guide_gengrob.axis <- function(guide, theme) {
         angle = guide$angle, n.dodge = guide$n.dodge,
         break_types = guide$key[[".type"]])
 }
-
-
-
-ggplot_sci(mtcars, aes(hp, mpg)) +
-    scale_x_sci(sec.axis = sec_axis_sci(~ .)) +
-    scale_y_sci() +
-    geom_point() -> plt
-
-plt %>% postprocess_axes() %>% grid.draw()
