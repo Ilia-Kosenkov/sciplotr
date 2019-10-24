@@ -1,7 +1,7 @@
 # https://github.com/tidyverse/ggplot2/blob/23e324197e0a5ddd764588d42838b0d96da9b68d/R/axis-secondary.R#L82
 sec_axis_sci <- function(
     axis_trans = NULL,
-    name = name_filler(),
+    name = waiver(),
     breaks = waiver(),
     labels = waiver(),
     breaks_trans = waiver()) {
