@@ -224,3 +224,39 @@ df_grid <- function(rows, cols, margin = FALSE) {
 
     tidyr::expand_grid(!!!vars)
 }
+
+get_id <- function(.variables) {
+
+    lengths <- purrr::map_int(.variables, vctrs::vec_size)
+    .variables <- .variables[lengths %!=% 0L]
+    vars_len <- vctrs::vec_size(.variables)
+
+    if (vars_len %==% 0L) {
+        n <- vctrs::vec_size(.variables) %||% 0L
+        return(structure(seq_len(n), n = n))
+    }
+    if (vars_len %==% 1L) {
+        return(get_id_var(.variables[[1]]))
+    }
+    ids <- rev(purrr::map(.variables, get_id_var))
+    p <- vctrs::vec_size(ids)
+
+    ndistinct <- purrr::map_int(ids, attr, "n")
+    n <- prod(ndistinct)
+
+    combs <- vctrs::vec_c(1, cumprod(ndistinct[-p]))
+    mat <- rlang::exec(cbind, !!!ids)
+    res <- as.vector((mat - 1L) %*% combs + 1L)
+    attr(res, "n") <- n
+
+    get_id_var(res)
+}
+
+get_id_var <- function(x) {
+    if (length(x) == 0)
+        return(structure(integer(), n = 0L))
+    levels <- sort(unique(x), na.last = TRUE)
+    id <- match(x, levels)
+    n <- max(id)
+    structure(id, n = n)
+}

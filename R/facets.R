@@ -47,27 +47,33 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
                 paste0(dups, collapse = "'")),
             "sciplotr_invalid_arg")
 
-        base_rows <- combine_vars(data, params$plot_env, rows, drop = params$drop)
+        base_rows <-
+            dplyr::mutate_all(
+                dplyr::as_tibble(combine_vars(data, params$plot_env, rows, drop = params$drop)),
+                forcats::as_factor)
 
-        if (!params$as.table) {
-            rev_order <- function(x) factor(x, levels = rev(ulevels(x)))
-            base_rows[] <- lapply(base_rows, rev_order)
-        }
-        base_cols <- combine_vars(data, params$plot_env, cols, drop = params$drop)
+        if (!rlang::is_null(params$as.table) && !params$as.table)
+            base_rows <- dplyr::mutate_all(base_rows, forcats::fct_rev)
+
+        base_cols <-
+            dplyr::mutate_all(
+                dplyr::as_tibble(combine_vars(data, params$plot_env, cols, drop = params$drop)),
+                forcats::as_factor)
 
         base <- df_grid(base_rows, base_cols, params$margin)
 
         if (vctrs::vec_size(base) %==% 0L) {
+            ## TODO : Check logical errors here
             return(new_data_frame(list(PANEL = 1L, ROW = 1L, COL = 1L, SCALE_X = 1L, SCALE_Y = 1L)))
         }
 
 
         # Create panel info dataset
-        panel <- id(base, drop = TRUE)
+        panel <- get_id(base)
         panel <- factor(panel, levels = seq_len(attr(panel, "n")))
 
-        rows <- if (!length(names(rows))) rep(1L, length(panel)) else id(base[names(rows)], drop = TRUE)
-        cols <- if (!length(names(cols))) rep(1L, length(panel)) else id(base[names(cols)], drop = TRUE)
+        rows <- if (!length(names(rows))) rep(1L, length(panel)) else get_id(base[names(rows)])
+        cols <- if (!length(names(cols))) rep(1L, length(panel)) else get_id(base[names(cols)])
 
         panels <- new_data_frame(c(list(PANEL = panel, ROW = rows, COL = cols), base))
         panels <- panels[order(panels$PANEL),, drop = FALSE]
@@ -217,7 +223,8 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
     geom_point() +
     scale_x_sci(sec.axis = sec_axis_sci(~.)) +
     scale_y_sci(sec.axis = sec_axis_sci(~.)) +
-    facet_sci(vars(gear), vars(am),# ncol = 1,
+    facet_sci(vars(gear), vars(am), # ncol = 1,
+        #as.table = FALSE,
         labeller = facet_labeller())
     ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
 #egg::expose_layout() %>%
