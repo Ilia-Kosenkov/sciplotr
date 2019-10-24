@@ -154,8 +154,6 @@ draw_axis <- function(break_positions, break_labels, axis_position, theme,
 # https://github.com/tidyverse/ggplot2/blob/115c3960d0fd068f1ca4cfe4650c0e0474aabba5/R/coord-cartesian-.r#L222
 panel_guides_grob <- function(guides, position, theme) {
     guide <- ggplot2:::guide_for_position(guides, position) %||% ggplot2:::guide_none()
-    if(any(vec_in(position, vec_c("top", "bottom"))))
-        print(guide$key)
     guide_gengrob(guide, theme)
 }
 

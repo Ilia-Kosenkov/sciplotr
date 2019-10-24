@@ -129,17 +129,10 @@ FacetSci <- ggproto("FacetSci", FacetWrap,
         axis_mat_y_right <- empty_table
         axis_mat_y_right[panel_pos] <- axes$y$right[layout$SCALE_Y]
 
+        print(panel_pos)
+        print(axes$x$top[layout$SCALE_X])
 
-        #if (!params$free$x) {
-            #axis_mat_x_top[-1,] <- list(zeroGrob())
-            #axis_mat_x_bottom[-nrow,] <- list(zeroGrob())
-        #}
-        #if (!params$free$y) {
-            #axis_mat_y_left[, -1] <- list(zeroGrob())
-            #axis_mat_y_right[, - ncol] <- list(zeroGrob())
-        #}
-
-
+        
         axis_height_top <- unit(
             apply(axis_mat_x_top, 1, max_height, value_only = TRUE),
             "cm")
@@ -158,7 +151,6 @@ FacetSci <- ggproto("FacetSci", FacetWrap,
 
         # Add back missing axes
         if (any(empties)) {
-            
             first_row <- which(apply(empties, 1, any))[1] - 1
             first_col <- which(apply(empties, 2, any))[1] - 1
             row_panels <- which(layout$ROW == first_row & layout$COL > first_col)
@@ -191,44 +183,22 @@ FacetSci <- ggproto("FacetSci", FacetWrap,
         panel_table <- ggplot2:::weave_tables_row(panel_table, axis_mat_x_bottom, 0, axis_height_bottom, "axis-b", 3)
         panel_table <- ggplot2:::weave_tables_col(panel_table, axis_mat_y_left, -1, axis_width_left, "axis-l", 3)
         panel_table <- ggplot2:::weave_tables_col(panel_table, axis_mat_y_right, 0, axis_width_right, "axis-r", 3)
-        
-        strip_padding <- convertUnit(theme$strip.switch.pad.wrap, "cm")
+
+        ## TODO : Fix stripes
+        strip_padding <- convertUnit(theme$strip.switch.pad.wrap, "cm") %T>% print
         strip_name <- paste0("strip-", substr(params$strip.position, 1, 1))
         strip_mat <- empty_table
 
         strip_mat[panel_pos] <- unlist(unname(strips), recursive = FALSE)[["left"]]
-
-        #strip_mat[panel_pos] <- unlist(unname(strips), recursive = FALSE)[[params$strip.position]]
-        #if (params$strip.position %in% c("top", "bottom")) {
-            #inside_x <- (theme$strip.placement.x %||% theme$strip.placement %||% "inside") == "inside"
-            #if (params$strip.position == "top") {
-                #placement <- if (inside_x) - 1 else-2
-                #strip_pad <- axis_height_top
-            #} else {
-                #placement <- if (inside_x) 0 else 1
-                #strip_pad <- axis_height_bottom
-            #}
-            #strip_height <- unit(apply(strip_mat, 1, max_height, value_only = TRUE), "cm")
-            #panel_table <- ggplot2:::weave_tables_row(panel_table, strip_mat, placement, strip_height, strip_name, 2, coord$clip)
-            #if (!inside_x) {
-                #strip_pad[as.numeric(strip_pad) != 0] <- strip_padding
-                #panel_table <- ggplot2:::weave_tables_row(panel_table, row_shift = placement, row_height = strip_pad)
-            #}
-        #} else {
-        inside_y <- FALSE
-        if (params$strip.position == "left") {
-            placement <- if (inside_y) - 1 else-2
-            strip_pad <- axis_width_left
-        }
+        placement <- -2
+        strip_pad <- axis_width_left
 
         strip_pad[as.numeric(strip_pad) != 0] <- strip_padding
         strip_width <- unit(apply(strip_mat, 2, max_width, value_only = TRUE), "cm")
         panel_table <- ggplot2:::weave_tables_col(panel_table, strip_mat, placement, strip_width, strip_name, 2, coord$clip)
-        if (!inside_y) {
-            strip_pad[as.numeric(strip_pad) != 0] <- strip_padding
-            panel_table <- ggplot2:::weave_tables_col(panel_table, col_shift = placement, col_width = strip_pad)
-        }
-        #}
+        strip_pad[as.numeric(strip_pad) != 0] <- strip_padding
+        panel_table <- ggplot2:::weave_tables_col(panel_table, col_shift = placement, col_width = strip_pad)
+
         panel_table
     }
 )
@@ -239,20 +209,20 @@ FacetSci <- ggproto("FacetSci", FacetWrap,
     geom_point() +
     scale_x_sci(sec.axis = sec_axis_sci(~.)) +
     scale_y_sci(sec.axis = sec_axis_sci(~.)) +
-    facet_sci(~gear, ncol = 1,
+    facet_wrap(~gear,# ncol = 1,
         labeller = facet_labeller())
     ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
 #egg::expose_layout() %>%
 #print
 
 #egg::expose_layout(plt)
-plt %>% ggplot_build %>% ggplot_gtable %>%
+plt %>%
     postprocess_axes(
         axes_margin = mar_(h = u_(1.5 ~ cm), v = u_(1.5 ~ cm)),
         text_margin = mar_(h = u_(1 ~ cm), v = u_(1 ~ cm))
         ) -> tbl
 grid.newpage()
 grid.draw(tbl)
-print(tbl$grobs[[7]]$children[[2]]$grobs[[2]]$x)
-print(tbl$grobs[[8]]$children[[2]]$grobs[[1]]$x)
+print(tbl)
+#print(convertX(sum(tbl$grobs[[7]]$children[[2]]$grobs[[2]]$x - tbl$grobs[[8]]$children[[2]]$grobs[[1]]$x), "native", TRUE))
 #gtable::gtable_show_layout(tbl)
