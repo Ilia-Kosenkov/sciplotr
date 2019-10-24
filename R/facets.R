@@ -62,21 +62,27 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
 
         base <- df_grid(base_rows, base_cols, params$margin)
 
-        if (vctrs::vec_size(base) %==% 0L) {
-            ## TODO : Check logical errors here
-            return(new_data_frame(list(PANEL = 1L, ROW = 1L, COL = 1L, SCALE_X = 1L, SCALE_Y = 1L)))
-        }
-
+        if (vctrs::vec_size(base) %==% 0L)
+            return(tibble::tibble(PANEL = as_factor(1L), ROW = 1L, COL = 1L, SCALE_X = 1L, SCALE_Y = 1L))
 
         # Create panel info dataset
         panel <- get_id(base)
         panel <- factor(panel, levels = seq_len(attr(panel, "n")))
 
-        rows <- if (!length(names(rows))) rep(1L, length(panel)) else get_id(base[names(rows)])
-        cols <- if (!length(names(cols))) rep(1L, length(panel)) else get_id(base[names(cols)])
+        rows <-
+            if (!vctrs::vec_size(names(rows)))
+                vctrs::vec_repeat(1L, vctrs::vec_size(panel))
+            else
+                get_id(base[names(rows)])
 
-        panels <- new_data_frame(c(list(PANEL = panel, ROW = rows, COL = cols), base))
-        panels <- panels[order(panels$PANEL),, drop = FALSE]
+        cols <-
+            if (!vctrs::vec_size(names(cols)))
+                vctrs::vec_repeat(1L, vctrs::vec_size(panel))
+            else
+                get_id(base[names(cols)])
+
+        panels <- tibble::tibble(!!!append(list(PANEL = panel, ROW = rows, COL = cols), base))
+        panels <- dplyr::arrange(panels, PANEL)
         rownames(panels) <- NULL
 
         panels$SCALE_X <- if (params$free$x) panels$COL else 1L
@@ -93,8 +99,8 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
       rows <- which(layout$COL == 1)
       axes <- render_axes(ranges[cols], ranges[rows], coord, theme, transpose = TRUE)
 
-      col_vars <- unique(layout[names(params$cols)])
-      row_vars <- unique(layout[names(params$rows)])
+      col_vars <- dplyr::distinct(layout[names(params$cols)])
+      row_vars <- dplyr::distinct(layout[names(params$rows)])
       # Adding labels metadata, useful for labellers
       attr(col_vars, "type") <- "cols"
       attr(col_vars, "facet") <- "grid"
