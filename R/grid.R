@@ -1,109 +1,116 @@
-#   MIT License
-#
-#   Copyright(c) 2019 Ilia Kosenkov [ilia.kosenkov.at.gm@gmail.com]
-#
-#   Permission is hereby granted, free of charge, to any person obtaining a copy
-#   of this software and associated documentation files(the "Software"), to deal
-#   in the Software without restriction, including without limitation the rights
-#   to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-#   copies of the Software, and to permit persons to whom the Software is
-#   furnished to do so, subject to the following conditions:
-#
-#   The above copyright notice and this permission
-#   notice shall be included in all
-#   copies or substantial portions of the Software.
-#
-#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
-#   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 postprocess_axes <- function(
-    gg_table,
+    gg,
+    axes_margin = NULL, text_margin = NULL,
+    unit_strategy = unit_max) {
+
+    UseMethod("postprocess_axes")
+}
+
+postprocess_axes.default <- function(
+    gg,
+    axes_margin = NULL, text_margin = NULL,
+    unit_strategy = unit_max) {
+
+    rlang::abort("Cannot process object of unsupported type.", "sciplotr_invalid_arg")
+
+}
+
+postprocess_axes.ggplot <- function(
+    gg,
+    axes_margin = NULL, text_margin = NULL,
+    unit_strategy = unit_max) {
+
+    postprocess_axes(
+        ggplot2::ggplot_gtable(
+            ggplot2::ggplot_build(
+                gg)),
+        axes_margin, text_margin, unit_strategy)
+}
+
+postprocess_axes.gtable <- function(
+    gg,
     axes_margin = NULL, text_margin = NULL,
     unit_strategy = unit_max) {
     # Assuming label occupies exactly one grid cell
 
-    grobs <- get_grobs_desc(gg_table, "lab")
+    grobs <- get_grobs_desc(gg, "lab")
         
     if (rlang::is_null(text_margin)) {
         inds <- grobs %>% filter(Type == "xlab") %>% pull(T)
         x_val <- grobs %>% filter(Type == "xlab") %>% pull(Height) %>% unit_strategy
-        gg_table$heights[inds] <- x_val
+        gg$heights[inds] <- x_val
 
         inds <- grobs %>% filter(Type == "ylab") %>% pull(L)
         y_val <- grobs %>% filter(Type == "ylab") %>% pull(Width) %>% unit_strategy
-        gg_table$widths[inds] <- y_val
+        gg$widths[inds] <- y_val
 
     }
     else {
         inds <- grobs %>% filter(Type == "xlab", Side == "t") %>% pull(T)
-        gg_table$heights[inds] <- at_(text_margin, t)
+        gg$heights[inds] <- at_(text_margin, t)
 
         inds <- grobs %>% filter(Type == "xlab", Side == "b") %>% pull(T)
-        gg_table$heights[inds] <- at_(text_margin, b)
+        gg$heights[inds] <- at_(text_margin, b)
 
         inds <- grobs %>% filter(Type == "ylab", Side == "l") %>% pull(L)
-        gg_table$widths[inds] <- at_(text_margin, l)
+        gg$widths[inds] <- at_(text_margin, l)
 
         inds <- grobs %>% filter(Type == "ylab", Side == "r") %>% pull(L)
-        gg_table$widths[inds] <- at_(text_margin, r)
+        gg$widths[inds] <- at_(text_margin, r)
     }
 
-    grobs <- get_grobs_desc(gg_table, "axis") %>% print
+    grobs <- get_grobs_desc(gg, "axis")
 
 
     if (rlang::is_null(axes_margin)) {
         subset <- filter(grobs, vctrs::vec_in(Side, vctrs::vec_c("t", "b")))
         inds <- pull(subset, T)
         x_val <- unit_strategy(pull(subset, Height))
-        gg_table$heights[inds] <- x_val
+        gg$heights[inds] <- x_val
 
         subset <- filter(grobs, vctrs::vec_in(Side, vctrs::vec_c("l", "r")))
         inds <- pull(subset, L)
         y_val <- unit_strategy(pull(subset, Width))
-        gg_table$widths[inds] <- y_val
+        gg$widths[inds] <- y_val
     }
     else {
         subset <- grobs %>% filter(Side == "t")
         inds <- subset %>% filter(T == min(T)) %>% pull("T")
-        gg_table$heights[inds] <- at_(axes_margin, t)
+        gg$heights[inds] <- at_(axes_margin, t)
 
         inds <- subset %>% filter(T != min(T)) %>% pull("T")
         if (vctrs::vec_size(inds) > 0)
-            gg_table$heights[inds] <- u_(0 ~ null)
+            gg$heights[inds] <- u_(0 ~ null)
 
         subset <- grobs %>% filter(Side == "b")
         inds <- subset %>% filter(T == max(T)) %>% pull("T")
-        gg_table$heights[inds] <- at_(axes_margin, b)
+        gg$heights[inds] <- at_(axes_margin, b)
 
         inds <- subset %>% filter(T != max(T)) %>% pull("T")
         if (vctrs::vec_size(inds) > 0)
-            gg_table$heights[inds] <- u_(0 ~ null)
+            gg$heights[inds] <- u_(0 ~ null)
 
 
         subset <- grobs %>% filter(Side == "l")
         inds <- subset %>% filter(L == min(L)) %>% pull("L")
-        gg_table$widths[inds] <- at_(axes_margin, l)
+        gg$widths[inds] <- at_(axes_margin, l)
 
         inds <- subset %>% filter(L != min(L)) %>% pull("L")
         if (vctrs::vec_size(inds) > 0)
-            gg_table$widths[inds] <- u_(0 ~ null)
+            gg$widths[inds] <- u_(0 ~ null)
 
 
         subset <- grobs %>% filter(Side == "r")
         inds <- subset %>% filter(L == max(L)) %>% pull("L")
-        gg_table$widths[inds] <- at_(axes_margin, r)
+        gg$widths[inds] <- at_(axes_margin, r)
 
         inds <- subset %>% filter(L != max(L)) %>% pull("L")
-        if (vctrs::vec_size(inds) > 0) 
-            gg_table$widths[inds] <- u_(0 ~ null)
+        if (vctrs::vec_size(inds) > 0)
+            gg$widths[inds] <- u_(0 ~ null)
     }
 
-    gg_table
+    gg
 }
 
 ### Required
