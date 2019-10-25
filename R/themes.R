@@ -79,7 +79,8 @@ theme_scientific <- function(
     #---------------------------------#
             strip.placement = "outside",
             strip.background = element_blank(),
-            strip.text = element_text(size = title.size, margin = title.margin),
+            strip.text.x = element_text(size = title.size, margin = title.margin),
+            strip.text.y = element_text(size = title.size, margin = title.margin, angle = 90),
             strip.switch.pad.grid = u_(0 ~ null),
             strip.switch.pad.wrap = u_(0 ~ null),
     #---------------------------------#
