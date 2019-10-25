@@ -3,9 +3,9 @@
 facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
                       space = "fixed", shrink = TRUE,
                       labeller = "label_value", as.table = TRUE,
-                      switch = NULL, drop = TRUE) {
+                      drop = TRUE) {
 
-    
+
     scales <- match.arg(scales, vctrs::vec_c("fixed", "free_x", "free_y", "free"))
     free <- list(
         x = any(vctrs::vec_in(scales, vctrs::vec_c("free_x", "free"))),
@@ -16,9 +16,6 @@ facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
         x = any(vctrs::vec_in(space, vctrs::vec_c("free_x", "free"))),
         y = any(vctrs::vec_in(space, vctrs::vec_c("free_y", "free"))))
 
-    if (!is.null(switch) && !switch %in% c("both", "x", "y")) {
-        stop("switch must be either 'both', 'x', or 'y'", call. = FALSE)
-    }
 
     facets_list <- ggplot2:::grid_as_facets_list(rows, cols)
 
@@ -29,7 +26,7 @@ facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
         shrink = shrink,
         params = list(rows = facets_list$rows, cols = facets_list$cols, margins = FALSE,
             free = free, space_free = space_free, labeller = labeller,
-            as.table = as.table, switch = switch, drop = drop))
+            as.table = as.table, drop = drop))
 }
 
 # https://github.com/tidyverse/ggplot2/blob/269be6fe56a71bef2687ac4c1f39992de45ae87a/R/facet-grid-.r#L189
@@ -112,7 +109,7 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
         attr(row_vars, "type") <- "rows"
         attr(row_vars, "facet") <- "grid"
 
-        
+
         strips <- render_strips(col_vars, row_vars, params$labeller, theme)
 
         aspect_ratio <- theme$aspect.ratio
