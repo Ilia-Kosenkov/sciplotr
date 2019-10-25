@@ -76,36 +76,36 @@ postprocess_axes.gtable <- function(
     }
     else {
         subset <- grobs %>% filter(Side == "t")
-        inds <- subset %>% filter(T == min(T)) %>% pull("T")
+        inds <- subset %>% filter(T %==% min(T)) %>% pull("T")
         gg$heights[inds] <- at_(axes_margin, t)
 
-        inds <- subset %>% filter(T != min(T)) %>% pull("T")
+        inds <- subset %>% filter(T %!=% min(T)) %>% pull("T")
         if (vctrs::vec_size(inds) > 0)
             gg$heights[inds] <- u_(0 ~ null)
 
         subset <- grobs %>% filter(Side == "b")
-        inds <- subset %>% filter(T == max(T)) %>% pull("T")
+        inds <- subset %>% filter(T %==% max(T)) %>% pull("T")
         gg$heights[inds] <- at_(axes_margin, b)
 
-        inds <- subset %>% filter(T != max(T)) %>% pull("T")
+        inds <- subset %>% filter(T %!=% max(T)) %>% pull("T")
         if (vctrs::vec_size(inds) > 0)
             gg$heights[inds] <- u_(0 ~ null)
 
 
         subset <- grobs %>% filter(Side == "l")
-        inds <- subset %>% filter(L == min(L)) %>% pull("L")
+        inds <- subset %>% filter(L %==% min(L)) %>% pull("L")
         gg$widths[inds] <- at_(axes_margin, l)
 
-        inds <- subset %>% filter(L != min(L)) %>% pull("L")
+        inds <- subset %>% filter(L %!=% min(L)) %>% pull("L")
         if (vctrs::vec_size(inds) > 0)
             gg$widths[inds] <- u_(0 ~ null)
 
 
         subset <- grobs %>% filter(Side == "r")
-        inds <- subset %>% filter(L == max(L)) %>% pull("L")
+        inds <- subset %>% filter(L %==% max(L)) %>% pull("L")
         gg$widths[inds] <- at_(axes_margin, r)
 
-        inds <- subset %>% filter(L != max(L)) %>% pull("L")
+        inds <- subset %>% filter(L %!=% max(L)) %>% pull("L")
         if (vctrs::vec_size(inds) > 0)
             gg$widths[inds] <- u_(0 ~ null)
     }
