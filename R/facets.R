@@ -192,28 +192,29 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
         strip_padding <- grid::convertUnit(theme$strip.switch.pad.grid, "cm")
         panel_pos_col <- ggplot2::panel_cols(panel_table)
 
-        
-
-        panel_table <- gtable::gtable_add_rows(panel_table, strip_padding, -1)
-        panel_table <- gtable::gtable_add_rows(panel_table, ggplot2::max_height(strips$x$bottom), -1)
-        panel_table <- gtable::gtable_add_grob(panel_table, strips$x$bottom, -1, panel_pos_col$l, clip = "on", name = paste0("strip-b-", seq_along(strips$x$bottom)), z = 2)
-
-        ## Labels for the other side
-        panel_table <- gtable::gtable_add_rows(panel_table, strip_padding, 0)
-        panel_table <- gtable::gtable_add_rows(panel_table, ggplot2::max_height(strips$x$top), 0)
-        panel_table <- gtable::gtable_add_grob(panel_table, strips$x$top, 1, panel_pos_col$l, clip = "on", name = paste0("strip-t-", seq_along(strips$x$top)), z = 2)
+        if (!rlang::is_null(strips$x$bottom)) {
+            panel_table <- gtable::gtable_add_rows(panel_table, strip_padding, -1)
+            panel_table <- gtable::gtable_add_rows(panel_table, ggplot2::max_height(strips$x$bottom), -1)
+            panel_table <- gtable::gtable_add_grob(panel_table, strips$x$bottom, -1, panel_pos_col$l, clip = "on", name = paste0("strip-b-", seq_along(strips$x$bottom)), z = 2)
+        }
+        if (!rlang::is_null(strips$x$top)) {
+            panel_table <- gtable::gtable_add_rows(panel_table, strip_padding, 0)
+            panel_table <- gtable::gtable_add_rows(panel_table, ggplot2::max_height(strips$x$top), 0)
+            panel_table <- gtable::gtable_add_grob(panel_table, strips$x$top, 1, panel_pos_col$l, clip = "on", name = paste0("strip-t-", seq_along(strips$x$top)), z = 2)
+        }
 
         panel_pos_rows <- ggplot2::panel_rows(panel_table)
 
-        panel_table <- gtable::gtable_add_cols(panel_table, strip_padding, 0)
-        panel_table <- gtable::gtable_add_cols(panel_table, ggplot2::max_width(strips$y$left), 0)
-        panel_table <- gtable::gtable_add_grob(panel_table, strips$y$left, panel_pos_rows$t, 1, clip = "on", name = paste0("strip-l-", seq_along(strips$y$left)), z = 2)
-
-        ## Labels for the other side
-        panel_table <- gtable::gtable_add_cols(panel_table, strip_padding, -1)
-        panel_table <- gtable::gtable_add_cols(panel_table, ggplot2::max_width(strips$y$right), -1)
-        panel_table <- gtable::gtable_add_grob(panel_table, strips$y$right, panel_pos_rows$t, -1, clip = "on", name = paste0("strip-r-", seq_along(strips$y$right)), z = 2)
-
+        if (!rlang::is_null(strips$y$left)) {
+            panel_table <- gtable::gtable_add_cols(panel_table, strip_padding, 0)
+            panel_table <- gtable::gtable_add_cols(panel_table, ggplot2::max_width(strips$y$left), 0)
+            panel_table <- gtable::gtable_add_grob(panel_table, strips$y$left, panel_pos_rows$t, 1, clip = "on", name = paste0("strip-l-", seq_along(strips$y$left)), z = 2)
+        }
+        if (!rlang::is_null(strips$y$right)) {
+            panel_table <- gtable::gtable_add_cols(panel_table, strip_padding, -1)
+            panel_table <- gtable::gtable_add_cols(panel_table, ggplot2::max_width(strips$y$right), -1)
+            panel_table <- gtable::gtable_add_grob(panel_table, strips$y$right, panel_pos_rows$t, -1, clip = "on", name = paste0("strip-r-", seq_along(strips$y$right)), z = 2)
+        }
         panel_table
     }
 )
@@ -224,7 +225,7 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
     geom_point() +
     scale_x_sci(name = NULL, sec.axis = sec_axis_sci(~.)) +
     scale_y_sci(name = NULL, sec.axis = sec_axis_sci(~.)) +
-    facet_sci(vars(gear), vars(am), # ncol = 1,
+    facet_sci(gear ~ am, # ncol = 1,
         #as.table = FALSE,
         scales = "free")
     ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
