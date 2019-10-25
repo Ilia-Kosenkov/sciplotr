@@ -220,22 +220,21 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
     element_y <- calc_element("strip.text.y", theme)
 
     ## For weird compatibility with `ggplot2:::ggstrip`
-    ## TODO : Do it properly
-    labels <- labeller(list(cols = cols, rows = rows)) %>%
-        map(~ `dim<-`(.x, c(vec_size(.x), 1)))
+    labels <- purrr::map(labeller(list(cols = cols, rows = rows)),
+                         ~ `dim<-`(.x, vctrs::vec_c(vctrs::vec_size(.x), 1L)))
 
     if (rlang::inherits_any(element_y, "element_blank")) {
         y_strips <- list(
-            left = rep(list(zeroGrob()), vec_size(rows)),
-            right = rep(list(zeroGrob()), vec_size(rows)))
+            left = rep(list(ggplot2::zeroGrob()), vctrs::vec_size(rows)),
+            right = rep(list(ggplot2::zeroGrob()), vctrs::vec_size(rows)))
     }
     else {
-        gp_y <- gpar(
-        fontsize = element_y$size,
-        col = element_y$colour,
-        fontfamily = element_y$family,
-        fontface = element_y$face,
-        lineheight = element_y$lineheight)
+        gp_y <- grid::gpar(
+            fontsize = element_y$size,
+            col = element_y$colour,
+            fontfamily = element_y$family,
+            fontface = element_y$face,
+            lineheight = element_y$lineheight)
 
         left_grobs <- ggplot2:::create_strip_labels(labels$left, element_y, gp_y)
         left_grobs <- ggplot2:::ggstrip(left_grobs, theme, element_y, gp_y, FALSE, "on")
@@ -253,17 +252,17 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
 
     if (rlang::inherits_any(element_x, "element_blank")) {
         x_strips <- list(
-            top = rep(list(zeroGrob()), vec_size(cols)),
-            bottom = rep(list(zeroGrob()), vec_size(cols)))
+            top = rep(list(ggplot2::zeroGrob()), vctrs::vec_size(cols)),
+            bottom = rep(list(ggplot2::zeroGrob()), vctrs::vec_size(cols)))
     }
     else {
 
-        gp_x <- gpar(
-        fontsize = element_x$size,
-        col = element_x$colour,
-        fontfamily = element_x$family,
-        fontface = element_x$face,
-        lineheight = element_x$lineheight)
+        gp_x <- grid::gpar(
+            fontsize = element_x$size,
+            col = element_x$colour,
+            fontfamily = element_x$family,
+            fontface = element_x$face,
+            lineheight = element_x$lineheight)
 
 
         bottom_grobs <- ggplot2:::create_strip_labels(labels$bottom, element_x, gp_x)
