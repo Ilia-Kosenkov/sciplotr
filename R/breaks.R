@@ -50,7 +50,7 @@ generate_simple_breaks <- function(range, step = fancy_step(range, n = 6L, modif
 
 generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
     if (vctrs::vec_size(breaks) < 2L)
-        return(vctrs::new_double(0))
+        return(double(0))
 
     diffs <- diff(breaks)
     # Temporarily ignore this
