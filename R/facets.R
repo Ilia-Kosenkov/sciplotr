@@ -3,6 +3,7 @@
 facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
                       space = "fixed", shrink = TRUE,
                       labeller = "label_value", as.table = TRUE,
+                      rotate.y = TRUE,
                       drop = TRUE) {
 
 
@@ -24,8 +25,11 @@ facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
 
     ggproto(NULL, FacetSci,
         shrink = shrink,
-        params = list(rows = facets_list$rows, cols = facets_list$cols, margins = FALSE,
-            free = free, space_free = space_free, labeller = labeller,
+        params = list(
+            rows = facets_list$rows, cols = facets_list$cols,
+            margins = FALSE,
+            free = free, space_free = space_free,
+            labeller = labeller, rotate_y = rotate.y,
             as.table = as.table, drop = drop))
 }
 
@@ -88,6 +92,7 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
 
         panels
     },
+
     draw_panels = function(panels, layout, x_scales, y_scales, ranges, coord, data, theme, params) {
         if ((params$free$x || params$free$y) && !coord$is_free())
             rlang::abort(
@@ -110,7 +115,7 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
         attr(row_vars, "facet") <- "grid"
 
         ## Custom strips
-        strips <- build_strip(col_vars, row_vars, params$labeller, theme)
+        strips <- build_strip(col_vars, row_vars, params$labeller, theme, params$rotate_y)
 
         aspect_ratio <- theme$aspect.ratio
         if (rlang::is_null(aspect_ratio) && !params$free$x && !params$free$y)
