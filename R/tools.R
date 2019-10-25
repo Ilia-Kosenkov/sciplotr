@@ -233,3 +233,8 @@ get_id_var <- function(x) {
     n <- max(id)
     structure(id, n = n)
 }
+
+adjust_angle <- function(x) {
+    x$angle <- ggplot2:::adjust_angle(x$angle)
+    x
+}
