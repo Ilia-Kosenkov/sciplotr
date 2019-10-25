@@ -2,8 +2,9 @@
 # https://github.com/tidyverse/ggplot2/blob/269be6fe56a71bef2687ac4c1f39992de45ae87a/R/facet-grid-.r#L111
 facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
                       space = "fixed", shrink = TRUE,
-                      labeller = "label_value", as.table = TRUE,
+                      labeller = "sample_labeller", as.table = TRUE,
                       rotate.y = TRUE, margins = FALSE,
+                      panel.labels = TRUE,
                       drop = TRUE) {
 
 
@@ -29,7 +30,8 @@ facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
             rows = facets_list$rows, cols = facets_list$cols,
             margins = margins,
             free = free, space_free = space_free,
-            labeller = labeller, rotate_y = rotate.y,
+            labeller = labeller,
+            rotate_y = rotate.y, panel_labels = panel.labels,
             as.table = as.table, drop = drop))
 }
 
@@ -164,9 +166,17 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
         panel_table$layout$name <-
             paste0(
                 "panel-",
-                vctrs::vec_repeat(seq_len(ncol), times = nrow),
+                vctrs::vec_repeat(seq_len(ncol), each = nrow),
                 "-",
-                vctrs::vec_repeat(seq_len(nrow), each = ncol))
+                vctrs::vec_repeat(seq_len(nrow), times = ncol))
+
+        ## Adding panel labs
+        if(params$panel_labels %||% FALSE)
+            panel_table <-
+                gen_panel_labs_grobs(
+                    panel_table,
+                    make_panel_labs(layout[names(col_vars)], layout[names(row_vars)]),
+                    theme)
 
         panel_table <- gtable::gtable_add_col_space(
             panel_table,
@@ -174,6 +184,7 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
         panel_table <- gtable::gtable_add_row_space(
             panel_table,
             theme$panel.spacing.y %||% theme$panel.spacing)
+
 
         # Add axes
         panel_table <- gtable::gtable_add_rows(panel_table, ggplot2::max_height(axes$x$top), 0)
@@ -189,7 +200,6 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
         panel_table <- gtable::gtable_add_grob(panel_table, axes$y$right, panel_pos_rows$t, -1, clip = "off", name = paste0("axis-r-", seq_along(axes$y$right)), z = 3)
 
         # Add strips
-        ## Redo strip positions
         panel_pos_col <- ggplot2::panel_cols(panel_table)
 
         panel_table <- gtable::gtable_add_rows(panel_table, unit_max(get_height(strips$x$bottom)), -1)
@@ -209,6 +219,8 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
             panel_table <- gtable::gtable_add_grob(panel_table, strips$y$left, panel_pos_rows$t, 1, clip = "on", name = paste0("strip-l-", seq_along(strips$y$left)), z = 2)
         if (!rlang::is_null(strips$y$right)) 
             panel_table <- gtable::gtable_add_grob(panel_table, strips$y$right, panel_pos_rows$t, -1, clip = "on", name = paste0("strip-r-", seq_along(strips$y$right)), z = 2)
+
+        #stop(NULL)
 
         panel_table
     }
@@ -280,15 +292,72 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
 }
 
 
+make_panel_labs <- function(cols, rows, .f = ~paste0("(", letters[.x$Id], ")")) {
+    assertthat::assert_that(vctrs::vec_size(cols) %==% vctrs::vec_size(rows))
+    col_comb <- interaction(cols, sep = ":")
+    row_comb <- interaction(rows, sep = ":")
+    tbl <- dplyr::mutate(tibble::tibble(Cols = col_comb, Rows = row_comb),
+                         ColId = as.integer(Cols),
+                         RowId = as.integer(Rows))
+    tbl <- dplyr::mutate(dplyr::arrange(tbl, Rows, Cols), Id = 1:n())
+
+    .f <- rlang::as_function(.f)
+    tbl <- dplyr::mutate(tbl, Label = purrr::pmap(tbl, ~.f(rlang::list2(...))))
+}
+
+gen_panel_labs_grobs <- function(panel, labs_table, theme) {
+
+    elem <- calc_element("facet.lab", theme)
+    x_pos <- calc_element("facet.lab.x", theme) %||% npc_(0.1)
+    y_pos <- calc_element("facet.lab.y", theme) %||% npc_(0.9)
+    panel_desc <- dplyr::select(get_grobs_desc(panel, "panel"), X, Y, L, R, T, B)
+
+    panel_desc <- dplyr::inner_join(panel_desc, labs_table, by = c("X" = "ColId", "Y" = "RowId"))
+
+    panel_desc <- dplyr::mutate(panel_desc, Name = paste("panel-lab", X, Y, sep = "-"))
+    grob_desc <- purrr::pmap(dplyr::select(panel_desc, L, R, T, B, Label, Name), list)
+
+    if (rlang::inherits_any(elem, "element_blank"))
+        purrr::reduce(
+            grob_desc,
+            ~ gtable::gtable_add_grob(
+                .x,
+                zeroGrob(),
+                t = .y$T, l = .y$L,
+                r = .y$L, b = .y$B,
+                name = .y$Name),
+            .init = panel)
+    else {
+        gp <- grid::gpar(
+            fontsize = elem$size,
+            col = elem$colour,
+            fontfamily = elem$family,
+            fontface = elem$face)
+
+        purrr::reduce(
+            grob_desc,
+            ~ gtable::gtable_add_grob(
+                .x,
+                textGrob(.y$Label,
+                    x = x_pos,
+                    y =  y_pos,
+                    hjust = elem$hjust, vjust = elem$vjust,
+                    rot = elem$angle %||% 0, gp = gp),
+                t = .y$T, l = .y$L,
+                r = .y$L, b = .y$B,
+                name = .y$Name),
+            .init = panel)
+    }
+}
+
 (mtcars %>%
     ggplot_sci(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
     geom_point() +
-    scale_x_sci(name = NULL, sec.axis = sec_axis_sci(~.)) +
-    scale_y_sci(name = NULL, sec.axis = sec_axis_sci(~.)) +
+    scale_x_sci(name = NULL, sec.axis = sec_axis_sci(~ .)) +
+    scale_y_sci(name = NULL, sec.axis = sec_axis_sci(~ .)) +
     facet_sci(gear ~ am, # ncol = 1,
         #as.table = FALSE,
-        labeller = "sample_labeller",
-        scales = "free")
+        scales = "fixed")
     ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
 #egg::expose_layout() %>%
 #print
