@@ -218,60 +218,64 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
 
     element_x <- calc_element("strip.text.x", theme)
     element_y <- calc_element("strip.text.y", theme)
-    # Handle empty element case
-    #if (inherits(element, "element_blank")) {
-    #grobs <- rep(list(zeroGrob()), vctrs::vec_size(label_df))
-    #return(structure(
-    #list(grobs, grobs),
-    #names = if (horizontal) c('top', 'bottom') else c('left', 'right')
-    #))
-    #}
-
-    # Create matrix of labels
-    #labels <- lapply(labeller(rows), cbind)
-    #labels <- do.call("cbind", labels) %>% print
 
     ## For weird compatibility with `ggplot2:::ggstrip`
     ## TODO : Do it properly
     labels <- labeller(list(cols = cols, rows = rows)) %>%
-        map(~ `dim<-`(.x, c(vec_size(.x), 1))) %>% print
+        map(~ `dim<-`(.x, c(vec_size(.x), 1)))
 
-
-    gp_x <- gpar(
-        fontsize = element_x$size,
-        col = element_x$colour,
-        fontfamily = element_x$family,
-        fontface = element_x$face,
-        lineheight = element_x$lineheight)
-    gp_y <- gpar(
+    if (rlang::inherits_any(element_y, "element_blank")) {
+        y_strips <- list(
+            left = rep(list(zeroGrob()), vec_size(rows)),
+            right = rep(list(zeroGrob()), vec_size(rows)))
+    }
+    else {
+        gp_y <- gpar(
         fontsize = element_y$size,
         col = element_y$colour,
         fontfamily = element_y$family,
         fontface = element_y$face,
         lineheight = element_y$lineheight)
 
-    left_grobs <- ggplot2:::create_strip_labels(labels$left, element_y, gp_y)
-    left_grobs <- ggplot2:::ggstrip(left_grobs, theme, element_y, gp_y, FALSE, "on")
+        left_grobs <- ggplot2:::create_strip_labels(labels$left, element_y, gp_y)
+        left_grobs <- ggplot2:::ggstrip(left_grobs, theme, element_y, gp_y, FALSE, "on")
 
-    element_y_rot <-
+        element_y_rot <-
         if (rlang::inherits_any(element_y, "element_text") && rotate_y)
             adjust_angle(element_y)
         else
             element_y
+        right_grobs <- ggplot2:::create_strip_labels(labels$right, element_y_rot, gp_y)
+        right_grobs <- ggplot2:::ggstrip(right_grobs, theme, element_y_rot, gp_y, FALSE, "on")
 
-    right_grobs <- ggplot2:::create_strip_labels(labels$right, element_y_rot, gp_y)
-    right_grobs <- ggplot2:::ggstrip(right_grobs, theme, element_y_rot, gp_y, FALSE, "on")
+        y_strips <- list(left = left_grobs, right = right_grobs)
+    }
 
-    bottom_grobs <- ggplot2:::create_strip_labels(labels$bottom, element_x, gp_x)
-    bottom_grobs <- ggplot2:::ggstrip(bottom_grobs, theme, element_x, gp_x, TRUE, "on")
+    if (rlang::inherits_any(element_x, "element_blank")) {
+        x_strips <- list(
+            top = rep(list(zeroGrob()), vec_size(cols)),
+            bottom = rep(list(zeroGrob()), vec_size(cols)))
+    }
+    else {
 
-    top_grobs <- ggplot2:::create_strip_labels(labels$top, element_x, gp_x)
-    top_grobs <- ggplot2:::ggstrip(top_grobs, theme, element_x, gp_x, TRUE, "on")
+        gp_x <- gpar(
+        fontsize = element_x$size,
+        col = element_x$colour,
+        fontfamily = element_x$family,
+        fontface = element_x$face,
+        lineheight = element_x$lineheight)
 
 
-    return(list(
-        x = list(bottom = bottom_grobs, top = top_grobs),
-        y = list(left = left_grobs, right = right_grobs)))
+        bottom_grobs <- ggplot2:::create_strip_labels(labels$bottom, element_x, gp_x)
+        bottom_grobs <- ggplot2:::ggstrip(bottom_grobs, theme, element_x, gp_x, TRUE, "on")
+
+        top_grobs <- ggplot2:::create_strip_labels(labels$top, element_x, gp_x)
+        top_grobs <- ggplot2:::ggstrip(top_grobs, theme, element_x, gp_x, TRUE, "on")
+
+        x_strips <- list(top = top_grobs, bottom = bottom_grobs)
+    }
+
+    return(list(x = x_strips, y = y_strips))
 }
 
 
