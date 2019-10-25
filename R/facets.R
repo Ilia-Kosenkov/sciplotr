@@ -109,8 +109,8 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
         attr(row_vars, "type") <- "rows"
         attr(row_vars, "facet") <- "grid"
 
-
-        strips <- render_strips(col_vars, row_vars, params$labeller, theme)
+        ## Custom strips
+        strips <- build_strip(col_vars, row_vars, params$labeller, theme)
 
         aspect_ratio <- theme$aspect.ratio
         if (rlang::is_null(aspect_ratio) && !params$free$x && !params$free$y)
@@ -212,14 +212,89 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
     }
 )
 
+# https://github.com/tidyverse/ggplot2/blob/269be6fe56a71bef2687ac4c1f39992de45ae87a/R/labeller.r#L486
+build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
+    labeller <- match.fun(labeller)
+
+    element_x <- calc_element("strip.text.x", theme)
+    element_y <- calc_element("strip.text.y", theme)
+    # Handle empty element case
+    #if (inherits(element, "element_blank")) {
+    #grobs <- rep(list(zeroGrob()), vctrs::vec_size(label_df))
+    #return(structure(
+    #list(grobs, grobs),
+    #names = if (horizontal) c('top', 'bottom') else c('left', 'right')
+    #))
+    #}
+
+    # Create matrix of labels
+    #labels <- lapply(labeller(rows), cbind)
+    #labels <- do.call("cbind", labels) %>% print
+
+    ## For weird compatibility with `ggplot2:::ggstrip`
+    ## TODO : Do it properly
+    labels <- labeller(list(cols = cols, rows = rows)) %>%
+        map(~ `dim<-`(.x, c(vec_size(.x), 1))) %>% print
+
+
+    gp_x <- gpar(
+        fontsize = element_x$size,
+        col = element_x$colour,
+        fontfamily = element_x$family,
+        fontface = element_x$face,
+        lineheight = element_x$lineheight)
+    gp_y <- gpar(
+        fontsize = element_y$size,
+        col = element_y$colour,
+        fontfamily = element_y$family,
+        fontface = element_y$face,
+        lineheight = element_y$lineheight)
+
+    left_grobs <- ggplot2:::create_strip_labels(labels$left, element_y, gp_y)
+    left_grobs <- ggplot2:::ggstrip(left_grobs, theme, element_y, gp_y, FALSE, "on")
+
+    element_y_rot <-
+        if (rlang::inherits_any(element_y, "element_text") && rotate_y)
+            adjust_angle(element_y)
+        else
+            element_y
+
+    right_grobs <- ggplot2:::create_strip_labels(labels$right, element_y_rot, gp_y)
+    right_grobs <- ggplot2:::ggstrip(right_grobs, theme, element_y_rot, gp_y, FALSE, "on")
+
+    bottom_grobs <- ggplot2:::create_strip_labels(labels$bottom, element_x, gp_x)
+    bottom_grobs <- ggplot2:::ggstrip(bottom_grobs, theme, element_x, gp_x, TRUE, "on")
+
+    top_grobs <- ggplot2:::create_strip_labels(labels$top, element_x, gp_x)
+    top_grobs <- ggplot2:::ggstrip(top_grobs, theme, element_x, gp_x, TRUE, "on")
+
+
+    return(list(
+        x = list(bottom = bottom_grobs, top = top_grobs),
+        y = list(left = left_grobs, right = right_grobs)))
+}
+
+
+sample_labeller <- `class<-`(function(labels) {
+    col_labs <- purrr::pmap(labels$cols, paste, sep = "; ")
+    row_labs <- purrr::pmap(labels$rows, paste, sep = "; ")
+
+    list(left = paste0(row_labs, "-left"),
+         right = paste0(row_labs, "-right"),
+         top = paste0(col_labs, "-top"),
+         bottom = paste0(col_labs, "-bottom"))
+}, "Labeller")
+
+
 
 (mtcars %>%
     ggplot_sci(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
     geom_point() +
     scale_x_sci(name = NULL, sec.axis = sec_axis_sci(~.)) +
     scale_y_sci(name = NULL, sec.axis = sec_axis_sci(~.)) +
-    facet_sci(#gear ~ am, # ncol = 1,
+    facet_sci(gear ~ am, # ncol = 1,
         #as.table = FALSE,
+        labeller = "sample_labeller",
         scales = "free")
     ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
 #egg::expose_layout() %>%
@@ -228,7 +303,7 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
 #egg::expose_layout(plt)
 plt %>%
     postprocess_axes(
-        axes_margin = mar_(h = u_(2 ~ cm), v = u_(2 ~ cm)),
+        axes_margin = mar_(h = u_(1 ~ cm), v = u_(1 ~ cm)),
         text_margin = mar_(h = u_(0 ~ null), v = u_(0 ~ null))
         ) -> tbl
 grid.newpage()
