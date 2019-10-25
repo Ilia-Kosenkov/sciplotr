@@ -164,46 +164,17 @@ get_grobs_size <- function(grid, pattern) {
 }
 
 ### Requried
-at_ <- function(item, what) UseMethod("at_")
-### Requried
-`at_<-` <- function(item, what, value) UseMethod("at_<-")
-
-### Requried
-at_.margin <- function(mar, what) {
-    what <- as.character(ensym(what))
-
-    what <- match.arg(what, vec_c("top", "right", "bottom", "left"))
-    pos <- switch(what,
-            "top" = 1L,
-            "right" = 2L,
-            "bottom" = 3L,
-            "left" = 4L)
-    mar[pos] -> val
-    mar_class_pos <- which("margin" == class(val))
-    if (!is_empty(mar_class_pos))
-        class(val) <- class(val)[-mar_class_pos]
-
-    val
-}
-
-### Requried
-`at_<-.margin` <- function(mar, what, value) {
-    what <- ensym(what)
-
-    with_mar(mar, !!what := ~value)
-}
-
-### Requried
 get_grobs_desc <- function(grid, pattern) {
     layout <- get_grobs_layout(grid, pattern)
     grobs <- tibble::tibble(GrobName = names(layout))
     grobs %>%
         dplyr::mutate(Matches = purrr::map(GrobName,
             stringr::str_match, 
-            stringr::regex("^(\\w*?)(?:-([trbl]))?(?:-(\\d+)-(\\d+))?$", ignore_case = TRUE))) %>%
+            stringr::regex("^(\\w*?)(?:-([trbl]))?(?:-(\\d+))?(?:-(\\d+))?$", ignore_case = TRUE))) %>%
         dplyr::mutate(Matches = purrr::map_chr(Matches, ~ paste(.x[1, -1], collapse = ":"))) %>%
         tidyr::separate(Matches, vctrs::vec_c("Type", "Side", "X", "Y"), sep = ":") %>%
         dplyr::mutate_at(dplyr::vars(X, Y), readr::parse_integer) %>%
+        dplyr::mutate_at(dplyr::vars(X, Y), replace_na, 0L) %>%
         dplyr::mutate_at(dplyr::vars(Type, Side), forcats::as_factor) -> grobs
 
     
