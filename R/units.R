@@ -113,10 +113,12 @@ mar_ <- function(...) {
     margin
 }
 
+### Requried
 at_ <- function(item, what) UseMethod("at_")
+### Requried
 `at_<-` <- function(item, what, value) UseMethod("at_<-")
 
-
+### Requried
 at_.margin <- function(mar, what) {
     what <- as.character(ensym(what))
 
@@ -126,9 +128,15 @@ at_.margin <- function(mar, what) {
             "right" = 2L,
             "bottom" = 3L,
             "left" = 4L)
-    mar[pos]
+    mar[pos] -> val
+    mar_class_pos <- which("margin" == class(val))
+    if (!is_empty(mar_class_pos))
+        class(val) <- class(val)[-mar_class_pos]
+
+    val
 }
 
+### Requried
 `at_<-.margin` <- function(mar, what, value) {
     what <- ensym(what)
 
