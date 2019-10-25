@@ -3,7 +3,7 @@
 facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
                       space = "fixed", shrink = TRUE,
                       labeller = "label_value", as.table = TRUE,
-                      rotate.y = TRUE,
+                      rotate.y = TRUE, margins = FALSE,
                       drop = TRUE) {
 
 
@@ -27,7 +27,7 @@ facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
         shrink = shrink,
         params = list(
             rows = facets_list$rows, cols = facets_list$cols,
-            margins = FALSE,
+            margins = margins,
             free = free, space_free = space_free,
             labeller = labeller, rotate_y = rotate.y,
             as.table = as.table, drop = drop))
@@ -141,18 +141,18 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
         if (params$space_free$x) {
             ps <- dplyr::pull(dplyr::filter(layout, ROW %==% 1L), PANEL)
             widths <- purrr::map_dbl(ps, ~diff(ranges[[.x]]$x.range))
-            panel_widths <- unit(widths, "null")
+            panel_widths <- grid::unit(widths, "null")
         }
         else
-            panel_widths <- unit(vctrs::vec_repeat(1, ncol), "null")
+            panel_widths <- grid::unit(vctrs::vec_repeat(1, ncol), "null")
 
         if (params$space_free$y) {
             ps <- dplyr::pull(dplyr::filter(layout, COL %==% 1L), PANEL)
             heights <- purrr::map_dbl(ps, ~diff(ranges[[.x]]$y.range))
-            panel_heights <- unit(heights, "null")
+            panel_heights <- grid::unit(heights, "null")
         }
         else
-            panel_heights <- unit(vctrs::vec_repeat(1 * aspect_ratio, nrow), "null")
+            panel_heights <- grid::unit(vctrs::vec_repeat(1 * aspect_ratio, nrow), "null")
 
         panel_table <-
             gtable::gtable_matrix(
@@ -195,24 +195,21 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
         panel_table <- gtable::gtable_add_rows(panel_table, unit_max(get_height(strips$x$bottom)), -1)
         panel_table <- gtable::gtable_add_rows(panel_table, unit_max(get_height(strips$x$top)), 0)
 
-        if (!rlang::is_null(strips$x$bottom)) {
+        if (!rlang::is_null(strips$x$bottom))
             panel_table <- gtable::gtable_add_grob(panel_table, strips$x$bottom, -1, panel_pos_col$l, clip = "on", name = paste0("strip-b-", seq_along(strips$x$bottom)), z = 2)
-        }
-        if (!rlang::is_null(strips$x$top)) {
+        if (!rlang::is_null(strips$x$top))
             panel_table <- gtable::gtable_add_grob(panel_table, strips$x$top, 1, panel_pos_col$l, clip = "on", name = paste0("strip-t-", seq_along(strips$x$top)), z = 2)
-        }
 
         panel_pos_rows <- ggplot2::panel_rows(panel_table)
 
         panel_table <- gtable::gtable_add_cols(panel_table, unit_max(get_width(strips$y$left)), 0)
         panel_table <- gtable::gtable_add_cols(panel_table, unit_max(get_width(strips$y$right)), -1)
 
-        if (!rlang::is_null(strips$y$left)) {
+        if (!rlang::is_null(strips$y$left))
             panel_table <- gtable::gtable_add_grob(panel_table, strips$y$left, panel_pos_rows$t, 1, clip = "on", name = paste0("strip-l-", seq_along(strips$y$left)), z = 2)
-        }
-        if (!rlang::is_null(strips$y$right)) {
+        if (!rlang::is_null(strips$y$right)) 
             panel_table <- gtable::gtable_add_grob(panel_table, strips$y$right, panel_pos_rows$t, -1, clip = "on", name = paste0("strip-r-", seq_along(strips$y$right)), z = 2)
-        }
+
         panel_table
     }
 )
