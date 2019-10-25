@@ -152,33 +152,6 @@ name_filler <- function() ""
 
 labels_filler <- function() function(x) vctrs::vec_recycle("", vctrs::vec_size(x))
 
-facet_labeller <- function(modifier = NULL) {
-    if (rlang::is_null(modifier))
-        return(ggplot2::label_value)
-
-    mod <- rlang::as_function(modifier)
-
-    function(labels, multi_line = TRUE) {
-        mod(labels)
-    }
-}
-
-separate_1 <- function(tbl, col, name = quo_text(enquo(col)), keep = FALSE) {
-    tbl %>%
-        dplyr::pull({{ col }}) %>%
-        purrr::map(as.list) %>%
-        purrr::map(~rlang::set_names(.x, paste(name, seq_along(.x), sep = ""))) %>%
-        dplyr::bind_rows -> temp
-
-    tbl %>%
-        dplyr::mutate(!!!purrr::map(temp, ~ rlang::quo(!!.x))) -> tbl
-
-    if (!keep)
-        tbl %>% select(-{{ col }}) -> tbl
-
-        tbl
-}
-
 lin <- function(x, x0, y0) {
     dx <- diff(x0)
     dy <- diff(y0)
