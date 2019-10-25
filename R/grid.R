@@ -221,3 +221,29 @@ get_grobs_desc <- function(grid, pattern) {
 
     grobs %>% inner_join(layout, by = "GrobName")
 }
+
+get_height <- function(x, zero_if_null = TRUE) {
+    if (grid::is.grob(x))
+        return(grid::grobHeight(x))
+    if (grid::is.unit(x))
+        return(x)
+    if (rlang::is_list(x))
+        return(map(x, get_height))
+    if (zero_if_null && rlang::is_null(x))
+        return(u_(0 ~ null))
+
+    rlang::abort("Unsupported input type", "sciplotr_invalid_arg")
+}
+
+get_width <- function(x, zero_if_null = TRUE) {
+    if (grid::is.grob(x))
+        return(grid::grobWidth(x))
+    if (grid::is.unit(x))
+        return(x)
+    if (rlang::is_list(x))
+        return(map(x, get_width))
+    if (zero_if_null && rlang::is_null(x))
+        return(u_(0 ~ null))
+
+    rlang::abort("Unsupported input type", "sciplotr_invalid_arg")
+}
