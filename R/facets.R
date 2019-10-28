@@ -6,6 +6,7 @@ facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
                       rotate.y = TRUE, margins = FALSE,
                       panel.labels = TRUE,
                       inner.ticks = TRUE,
+                      panel.labeller = waiver(),
                       drop = TRUE) {
 
 
@@ -34,6 +35,7 @@ facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
             labeller = labeller,
             rotate_y = rotate.y, panel_labels = panel.labels,
             inner_ticks = inner.ticks,
+            panel_labeller = panel.labeller,
             as.table = as.table, drop = drop))
 }
 
@@ -180,7 +182,7 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
             panel_table <-
                 gen_panel_labs_grobs(
                     panel_table,
-                    make_panel_labs(layout[names(col_vars)], layout[names(row_vars)]),
+                    make_panel_labs(layout[names(col_vars)], layout[names(row_vars)], params$panel_labeller),
                     theme)
 
         ## Inner axes
@@ -225,7 +227,7 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
             }
         }
 
-        
+
         # Add axes
         panel_table <- gtable::gtable_add_rows(panel_table, ggplot2::max_height(axes$x$top), 0)
         panel_table <- gtable::gtable_add_rows(panel_table, ggplot2::max_height(axes$x$bottom), -1)
@@ -340,8 +342,13 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
 }
 
 
-make_panel_labs <- function(cols, rows, .f = ~paste0("(", letters[.x$Id], ")")) {
+make_panel_labs <- function(cols, rows, .f) {
     assertthat::assert_that(vctrs::vec_size(cols) %==% vctrs::vec_size(rows))
+    if (ggplot2:::is.waive(.f))
+        .f <- ~paste0("(", letters[.x$Id], ")")
+    else if (rlang::is_null(.f))
+        .f <- ~""
+
     if (ncol(rows) %==% 0L)
         row_comb <- forcats::as_factor(rep(0, vctrs::vec_size(rows)))
     else
