@@ -104,6 +104,7 @@ generate_simple_log10_breaks <- function(lim, n = 5L) {
     if (diff(log10(lim)) <= 1L) {
         mult <- log10_floor(min(lim))
         y_dig <- lim / mult
+
         step <- fancy_step(y_dig, n = n, modifier = scales::discard(tick_set[[1]], vctrs::vec_c(1, 10)))
 
         breaks <- mult * generate_simple_breaks(y_dig, step)

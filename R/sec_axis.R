@@ -8,10 +8,12 @@ sec_axis_sci <- function(
     # sec_axis() historically accpeted two-sided formula, so be permissive.
     if (length(axis_trans) > 2) axis_trans <- axis_trans[c(1, 3)]
 
-    axis_trans <- as_function(axis_trans)
+    axis_trans <- rlang::as_function(axis_trans)
 
     if (rlang::is_null(breaks_trans) || ggplot2:::is.waive(breaks_trans))
         breaks_trans <- identity_sci_trans()
+
+
 
     ggproto(NULL, AxisSecondarySci,
         trans = axis_trans,
@@ -21,6 +23,14 @@ sec_axis_sci <- function(
         guide = waiver(),
         temp_trans = breaks_trans
       )
+}
+
+dup_axis_sci <- function(
+    name = derive(),
+    breaks = derive(),
+    labels = derive(),
+    breaks_trans = NULL) {
+    sec_axis_sci(~., name, breaks, labels, derive())
 }
 
 # https://github.com/tidyverse/ggplot2/blob/fa000f786cb0b641600b6de68ae0f96e2ffc5e75/R/axis-secondary.R#L132
@@ -36,13 +46,13 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
         if (ggplot2:::is.waive(self$breaks)) self$breaks <- scale$trans$breaks
         if (ggplot2:::is.derived(self$labels)) self$labels <- scale$labels
         if (ggplot2:::is.derived(self$guide)) self$guide <- scale$guide
+        if (ggplot2:::is.derived(self$temp_trans)) self$temp_trans <- scale$trans
         if (rlang::is_null(self$temp_trans)) self$temp_trans <- identity_sci_trans()
     },
 
     ### ------------------ ###
     break_info = function(self, range, scale) {
         if (self$empty()) return()
-
         # Test for monotonicity on unexpanded range
         self$mono_test(scale)
 
@@ -72,6 +82,7 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
 
             temp_scale <- self$create_scale(new_range)
             ## Here the break info is obtained for the sec axis
+
             range_info <- temp_scale$break_info()
 
             map_ticks <- function(ticks) {

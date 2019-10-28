@@ -463,11 +463,11 @@ nullify_axes_tick_labels <- function(axes_desc) {
 (mtcars %>%
     ggplot_sci(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
     geom_point() +
-    scale_x_sci(name = NULL, sec.axis = sec_axis_sci(~.)) +
-    scale_y_sci(name = NULL, sec.axis = sec_axis_sci(~.)) +
-    facet_sci(vars(gear), # ncol = 1,
-        inner.ticks = TRUE,
-        scales = "fixed")
+    scale_x_log10_sci(name = NULL, sec.axis = dup_axis_sci()) +
+    scale_y_sci(name = NULL, sec.axis = dup_axis_sci()) #+
+    #facet_sci(vars(gear), # ncol = 1,
+        #inner.ticks = TRUE,
+        #scales = "fixed")
     ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
 #egg::expose_layout() %>%
 
