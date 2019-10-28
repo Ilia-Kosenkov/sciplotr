@@ -108,6 +108,9 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
 
         axes <- render_axes(ranges[cols], ranges[rows], coord, theme, transpose = TRUE)
 
+        ## TEST
+        axes <- nullify_axes_tick_labels(axes)
+
         col_vars <- dplyr::distinct(layout[names(params$cols)])
         row_vars <- dplyr::distinct(layout[names(params$rows)])
         # Adding labels metadata, useful for labellers
@@ -171,7 +174,7 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
                 vctrs::vec_repeat(seq_len(nrow), times = ncol))
 
         ## Adding panel labs
-        if(params$panel_labels %||% FALSE)
+        if (params$panel_labels %||% FALSE)
             panel_table <-
                 gen_panel_labs_grobs(
                     panel_table,
@@ -185,6 +188,10 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
             panel_table,
             theme$panel.spacing.y %||% theme$panel.spacing)
 
+        panel_table <- gtable::gtable_add_rows(panel_table, npc_(0), 2)
+        print(panel_table)
+        panel_table <- gtable::gtable_add_grob(panel_table, axes$x$bottom, 2, c(1, 3), clip = "off", name = "test", z = 3)
+        panel_table <- gtable::gtable_add_grob(panel_table, axes$x$top, 3, c(1, 3), clip = "off", name = "test", z = 2)
 
         # Add axes
         panel_table <- gtable::gtable_add_rows(panel_table, ggplot2::max_height(axes$x$top), 0)
@@ -350,17 +357,41 @@ gen_panel_labs_grobs <- function(panel, labs_table, theme) {
     }
 }
 
+nullify_axes_tick_labels <- function(axes_desc) {
+    worker <- function(axes) {
+        if (!rlang::is_null(axes)) {
+            purrr::map_int(purrr::map(axes, "children"), purrr::detect_index, ~ !rlang::inherits_any(.x, "zeroGrob")) -> grob_pos
+            grob_lists <- purrr::map2(axes, grob_pos, ~ purrr::pluck(.x, "children", .y, "grobs"))
+            ids <- purrr::map_int(grob_lists, detect_index, rlang::inherits_any, "titleGrob")
+            purrr::reduce2(
+                grob_pos,
+                seq_along(ids),
+                ~ purrr::assign_in(
+                    ..1,
+                    list(..3, "children", ..2, "grobs", ids[..3]), zeroGrob()),
+                    .init = axes)
+        }
+        else
+            axes
+    }
+
+    axes_desc <- purrr::assign_in(axes_desc, vctrs::vec_c("x", "bottom"), worker(purrr::pluck(axes_desc, "x", "bottom")))
+    axes_desc <- purrr::assign_in(axes_desc, vctrs::vec_c("x", "top"), worker(purrr::pluck(axes_desc, "x", "top")))
+    axes_desc <- purrr::assign_in(axes_desc, vctrs::vec_c("y", "left"), worker(purrr::pluck(axes_desc, "y", "left")))
+    axes_desc <- purrr::assign_in(axes_desc, vctrs::vec_c("y", "right"), worker(purrr::pluck(axes_desc, "y", "right")))
+
+}
+
+
 (mtcars %>%
     ggplot_sci(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
     geom_point() +
     scale_x_sci(name = NULL, sec.axis = sec_axis_sci(~ .)) +
     scale_y_sci(name = NULL, sec.axis = sec_axis_sci(~ .)) +
     facet_sci(gear ~ am, # ncol = 1,
-        #as.table = FALSE,
         scales = "fixed")
     ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
 #egg::expose_layout() %>%
-#print
 
 #egg::expose_layout(plt)
 plt %>%
