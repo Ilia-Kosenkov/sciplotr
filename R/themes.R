@@ -97,7 +97,7 @@ theme_scientific <- function(
             theme_val,
             list(
                 axis.ticks.minor.length = ticks.minor,
-                facet.lab = element_text(size = text.size)))
+                facet.lab = element_text(size = title.size)))
 
     attributes(theme_val) <- append(attrs, list(names = names(theme_val)))
 
