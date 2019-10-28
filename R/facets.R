@@ -2,7 +2,7 @@
 # https://github.com/tidyverse/ggplot2/blob/269be6fe56a71bef2687ac4c1f39992de45ae87a/R/facet-grid-.r#L111
 facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
                       space = "fixed", shrink = TRUE,
-                      labeller = "sample_labeller", as.table = TRUE,
+                      labeller = label_f(), as.table = TRUE,
                       rotate.y = TRUE, margins = FALSE,
                       panel.labels = TRUE,
                       inner.ticks = TRUE,
@@ -284,7 +284,8 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
     element_y <- calc_element("strip.text.y", theme)
 
     ## For weird compatibility with `ggplot2:::ggstrip`
-    labels <- purrr::map(labeller(list(cols = cols, rows = rows)),
+
+    labels <- purrr::map_if(labeller(list(cols = cols, rows = rows)), ~not(rlang::is_null(.x)),
                          ~ `dim<-`(.x, vctrs::vec_c(vctrs::vec_size(.x), 1L)))
 
     if (rlang::inherits_any(element_y, "element_blank")) {
@@ -300,16 +301,28 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
             fontface = element_y$face,
             lineheight = element_y$lineheight)
 
-        left_grobs <- ggplot2:::create_strip_labels(labels$left, element_y, gp_y)
-        left_grobs <- ggplot2:::ggstrip(left_grobs, theme, element_y, gp_y, FALSE, "on")
+        if (rlang::is_null(labels$left))
+            left_grobs <-
+                rep(list(ggplot2::zeroGrob()), vctrs::vec_size(rows))
+        else {
+            left_grobs <- ggplot2:::create_strip_labels(labels$left, element_y, gp_y)
+            left_grobs <- ggplot2:::ggstrip(left_grobs, theme, element_y, gp_y, FALSE, "on")
+        }
 
         element_y_rot <-
-        if (rlang::inherits_any(element_y, "element_text") && rotate_y)
-            adjust_angle(element_y)
-        else
-            element_y
-        right_grobs <- ggplot2:::create_strip_labels(labels$right, element_y_rot, gp_y)
-        right_grobs <- ggplot2:::ggstrip(right_grobs, theme, element_y_rot, gp_y, FALSE, "on")
+            if (rlang::inherits_any(element_y, "element_text") && rotate_y)
+                adjust_angle(element_y)
+            else
+                element_y
+
+        if (rlang::is_null(labels$right))
+            right_grobs <-
+                rep(list(ggplot2::zeroGrob()), vctrs::vec_size(rows))
+        else {
+
+            right_grobs <- ggplot2:::create_strip_labels(labels$right, element_y_rot, gp_y)
+            right_grobs <- ggplot2:::ggstrip(right_grobs, theme, element_y_rot, gp_y, FALSE, "on")
+        }
 
         y_strips <- list(left = left_grobs, right = right_grobs)
     }
@@ -328,13 +341,21 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
             fontface = element_x$face,
             lineheight = element_x$lineheight)
 
+        if (rlang::is_null(labels$bottom))
+            bottom_grobs <-
+                rep(list(ggplot2::zeroGrob()), vctrs::vec_size(cols))
+        else {
+            bottom_grobs <- ggplot2:::create_strip_labels(labels$bottom, element_x, gp_x)
+            bottom_grobs <- ggplot2:::ggstrip(bottom_grobs, theme, element_x, gp_x, TRUE, "on")
+        }
 
-        bottom_grobs <- ggplot2:::create_strip_labels(labels$bottom, element_x, gp_x)
-        bottom_grobs <- ggplot2:::ggstrip(bottom_grobs, theme, element_x, gp_x, TRUE, "on")
-
-        top_grobs <- ggplot2:::create_strip_labels(labels$top, element_x, gp_x)
-        top_grobs <- ggplot2:::ggstrip(top_grobs, theme, element_x, gp_x, TRUE, "on")
-
+        if (rlang::is_null(labels$top))
+            top_grobs <-
+                rep(list(ggplot2::zeroGrob()), vctrs::vec_size(cols))
+        else {
+            top_grobs <- ggplot2:::create_strip_labels(labels$top, element_x, gp_x)
+            top_grobs <- ggplot2:::ggstrip(top_grobs, theme, element_x, gp_x, TRUE, "on")
+        }
         x_strips <- list(top = top_grobs, bottom = bottom_grobs)
     }
 
