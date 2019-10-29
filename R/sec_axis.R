@@ -46,7 +46,7 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
         if (ggplot2:::is.waive(self$breaks)) self$breaks <- scale$trans$breaks
         if (ggplot2:::is.derived(self$labels)) self$labels <- scale$labels
         if (ggplot2:::is.derived(self$guide)) self$guide <- scale$guide
-        if (ggplot2:::is.derived(self$temp_trans)) self$temp_trans <- scale$trans
+        if (ggplot2:::is.derived(self$temp_trans)) self$temp_trans <- identity_sci_trans()
         if (rlang::is_null(self$temp_trans)) self$temp_trans <- identity_sci_trans()
     },
 
@@ -72,31 +72,35 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
         new_range <- range(full_range, na.rm = TRUE)
         # patch for date and datetime scales just to maintain functionality
         # works only for linear secondary transforms that respect the time or date transform
+        ## TODO: this was not tested
         if (scale$trans$name %in% c("date", "time")) {
+            rlang::abort("Date/time axes are not supported", "sciplotr_not_implemented")
             temp_scale <- self$create_scale(new_range, trans = scale$trans)
             range_info <- temp_scale$break_info()
             old_val_trans <- rescale(range_info$major, from = c(0, 1), to = range)
             old_val_minor_trans <- rescale(range_info$minor, from = c(0, 1), to = range)
         }
         else {
-
-            temp_scale <- self$create_scale(new_range)
+            trans <- log10_sci_trans()
+            temp_scale <- self$create_scale(trans$transform(new_range), trans)
             ## Here the break info is obtained for the sec axis
 
             range_info <- temp_scale$break_info()
+            range_info$major_source <- trans$inverse(range_info$major_source)
+            range_info$minor_source <- trans$inverse(range_info$minor_source)
 
             map_ticks <- function(ticks) {
                 inds <- locate_inrange(ticks, full_range)
                 offset <- purrr::map2_dbl(
                     ticks, inds,
-                    ~ lin(.x, old_range[.y], vctrs::vec_c(0, 1)))
+                    ~ lin(.x, full_range[.y], vctrs::vec_c(0, 1)))
                 val <- purrr::map2_dbl(
                     offset, inds,
                     ~ lin(.x, vctrs::vec_c(0, 1), old_range[.y]))
                 scale$trans$transform(val)
             }
 
-            # Map the break values back to their correct position on the primary scale
+            ## Map the break values back to their correct position on the primary scale
             old_val_trans <- map_ticks(range_info$major_source)
             old_val_minor_trans <- map_ticks(range_info$minor_source)
 
@@ -128,14 +132,26 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
         range_info$minor_source[] <- old_val_minor_trans
 
         names(range_info) <- paste0("sec.", names(range_info))
-        range_info
+        range_info %T>% print
     },
 
     ### ------------------ ###
     # Temporary scale for the purpose of calling break_info()
     ## The `trans` here is defaulted, so it can be controlled
-    create_scale = function(self, range, trans = self$temp_trans) {
-        ggproto_parent(AxisSecondary, self)$create_scale(range, trans)
+    create_scale = function(self, range,
+        trans = self$temp_trans,
+        breaks = self$breaks,
+        labels = self$labels) {
+        #ggproto_parent(AxisSecondary, self)$create_scale(range, trans)
+        scale <- ggproto(NULL, ScaleContinuousPosition,
+                     name = self$name,
+                     #breaks = breaks,
+                     #labels = labels,
+                     limits = range,
+                     expand = c(0, 0),
+                     trans = trans)
+        scale$train(range)
+        scale
     }
     ## `make_title` is trivial and is inherited
     ## `empry` is trivial and is inherited
