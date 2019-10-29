@@ -460,25 +460,34 @@ nullify_axes_tick_labels <- function(axes_desc) {
 }
 
 
-(mtcars %>%
-    ggplot_sci(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
-    geom_point() +
-    scale_x_log10_sci(name = NULL, sec.axis = dup_axis_sci()) +
-    scale_y_sci(name = NULL, sec.axis = dup_axis_sci()) #+
-    #facet_sci(vars(gear), # ncol = 1,
-        #inner.ticks = TRUE,
-        #scales = "fixed")
-    ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
+#(mtcars %>%
+    #ggplot_sci(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
+    #geom_point() +
+    #scale_x_log10_sci(name = NULL, sec.axis = sec_axis_sci(~.)) +
+    #scale_y_sci(name = NULL) #+
+    ##facet_sci(vars(gear), # ncol = 1,
+        ##inner.ticks = TRUE,
+        ##scales = "fixed")
+    #) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
 #egg::expose_layout() %>%
 
 #egg::expose_layout(plt)
-plt %>%
-    postprocess_axes(
-        axes_margin = mar_(h = u_(1 ~ cm), v = u_(1 ~ cm)),
-        text_margin = mar_(h = u_(0 ~ null), v = u_(0 ~ null))
-        ) -> tbl
-grid.newpage()
-grid.draw(tbl)
+#plt %>%
+    #postprocess_axes(
+        #axes_margin = mar_(h = u_(1 ~ cm), v = u_(1 ~ cm)),
+        #text_margin = mar_(h = u_(0 ~ null), v = u_(0 ~ null))
+        #) -> tbl
+#grid.newpage()
+#grid.draw(tbl)
 #print(tbl)
 #print(convertX(sum(tbl$grobs[[7]]$children[[2]]$grobs[[2]]$x - tbl$grobs[[8]]$children[[2]]$grobs[[1]]$x), "native", TRUE))
 #gtable::gtable_show_layout(tbl)
+#print(plt)
+
+
+
+ggplot_sci(tibble(y = 10 ^ runif(100, 1, 4), x = 1:100), aes(x, y)) +
+    geom_point() +
+    scale_y_log10_sci(sec.axis = sec_axis_sci(~0.1*.)) -> plt
+
+print(plt)
