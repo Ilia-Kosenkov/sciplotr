@@ -486,8 +486,14 @@ nullify_axes_tick_labels <- function(axes_desc) {
 
 
 
-ggplot_sci(tibble(y = 10 ^ runif(100, 1, 4), x = 1:100), aes(x, y)) +
-    geom_point() +
-    scale_y_log10_sci(sec.axis = sec_axis_sci(~0.1*.)) -> plt
+ggplot_sci(tibble(y = 10 ^ runif(100, 1, 4.002), x = 1:100), aes(x, y)) +
+    geom_point() -> plt# +
+    #scale_x_sci(sec.axis = dup_axis_sci()) +
+    #scale_y_log10_sci(
+        #name = expression(F[y]),
+        #sec.axis = sec_axis(~.,
+            #name = expression(m[y])#,
+            #breaks_trans = identity_sci_trans()
+#)) -> plt
 
 print(plt)
