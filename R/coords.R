@@ -43,10 +43,8 @@ CoordSci <-
 
 coord_sci <- function(
     xlim = NULL, ylim = NULL,
-    expand = TRUE, default = FALSE, clip = "on",
-    ticks.minor.size.f = 0.5) {
+    expand = TRUE, default = FALSE, clip = "on") {
     ggproto(NULL, CoordSci,
             limits = list(x = xlim, y = ylim),
-            expand = expand, default = default, clip = clip,
-            ticks_minor_size_f = ticks.minor.size.f)
+            expand = expand, default = default, clip = clip)
 }
