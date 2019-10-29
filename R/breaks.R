@@ -51,7 +51,6 @@ generate_simple_breaks <- function(range, step = fancy_step(range, n = 6L, modif
 generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
     if (vctrs::vec_size(breaks) < 2L)
         return(double(0))
-
     diffs <- diff(breaks)
     # Temporarily ignore this
     #if (!are_same_all(diffs, eps = 1))
@@ -99,8 +98,8 @@ generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
 generate_simple_log10_breaks <- function(lim, n = 5L) {
     tick_set <- list(
     #vctrs::vec_c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50),
-                    vctrs::vec_c(0.1, 0.5, 1, 5, 10, 50),
-                    vctrs::vec_c(0.1, 1, 10))
+                    vctrs::vec_c(0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100),
+                    vctrs::vec_c(0.01, 0.1, 1, 10, 100))
     if (diff(log10(lim)) <= 1L) {
         mult <- log10_floor(min(lim))
         y_dig <- lim / mult
@@ -119,7 +118,7 @@ generate_simple_log10_breaks <- function(lim, n = 5L) {
 
         breaks <- purrr::map(tick_set, get_breaks)
         delta_lens <- abs(purrr::map_int(breaks, vctrs::vec_size) - n)
-        id <- which(are_equal_f(delta_lens, min(delta_lens)))
+        id <- which(are_equal_f(delta_lens, min(delta_lens)))[1]
 
         breaks <- breaks[[id]]
     }
