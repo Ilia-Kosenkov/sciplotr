@@ -98,9 +98,9 @@ generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
 generate_simple_log10_breaks <- function(lim, n = 5L) {
     tick_set <- list(
     #vctrs::vec_c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50),
-                    vctrs::vec_c(0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100),
+                    #vctrs::vec_c(0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100),
                     vctrs::vec_c(0.01, 0.1, 1, 10, 100))
-    if (diff(log10(lim)) <= 1L) {
+    if (diff(log10(lim)) <= 2L) {
         mult <- log10_floor(min(lim))
         y_dig <- lim / mult
 
