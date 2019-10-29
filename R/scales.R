@@ -3,7 +3,7 @@ scale_x_sci <- function(name = waiver(), breaks = waiver(), minor_breaks = waive
     labels = waiver(), limits = NULL, expand = waiver(), oob = censor,
     na.value = NA_real_, position = "bottom",
     sec.axis = waiver(),
-    breaks_n = 3,
+    breaks_n = 5,
     breaks_modifiers = vctrs::vec_c(1, 2, 2.5, 5),
     minor_breaks_n = 50L) {
 
@@ -21,7 +21,7 @@ scale_y_sci <- function(name = waiver(), breaks = waiver(), minor_breaks = waive
     labels = waiver(), limits = NULL, expand = waiver(), oob = censor,
     na.value = NA_real_, position = "left",
     sec.axis = waiver(),
-    breaks_n = 3,
+    breaks_n = 5,
     breaks_modifiers = vctrs::vec_c(1, 2, 2.5, 5),
     minor_breaks_n = 50L) {
 
