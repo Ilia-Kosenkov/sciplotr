@@ -4,12 +4,11 @@ identity_sci_trans <- function(n = 5L, modifier = vctrs::vec_c(1, 2, 2.5, 5), n_
               minor_breaks = simple_minor_breaks(n = n_small))
 }
 
-log10_sci_trans <- function() {
+log10_sci_trans <- function(n = 5L, n_small = 30L) {
     trans <- function(x) log10(x)
     inv <- function(x) 10 ^ x
     trans_new("log10_sci", trans, inv,
-              breaks = simple_log10_breaks(),
-              minor_breaks = simple_log10_minor_breaks(),
+              breaks = simple_log10_breaks(n = n),
+              minor_breaks = simple_log10_minor_breaks(n = n_small),
               domain = vctrs::vec_c(1e-300, Inf))
 }
-

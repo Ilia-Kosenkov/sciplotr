@@ -58,35 +58,34 @@ generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
     ##stop("Unequally spaced major breaks")
     #print(RLibs::glue_fmt("{diffs:%26.16e}"))
 
-
     df <- diffs[1L]
 
-    digit <- round(df / log10_floor(df))
+    digit <- abs(df / log10_floor(df))
 
-    modifier <- cc(1, 2, 2.5, 5)
+    modifier <- cc(1, 2, 5)
+    #modifier <- cc(0.1 * modifier, modifier, 10 * modifier)
 
-    if (are_equal_f(digit, 2L))
-        modifier <- cc(1, 5)
-    if (are_equal_f(digit, 3L))
+    if (digit %==% 2)
+        modifier <- cc(1, 2.5,  5)
+    if (digit %==% 3)
         modifier <- cc(1, 3)
-    if (are_equal_f(digit, 5L))
+    if (digit %==% 5)
         modifier <- cc(1, 2.5, 5)
+    if (digit %==% 2.5)
+        modifier <- cc(0.4, 1, 2)
 
-    modifier <- cc(0.1 * modifier, modifier, 10 * modifier)
-
-    step <- 0.1 * log10_floor(df)
+    step <- 0.1 * df#log10_floor(df)
 
     extra_rng <- cc(min(breaks) - df, max(breaks) + df)
-    diff(extra_rng) / (step * modifier)
 
     sizes <- abs(diff(extra_rng) / (step * modifier) - n)
 
-    ind <- which(are_equal_f(sizes, min(sizes)))
+    ind <- which(are_equal_f(sizes, min(sizes)))[1]
 
     small_breaks <- generate_simple_breaks(cc(0, df), modifier[ind] * step)
 
     extended_breaks <-
-        purrr::map(vec_c(min(breaks) - df, breaks, max(breaks) + df), ~ .x + small_breaks) %>%
+        purrr::map(cc(min(breaks) - df, breaks, max(breaks) + df), ~ .x + small_breaks) %>%
         purrr::flatten_dbl %>%
         unique_f
 
@@ -100,7 +99,7 @@ generate_simple_log10_breaks <- function(lim, n = 5L) {
     #vctrs::vec_c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50),
                     #vctrs::vec_c(0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100),
                     vctrs::vec_c(0.01, 0.1, 1, 10, 100))
-    if (diff(log10(lim)) <= 2L) {
+    if (diff(log10(lim)) <= 1.5) {
         mult <- log10_floor(min(lim))
         y_dig <- lim / mult
 

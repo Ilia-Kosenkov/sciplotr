@@ -465,40 +465,35 @@ nullify_axes_tick_labels <- function(axes_desc) {
 }
 
 
-(mtcars %>%
-    ggplot_sci(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
+#(mtcars %>%
+    #ggplot_sci(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
+    #geom_point() +
+    #scale_x_log10_sci(name = NULL, sec.axis = dup_axis_sci()) +
+    #scale_y_sci(name = NULL, breaks_n = 3) +
+    #facet_sci(vars(gear), # ncol = 1,
+        #inner.ticks = TRUE,
+        #scales = "free_y")
+    #) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
+
+#plt %>%
+    #postprocess_axes(
+        #axes_margin = mar_(h = u_(1 ~ cm), v = u_(1 ~ cm)),
+        #text_margin = mar_(h = u_(0 ~ null), v = u_(0 ~ null))
+        #) -> tbl
+#grid.newpage()
+#grid.draw(tbl)
+#print(tbl)
+
+
+ggplot_sci(tibble(y = 10 ^ runif(100, 1, 4.002), x = 1:100), aes(x, y)) +
     geom_point() +
-    scale_x_log10_sci(name = NULL, sec.axis = dup_axis_sci()) +
-    scale_y_sci(name = NULL) +
-    facet_sci(vars(gear), # ncol = 1,
-        inner.ticks = TRUE,
-        scales = "fixed")
-    ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
-#egg::expose_layout() %>%
+    scale_x_sci(sec.axis = dup_axis_sci(),
+        breaks_n = 4L,
+        minor_breaks_n = 20L) +
+    scale_y_log10_sci(
+        name = expression(F[y]),
+        sec.axis = sec_axis_sci(~-2.5 * log10(.) + 15,
+            name = expression(m[y]),
+            breaks_trans = identity_sci_trans(n = 7, cc(1, 2, 5), n_small = 80))) -> plt
 
-#egg::expose_layout(plt)
-plt %>%
-    postprocess_axes(
-        axes_margin = mar_(h = u_(1 ~ cm), v = u_(1 ~ cm)),
-        text_margin = mar_(h = u_(0 ~ null), v = u_(0 ~ null))
-        ) -> tbl
-grid.newpage()
-grid.draw(tbl)
-print(tbl)
-#print(convertX(sum(tbl$grobs[[7]]$children[[2]]$grobs[[2]]$x - tbl$grobs[[8]]$children[[2]]$grobs[[1]]$x), "native", TRUE))
-#gtable::gtable_show_layout(tbl)
-#print(plt)
-
-
-
-#ggplot_sci(tibble(y = 10 ^ runif(100, 1, 4.002), x = 1:100), aes(x, y)) +
-    #geom_point() -> plt# +
-    ##scale_x_sci(sec.axis = dup_axis_sci()) +
-    ##scale_y_log10_sci(
-        ##name = expression(F[y]),
-        ##sec.axis = sec_axis(~.,
-            ##name = expression(m[y])#,
-            ##breaks_trans = identity_sci_trans()
-##)) -> plt
-
-#print(plt)
+print(plt)

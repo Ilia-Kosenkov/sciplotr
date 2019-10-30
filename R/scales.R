@@ -39,12 +39,14 @@ scale_y_sci <- function(name = waiver(), breaks = waiver(), minor_breaks = waive
 scale_x_log10_sci <- function(name = waiver(), breaks = waiver(), minor_breaks = waiver(),
     labels = waiver(), limits = NULL, expand = waiver(), oob = censor,
     na.value = NA_real_, position = "bottom",
+    breaks_n = 5,
+    minor_breaks_n = 30L,
     sec.axis = waiver()) {
 
     scale_x_continuous(name = name, breaks = breaks, minor_breaks = minor_breaks,
         labels = labels, limits = NULL, expand = expand, oob = oob,
         na.value = na.value,
-        trans = log10_sci_trans(),
+        trans = log10_sci_trans(breaks_n, minor_breaks_n),
         position = position,
         sec.axis = sec.axis)
 }
@@ -52,12 +54,14 @@ scale_x_log10_sci <- function(name = waiver(), breaks = waiver(), minor_breaks =
 scale_y_log10_sci <- function(name = waiver(), breaks = waiver(), minor_breaks = waiver(),
     labels = waiver(), limits = NULL, expand = waiver(), oob = censor,
     na.value = NA_real_, position = "left",
+    breaks_n = 5,
+    minor_breaks_n = 30L,
     sec.axis = waiver()) {
 
     scale_y_continuous(name = name, breaks = breaks, minor_breaks = minor_breaks,
         labels = labels, limits = NULL, expand = expand, oob = oob,
         na.value = na.value,
-        trans = log10_sci_trans(),
+        trans = log10_sci_trans(breaks_n, minor_breaks_n),
         position = position,
         sec.axis = sec.axis)
 }
