@@ -179,8 +179,8 @@ get_grobs_desc <- function(grid, pattern) {
 
     
     layout %>%
-        enframe %>%
-        separate_1(value) %>%
+        enframe  %>%
+        split_ex(value) %>%
         set_names(vctrs::vec_c("GrobName", "L", "R", "T", "B")) %>%
         mutate(
             Width = grid:::unit.list.from.list(

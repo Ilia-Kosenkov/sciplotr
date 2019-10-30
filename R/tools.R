@@ -242,3 +242,23 @@ cc <- vctrs::vec_c
 len <- function(x) UseMethod("len")
 len.default <- vctrs::vec_size
 len.unit <- length
+
+split_ex <- function(.data, col, name = NULL, keep = FALSE) {
+    content <- dplyr::pull(.data, {{ col }})
+    content <- vctrs::vec_recycle_common(!!!content)
+    size <- vctrs::vec_size_common(!!!content)
+    transposed <- purrr::map(seq_len(size), ~ purrr::map(content, .x))
+    result <- purrr::map(transposed, ~ vctrs::vec_cast(.x, vctrs::vec_ptype_common(!!!.x)))
+
+    if (rlang::is_null(name) || rlang::is_empty(name))
+        names <- paste0("Split_", seq_len(size))
+    else
+        names <- paste0(name, "_", seq_len(size))
+
+    result <- dplyr::bind_cols(rlang::set_names(result, names))
+
+    if (!keep)
+        .data <- dplyr::select(.data, - {{ col }})
+
+    dplyr::bind_cols(.data, result)
+}
