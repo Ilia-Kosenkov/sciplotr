@@ -143,19 +143,16 @@ round_interval <- function(rng, by) {
     rng <- vec_assert_numeric(rng)
     by <- vec_assert_numeric(by, size = 1L)
 
-    by * vctrs::vec_c(floor(rng[1] / by), ceiling(rng[2] / by))
+    by * cc(floor(rng[1] / by), ceiling(rng[2] / by))
 }
 
 
 
-name_filler <- function() ""
-
-labels_filler <- function() function(x) vctrs::vec_recycle("", vctrs::vec_size(x))
 
 lin <- function(x, x0, y0) {
     dx <- diff(x0)
     dy <- diff(y0)
-    sz <- vctrs::vec_size(x)
+    sz <- len(x)
     if (sz %==% 0L)
         return(x)
     else if (sz %==% 1L)
@@ -180,7 +177,7 @@ locate_inrange <- function(x, range) {
 
     purrr::map(x,
         ~ dplyr::filter(data, test(.x, l, r)) %>%
-            magrittr::extract(1, vctrs::vec_c("id_l", "id_r")) %>%
+            magrittr::extract(1, cc("id_l", "id_r")) %>%
             purrr::flatten_int %>%
             unname)
 }
@@ -193,31 +190,31 @@ df_grid <- function(rows, cols, margin = FALSE) {
         forcats::as_factor)
 
     if (margin)
-        vars <- purrr::map(vars, vctrs::vec_c, forcats::as_factor("(all)"))
+        vars <- purrr::map(vars, cc, forcats::as_factor("(all)"))
 
     tidyr::expand_grid(!!!vars)
 }
 
 get_id <- function(.variables) {
 
-    lengths <- purrr::map_int(.variables, vctrs::vec_size)
-    .variables <- .variables[lengths %!=% 0L]
-    vars_len <- vctrs::vec_size(.variables)
+    lengths <- purrr::map_int(.variables, len)
+    .vars <- .variables[lengths %!=% 0L]
+    vars_len <- len(.vars)
 
     if (vars_len %==% 0L) {
-        n <- vctrs::vec_size(.variables) %||% 0L
+        n <- len(.variables) %||% 0L
         return(structure(seq_len(n), n = n))
     }
     if (vars_len %==% 1L) {
-        return(get_id_var(.variables[[1]]))
+        return(get_id_var(.vars[[1]]))
     }
     ids <- rev(purrr::map(.variables, get_id_var))
-    p <- vctrs::vec_size(ids)
+    p <- len(ids)
 
     ndistinct <- purrr::map_int(ids, attr, "n")
     n <- prod(ndistinct)
 
-    combs <- vctrs::vec_c(1, cumprod(ndistinct[-p]))
+    combs <- cc(1, cumprod(ndistinct[-p]))
     mat <- rlang::exec(cbind, !!!ids)
     res <- as.vector((mat - 1L) %*% combs + 1L)
     attr(res, "n") <- n
@@ -241,3 +238,5 @@ adjust_angle <- function(x) {
 
 `%vec_in%` <- vctrs::vec_in
 cc <- vctrs::vec_c
+
+len <- vctrs::vec_size
