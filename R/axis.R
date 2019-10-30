@@ -2,8 +2,8 @@
 draw_axis <- function(break_positions, break_labels, axis_position, theme,
                       check.overlap = FALSE, angle = NULL, n.dodge = 1,
                       break_types = vctrs::vec_recycle("major", vctrs::vec_size(break_positions))) {
-    axis_position <- match.arg(axis_position, vctrs::vec_c("top", "bottom", "right", "left"))
-    aesthetic <- if (axis_position %vec_in% vctrs::vec_c("top", "bottom")) "x" else "y"
+    axis_position <- match.arg(axis_position, cc("top", "bottom", "right", "left"))
+    aesthetic <- if (axis_position %vec_in% cc("top", "bottom")) "x" else "y"
 
     # resolve elements
     line_element_name <- paste0("axis.line.", aesthetic, ".", axis_position)
@@ -32,7 +32,7 @@ draw_axis <- function(break_positions, break_labels, axis_position, theme,
     }
 
     # conditionally set parameters that depend on axis orientation
-    is_vertical <- axis_position %vec_in% vctrs::vec_c("left", "right")
+    is_vertical <- axis_position %vec_in% cc("left", "right")
 
     position_dim <- if (is_vertical) "y" else "x"
     non_position_dim <- if (is_vertical) "x" else "y"
@@ -44,18 +44,18 @@ draw_axis <- function(break_positions, break_labels, axis_position, theme,
 
     # conditionally set parameters that depend on which side of the panel
     # the axis is on
-    is_second <- axis_position %vec_in% vctrs::vec_c("right", "top")
+    is_second <- axis_position %vec_in% cc("right", "top")
 
     tick_direction <- if (is_second) 1 else-1
     non_position_panel <- if (is_second) u_(0 ~ npc) else u_(1 ~ npc)
     tick_coordinate_order <- if (is_second) vctrs::vec_c(2L, 1L) else vctrs::vec_c(1L, 2L)
 
     # conditionally set the gtable ordering
-    labels_first_gtable <- axis_position %vec_in% vctrs::vec_c("left", "top") # refers to position in gtable
+    labels_first_gtable <- axis_position %vec_in% cc("left", "top") # refers to position in gtable
 
     # set common parameters
     n_breaks <- length(break_positions)
-    opposite_positions <- vctrs::vec_c("top" = "bottom", "bottom" = "top", "right" = "left", "left" = "right")
+    opposite_positions <- cc("top" = "bottom", "bottom" = "top", "right" = "left", "left" = "right")
     axis_position_opposite <- unname(opposite_positions[axis_position])
 
     # draw elements

@@ -240,3 +240,4 @@ adjust_angle <- function(x) {
 }
 
 `%vec_in%` <- vctrs::vec_in
+cc <- vctrs::vec_c

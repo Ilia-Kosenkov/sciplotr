@@ -63,27 +63,27 @@ generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
 
     digit <- round(df / log10_floor(df))
 
-    modifier <- vec_c(1, 2, 2.5, 5)
+    modifier <- cc(1, 2, 2.5, 5)
 
     if (are_equal_f(digit, 2L))
-        modifier <- vec_c(1, 5)
+        modifier <- cc(1, 5)
     if (are_equal_f(digit, 3L))
-        modifier <- vec_c(1, 3)
+        modifier <- cc(1, 3)
     if (are_equal_f(digit, 5L))
-        modifier <- vec_c(1, 2.5, 5)
+        modifier <- cc(1, 2.5, 5)
 
-    modifier <- vec_c(0.1 * modifier, modifier, 10 * modifier)
+    modifier <- cc(0.1 * modifier, modifier, 10 * modifier)
 
     step <- 0.1 * log10_floor(df)
 
-    extra_rng <- vec_c(min(breaks) - df, max(breaks) + df)
+    extra_rng <- cc(min(breaks) - df, max(breaks) + df)
     diff(extra_rng) / (step * modifier)
 
     sizes <- abs(diff(extra_rng) / (step * modifier) - n)
 
     ind <- which(are_equal_f(sizes, min(sizes)))
 
-    small_breaks <- generate_simple_breaks(vec_c(0, df), modifier[ind] * step)
+    small_breaks <- generate_simple_breaks(cc(0, df), modifier[ind] * step)
 
     extended_breaks <-
         purrr::map(vec_c(min(breaks) - df, breaks, max(breaks) + df), ~ .x + small_breaks) %>%
