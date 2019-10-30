@@ -238,3 +238,5 @@ adjust_angle <- function(x) {
     x$angle <- ggplot2:::adjust_angle(x$angle)
     x
 }
+
+`%vec_in%` <- vctrs::vec_in
