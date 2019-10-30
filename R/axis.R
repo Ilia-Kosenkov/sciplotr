@@ -2,8 +2,8 @@
 draw_axis <- function(break_positions, break_labels, axis_position, theme,
                       check.overlap = FALSE, angle = NULL, n.dodge = 1,
                       break_types = vctrs::vec_recycle("major", vctrs::vec_size(break_positions))) {
-    axis_position <- match.arg(axis_position, c("top", "bottom", "right", "left"))
-    aesthetic <- if (axis_position %in% c("top", "bottom")) "x" else "y"
+    axis_position <- match.arg(axis_position, vctrs::vec_c("top", "bottom", "right", "left"))
+    aesthetic <- if (axis_position %vec_in% vctrs::vec_c("top", "bottom")) "x" else "y"
 
     # resolve elements
     line_element_name <- paste0("axis.line.", aesthetic, ".", axis_position)
@@ -23,53 +23,53 @@ draw_axis <- function(break_positions, break_labels, axis_position, theme,
     ###
 
     # override label element parameters for rotation
-    if (inherits(label_element, "element_text")) {
+    if (rlang::inherits_any(label_element, "element_text")) {
         label_overrides <- ggplot2:::axis_label_element_overrides(axis_position, angle)
         # label_overrides is always an element_text(), but in order for the merge to
         # keep the new class, the override must also have the new class
         class(label_overrides) <- class(label_element)
-        label_element <- merge_element(label_overrides, label_element)
+        label_element <- ggplot2::merge_element(label_overrides, label_element)
     }
 
     # conditionally set parameters that depend on axis orientation
-    is_vertical <- axis_position %in% c("left", "right")
+    is_vertical <- axis_position %vec_in% vctrs::vec_c("left", "right")
 
     position_dim <- if (is_vertical) "y" else "x"
     non_position_dim <- if (is_vertical) "x" else "y"
     position_size <- if (is_vertical) "height" else "width"
     non_position_size <- if (is_vertical) "width" else "height"
-    gtable_element <- if (is_vertical) gtable_row else gtable_col
-    measure_gtable <- if (is_vertical) gtable_width else gtable_height
-    measure_labels_non_pos <- if (is_vertical) grobWidth else grobHeight
+    gtable_element <- if (is_vertical) gtable::gtable_row else gtable::gtable_col
+    measure_gtable <- if (is_vertical) gtable::gtable_width else gtable::gtable_height
+    measure_labels_non_pos <- if (is_vertical) grid::grobWidth else grid::grobHeight
 
     # conditionally set parameters that depend on which side of the panel
     # the axis is on
-    is_second <- axis_position %in% c("right", "top")
+    is_second <- axis_position %vec_in% vctrs::vec_c("right", "top")
 
     tick_direction <- if (is_second) 1 else-1
-    non_position_panel <- if (is_second) unit(0, "npc") else unit(1, "npc")
-    tick_coordinate_order <- if (is_second) c(2, 1) else c(1, 2)
+    non_position_panel <- if (is_second) u_(0 ~ npc) else u_(1 ~ npc)
+    tick_coordinate_order <- if (is_second) vctrs::vec_c(2L, 1L) else vctrs::vec_c(1L, 2L)
 
     # conditionally set the gtable ordering
-    labels_first_gtable <- axis_position %in% c("left", "top") # refers to position in gtable
+    labels_first_gtable <- axis_position %vec_in% vctrs::vec_c("left", "top") # refers to position in gtable
 
     # set common parameters
     n_breaks <- length(break_positions)
-    opposite_positions <- c("top" = "bottom", "bottom" = "top", "right" = "left", "left" = "right")
+    opposite_positions <- vctrs::vec_c("top" = "bottom", "bottom" = "top", "right" = "left", "left" = "right")
     axis_position_opposite <- unname(opposite_positions[axis_position])
 
     # draw elements
-    line_grob <- exec(
-        element_grob, line_element,
-        !!position_dim := unit(c(0, 1), "npc"),
-        !!non_position_dim := unit.c(non_position_panel, non_position_panel))
+    line_grob <- rlang::exec(
+        ggplot2::element_grob, line_element,
+        !!position_dim := u_(0 ~ npc, 1 ~ npc),
+        !!non_position_dim := grid::unit.c(non_position_panel, non_position_panel))
 
     if (n_breaks == 0) {
         return(
             ggplot2:::absoluteGrob(
-                gList(line_grob),
-                width = grobWidth(line_grob),
-                height = grobHeight(line_grob)))
+                grid::gList(line_grob),
+                width = grid::grobWidth(line_grob),
+                height = grid::grobHeight(line_grob)))
     }
 
     # break_labels can be a list() of language objects
@@ -81,19 +81,17 @@ draw_axis <- function(break_positions, break_labels, axis_position, theme,
     }
 
     # calculate multiple rows/columns of labels (which is usually 1)
-    ## TODO : exclude minor ticks labels?
 
     n_breaks_major <- vctrs::vec_size(break_labels)
-    dodge_pos <- rep(seq_len(n.dodge), length.out = n_breaks_major)#n_breaks)
-    #dodge_indices <- split(seq_len(n_breaks), dodge_pos)
+    dodge_pos <- rep(seq_len(n.dodge), length.out = n_breaks_major)
     dodge_indices <- split(seq_len(n_breaks_major), dodge_pos)
     labelled_pos <- break_positions[break_types == "major"]
 
     label_grobs <-
-        lapply(dodge_indices,
+        purrr::map(dodge_indices,
             function(indices) {
                 ggplot2:::draw_axis_labels(
-                    break_positions = labelled_pos,#break_positions[indices],
+                    break_positions = labelled_pos,
                     break_labels = break_labels[indices],
                     label_element = label_element,
                     is_vertical = is_vertical,
