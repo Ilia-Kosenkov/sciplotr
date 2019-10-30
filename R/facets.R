@@ -443,10 +443,15 @@ nullify_axes_tick_labels <- function(axes_desc) {
             purrr::reduce2(
                 grob_pos,
                 seq_along(ids),
-                ~ purrr::assign_in(
-                    ..1,
-                    list(..3, "children", ..2, "grobs", ids[..3]), ggplot2::zeroGrob()),
-                    .init = axes)
+            ## This causes an error
+                function(src, g_pos, id) {
+                    path <- list(id, "children", g_pos, "grobs", ids[id])
+                    if (rlang::is_null(pluck(src, !!!path)))
+                        src
+                    else
+                        purrr::assign_in(src, path, ggplot2::zeroGrob())
+                },
+                .init = axes)
         }
         else
             axes
@@ -463,11 +468,11 @@ nullify_axes_tick_labels <- function(axes_desc) {
 (mtcars %>%
     ggplot_sci(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
     geom_point() +
-    scale_x_log10_sci(name = NULL, sec.axis = sec_axis_sci(~.)) +
-    scale_y_sci(name = NULL) #+
-    #facet_sci(vars(gear), # ncol = 1,
-        #inner.ticks = TRUE,
-        #scales = "fixed")
+    scale_x_log10_sci(name = NULL, sec.axis = dup_axis_sci()) +
+    scale_y_sci(name = NULL) +
+    facet_sci(vars(gear), # ncol = 1,
+        inner.ticks = TRUE,
+        scales = "fixed")
     ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
 #egg::expose_layout() %>%
 
