@@ -239,4 +239,6 @@ adjust_angle <- function(x) {
 `%vec_in%` <- vctrs::vec_in
 cc <- vctrs::vec_c
 
-len <- vctrs::vec_size
+len <- function(x) UseMethod("len")
+len.default <- vctrs::vec_size
+len.unit <- length
