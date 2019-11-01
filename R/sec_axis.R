@@ -87,7 +87,7 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
             temp_scale <- self$create_scale(trans$transform(new_range))
             ## Here the break info is obtained for the sec axis
 
-            range_info <- temp_scale$break_info() #%>% print
+            range_info <- temp_scale$break_info()
             range_info$major_source <- trans$inverse(range_info$major_source)
             range_info$minor_source <- trans$inverse(range_info$minor_source)
 
@@ -98,7 +98,7 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
                     ~ lin(.x, full_range[.y], vctrs::vec_c(0, 1)))
                 val <- purrr::map2_dbl(
                     offset, inds,
-                    ~ lin(.x, vctrs::vec_c(0, 1), old_range[.y])) 
+                    ~ lin(.x, vctrs::vec_c(0, 1), old_range[.y]))
                 scale$trans$transform(val)
             }
 

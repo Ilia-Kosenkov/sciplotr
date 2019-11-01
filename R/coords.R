@@ -5,7 +5,7 @@ CoordSci <-
             #res <- append(ggproto_parent(CoordCartesian, self)$setup_panel_params(scale_x, scale_y, params),
                    #list(ticks_minor_size_f = self$ticks_minor_size_f))
 
-            #print(res)
+            #rlang::abort(" ")
             ##c(view_scales_from_scale(scale_x, self$limits$x, self$expand),
               ##view_scales_from_scale(scale_y, self$limits$y, self$expand),
               ##list(ticks_minor_size_f = self$ticks_minor_size_f))
@@ -14,7 +14,6 @@ CoordSci <-
         train_panel_guides = function(self, panel_params, layers, default_mapping, params = list()) {
             aesthetics <- c("x", "y", "x.sec", "y.sec")
             names(aesthetics) <- aesthetics
-
             panel_params$guides <- lapply(aesthetics, function(aesthetic) {
                 axis <- substr(aesthetic, 1, 1)
                 guide <- panel_params$guides[[aesthetic]]

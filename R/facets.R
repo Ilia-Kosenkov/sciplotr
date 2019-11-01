@@ -96,9 +96,13 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
         panels$SCALE_X <- if (params$free$x) panels$COL else 1L
         panels$SCALE_Y <- if (params$free$y) panels$ROW else 1L
 
-        panels
+        panels %T>% print
     },
-
+    train_scales = function(x_scale = NULL, y_scale = NULL, layout, data, params) {
+        FacetGrid$train_scales(x_scale, y_scale, layout, data, params)
+        #print(x_scale)
+        #print(y_scale)
+    },
     draw_panels = function(panels, layout, x_scales, y_scales, ranges, coord, data, theme, params) {
         if ((params$free$x || params$free$y) && !coord$is_free())
             rlang::abort(
@@ -106,7 +110,7 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
                     class(coord),
                     " doesn't support free scales"),
                 "sciplotr_invalid_arg")
-
+        
         cols <- which(layout$ROW %==% 1L)
         rows <- which(layout$COL %==% 1L)
 
@@ -465,35 +469,37 @@ nullify_axes_tick_labels <- function(axes_desc) {
 }
 
 
-#(mtcars %>%
-    #ggplot_sci(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
-    #geom_point() +
-    #scale_x_log10_sci(name = NULL, sec.axis = dup_axis_sci()) +
-    #scale_y_sci(name = NULL, breaks_n = 3) +
-    #facet_sci(vars(gear), # ncol = 1,
-        #inner.ticks = TRUE,
-        #scales = "free_y")
-    #) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
+(mtcars %>%
+    ggplot_sci(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
+    geom_point() +
+    scale_x_log10_sci(name = NULL,
+        breaks_n = 3,
+        sec.axis = sec_axis_sci(~ 0.5 * .)) +
+    scale_y_sci(name = NULL, breaks_n = 3) +
+    facet_sci(am ~ gear, # ncol = 1,
+        inner.ticks = TRUE,
+        scales = "fixed")
+    ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
 
-#plt %>%
-    #postprocess_axes(
-        #axes_margin = mar_(h = u_(1 ~ cm), v = u_(1 ~ cm)),
-        #text_margin = mar_(h = u_(0 ~ null), v = u_(0 ~ null))
-        #) -> tbl
-#grid.newpage()
-#grid.draw(tbl)
+plt %>%
+    postprocess_axes(
+        axes_margin = mar_(h = u_(1 ~ cm), v = u_(1 ~ cm)),
+        text_margin = mar_(h = u_(0 ~ null), v = u_(0 ~ null))
+        ) -> tbl
+grid.newpage()
+grid.draw(tbl)
 #print(tbl)
 
 
-ggplot_sci(tibble(y = 10 ^ runif(100, 1, 4.002), x = 1:100), aes(x, y)) +
-    geom_point() +
-    scale_x_sci(sec.axis = dup_axis_sci(),
-        breaks_n = 4L,
-        minor_breaks_n = 20L) +
-    scale_y_log10_sci(
-        name = expression(F[y]),
-        sec.axis = sec_axis_sci(~-2.5 * log10(.) + 15,
-            name = expression(m[y]),
-            breaks_trans = identity_sci_trans(n = 7, cc(1, 2, 5), n_small = 80))) -> plt
+#ggplot_sci(tibble(y = 10 ^ runif(100, 1, 4.002), x = 1:100), aes(x, y)) +
+    #geom_point() +
+    #scale_x_sci(sec.axis = dup_axis_sci(),
+        #breaks_n = 4L,
+        #minor_breaks_n = 20L) +
+    #scale_y_log10_sci(
+        #name = expression(F[y]),
+        #sec.axis = sec_axis_sci(~-2.5 * log10(.) + 15,
+            #name = expression(m[y]),
+            #breaks_trans = identity_sci_trans(n = 7, cc(1, 2, 5), n_small = 80))) -> plt
 
-print(plt)
+#print(plt)
