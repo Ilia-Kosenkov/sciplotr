@@ -1,5 +1,6 @@
+#' @export
 CoordSci <-
-    ggproto("CoordSci", CoordCartesian,
+    ggplot2::ggproto("CoordSci", ggplot2::CoordCartesian,
         # https://github.com/tidyverse/ggplot2/blob/115c3960d0fd068f1ca4cfe4650c0e0474aabba5/R/coord-cartesian-.r#L99
         #setup_panel_params = function(self, scale_x, scale_y, params = list()) {
             #res <- append(ggproto_parent(CoordCartesian, self)$setup_panel_params(scale_x, scale_y, params),
@@ -38,11 +39,11 @@ CoordSci <-
               right = panel_guides_grob(panel_params$guides, position = "right", theme = theme))
         }
     )
-
+#' @export
 coord_sci <- function(
     xlim = NULL, ylim = NULL,
     expand = TRUE, default = FALSE, clip = "on") {
-    ggproto(NULL, CoordSci,
+    ggplot2::ggproto(NULL, CoordSci,
             limits = list(x = xlim, y = ylim),
             expand = expand, default = default, clip = clip)
 }

@@ -1,3 +1,4 @@
+#' @export
 # https://github.com/tidyverse/ggplot2/blob/23e324197e0a5ddd764588d42838b0d96da9b68d/R/axis-secondary.R#L82
 sec_axis_sci <- function(
     axis_trans = NULL,
@@ -15,7 +16,7 @@ sec_axis_sci <- function(
 
 
 
-    ggproto(NULL, AxisSecondarySci,
+    ggplot2::ggproto(NULL, AxisSecondarySci,
         trans = axis_trans,
         name = name,
         breaks = breaks,
@@ -25,6 +26,7 @@ sec_axis_sci <- function(
       )
 }
 
+#' @export
 dup_axis_sci <- function(
     name = derive(),
     breaks = derive(),
@@ -33,8 +35,9 @@ dup_axis_sci <- function(
     sec_axis_sci(~., name, breaks, labels, derive())
 }
 
+#' @export
 # https://github.com/tidyverse/ggplot2/blob/fa000f786cb0b641600b6de68ae0f96e2ffc5e75/R/axis-secondary.R#L132
-AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
+AxisSecondarySci <- ggplot2::ggproto("AxisSecondarySci", ggplot2::AxisSecondary,
     temp_trans = NULL,
     ###
     # Inherit settings from the primary axis/scale
@@ -146,7 +149,7 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
         breaks = self$breaks,
         labels = self$labels) {
         #ggproto_parent(AxisSecondary, self)$create_scale(range, trans)
-        scale <- ggproto(NULL, ScaleContinuousPosition,
+        scale <- ggplot2::ggproto(NULL, ggplot2::ScaleContinuousPosition,
                      name = self$name,
                      #breaks = breaks,
                      #labels = labels,

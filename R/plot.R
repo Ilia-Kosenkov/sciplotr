@@ -1,3 +1,4 @@
+#' @export
 # https://github.com/tidyverse/ggplot2/blob/c84d9a075280d374892e5a3e0e25dd0ba246caad/R/plot.r#L80
 ggplot_sci <- function(
     data = NULL, mapping = aes(), ..., environment = parent.frame()) {

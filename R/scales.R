@@ -1,4 +1,4 @@
-
+#' @export
 scale_x_sci <- function(name = waiver(), breaks = waiver(), minor_breaks = waiver(),
     labels = waiver(), limits = NULL, expand = waiver(), oob = censor,
     na.value = NA_real_, position = "bottom",
@@ -17,6 +17,7 @@ scale_x_sci <- function(name = waiver(), breaks = waiver(), minor_breaks = waive
         sec.axis = sec.axis)
 }
 
+#' @export
 scale_y_sci <- function(name = waiver(), breaks = waiver(), minor_breaks = waiver(),
     labels = waiver(), limits = NULL, expand = waiver(), oob = censor,
     na.value = NA_real_, position = "left",
@@ -35,7 +36,7 @@ scale_y_sci <- function(name = waiver(), breaks = waiver(), minor_breaks = waive
         sec.axis = sec.axis)
 }
 
-
+#' @export
 scale_x_log10_sci <- function(name = waiver(), breaks = waiver(), minor_breaks = waiver(),
     labels = waiver(), limits = NULL, expand = waiver(), oob = censor,
     na.value = NA_real_, position = "bottom",
@@ -51,6 +52,7 @@ scale_x_log10_sci <- function(name = waiver(), breaks = waiver(), minor_breaks =
         sec.axis = sec.axis)
 }
 
+#' @export
 scale_y_log10_sci <- function(name = waiver(), breaks = waiver(), minor_breaks = waiver(),
     labels = waiver(), limits = NULL, expand = waiver(), oob = censor,
     na.value = NA_real_, position = "left",

@@ -9,7 +9,7 @@ debug_labeller <- `class<-`(function(labels) {
          bottom = paste0(col_labs, "-bottom"))
 }, "labeller")
 
-
+#' @export
 label_f <- function(.f_left = NULL, .f_right = NULL, .f_top = NULL, .f_bottom = NULL) {
     .f_left <- if (rlang::is_null(.f_left)) rlang::as_function(~NULL) else rlang::as_function(.f_left)
     .f_right <- if (rlang::is_null(.f_right)) rlang::as_function(~NULL) else rlang::as_function(.f_right)

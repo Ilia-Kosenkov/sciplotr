@@ -1,4 +1,4 @@
-
+#' @export
 postprocess_axes <- function(
     gg,
     axes_margin = NULL, text_margin = NULL,
@@ -122,6 +122,9 @@ get_grob_ids_raw <- function(grid, pattern) {
         as.list
 }
 
+#' @importFrom zeallot %->%
+#' @importFrom magrittr %$%
+#' @export
 ### Required
 get_grobs_layout <- function(grid, pattern) {
     vctrs::vec_assert(pattern, character(), 1L)
@@ -137,7 +140,7 @@ get_grobs_layout <- function(grid, pattern) {
         }
 }
 
-
+#' @export
 ### Required
 get_cell_size <- function(grid, x, y) {
 
@@ -153,7 +156,7 @@ get_cell_size <- function(grid, x, y) {
     grid::unit.c(grid$widths[x], grid$heights[y])
 }
 
-
+#' @export
 ### Requried
 get_grobs_size <- function(grid, pattern) {
     layout <- get_grobs_layout(grid, pattern)
@@ -163,6 +166,7 @@ get_grobs_size <- function(grid, pattern) {
             height = sum(grid$heights[seq(from = .x[3], to = .x[4], by = 1L)])))
 }
 
+#' @export
 ### Requried
 get_grobs_desc <- function(grid, pattern) {
     layout <- get_grobs_layout(grid, pattern)
@@ -193,6 +197,7 @@ get_grobs_desc <- function(grid, pattern) {
     grobs %>% inner_join(layout, by = "GrobName")
 }
 
+#' @export
 get_height <- function(x, zero_if_null = TRUE) {
     if (grid::is.grob(x))
         return(grid::grobHeight(x))
@@ -206,6 +211,7 @@ get_height <- function(x, zero_if_null = TRUE) {
     rlang::abort("Unsupported input type", "sciplotr_invalid_arg")
 }
 
+#' @export
 get_width <- function(x, zero_if_null = TRUE) {
     if (grid::is.grob(x))
         return(grid::grobWidth(x))

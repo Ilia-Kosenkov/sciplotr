@@ -1,5 +1,5 @@
 #' @importFrom assertthat assert_that
-#' @importFrom grid is.unit unit_c
+#' @importFrom grid is.unit unit.c
 #' @importFrom vctrs vec_cast vec_c
 
 

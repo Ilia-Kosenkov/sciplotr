@@ -32,6 +32,7 @@ simple_log10_minor_breaks <- function(n = 30L) {
     }
 }
 
+#' @export
 fancy_step <- function(range, n = 6, modifier = c(1, 2, 2.5, 5)) {
     modifier <- c(0.1 * modifier, modifier)
 
@@ -43,6 +44,7 @@ fancy_step <- function(range, n = 6, modifier = c(1, 2, 2.5, 5)) {
     min(large_steps * modifier[mod_ind])
 }
 
+#' @export
 generate_simple_breaks <- function(range, step = fancy_step(range, n = 6L, modifier = vctrs::vec_c(1, 2, 2.5, 5))) {
 
     step * (ceiling(range[1] / step):floor(range[2] / step))
@@ -94,7 +96,7 @@ generate_simple_breaks <- function(range, step = fancy_step(range, n = 6L, modif
     #extended_breaks[extended_breaks >= limits[1] & extended_breaks <= limits[2]]
 #}
 
-
+#' @export
 generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
     if (len(breaks) %==% 1L) {
         delta <- log10_floor(breaks[1])
@@ -125,6 +127,8 @@ generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
     }
     #return(breaks)
 }
+
+#' @export
 generate_simple_log10_breaks <- function(lim, n = 5L) {
     tick_set <- list(
     #vctrs::vec_c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50),
@@ -155,6 +159,7 @@ generate_simple_log10_breaks <- function(lim, n = 5L) {
     return(breaks)
 }
 
+#' @export
 generate_simple_log10_minor_breaks <- function(brs, lim, n = 30L) {
     brs <- 10 ^ brs
     lim <- 10 ^ lim

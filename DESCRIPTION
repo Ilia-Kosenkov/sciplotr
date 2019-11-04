@@ -12,7 +12,18 @@ Imports:
 	ggplot2,
 	rlang,
 	assertthat,
-	purrr
+	purrr,
+	vctrs,
+	grid, 
+	gridExtra,
+	dplyr,
+	zeallot,
+	magrittr,
+	tidyr,
+	tibble,
+	stats,
+	stringr,
+	scales
 Depends:
     R (>= 3.5.0)
 Description: What the package does (one paragraph).

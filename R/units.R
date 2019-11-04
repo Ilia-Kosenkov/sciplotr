@@ -13,6 +13,7 @@
     e1 * (1 / e2)
 }
 
+#' @export
 `-.unit` <- function(e1, e2) {
     assertthat::assert_that(grid::is.unit(e1))
     if (missing(e2))
@@ -31,6 +32,7 @@ f_u_ <- function(x, .data = NULL) {
     grid::unit(val, as.character(unit), data = .data)
 }
 
+#' @export
 u_ <- function(..., .data = NULL) {
     args <- rlang::enquos(...)
     `$` <- function(e1, e2) {
@@ -53,9 +55,13 @@ u_ <- function(..., .data = NULL) {
     rlang::exec(grid::unit.c, !!!result)
 }
 
+#' @export
 npc_ <- function(x) u_(x$npc)
+#' @export
 cm_ <- function(x) u_(x$cm)
+#' @export
 in_ <- function(x) u_(x$`in`)
+#' @export
 pt_ <- function(x) u_(x$pt)
 
 
@@ -113,11 +119,13 @@ mar_ <- function(...) {
     margin
 }
 
+#' @export
 ### Requried
 at_ <- function(item, what) UseMethod("at_")
+#' @export
 ### Requried
 `at_<-` <- function(item, what, value) UseMethod("at_<-")
-
+#' @export
 ### Requried
 at_.margin <- function(mar, what) {
     what <- as.character(ensym(what))
@@ -136,6 +144,7 @@ at_.margin <- function(mar, what) {
     val
 }
 
+#' @export
 ### Requried
 `at_<-.margin` <- function(mar, what, value) {
     what <- ensym(what)
@@ -143,6 +152,7 @@ at_.margin <- function(mar, what) {
     with_mar(mar, !!what := ~value)
 }
 
+#' @export
 with_mar <- function(mar, ...) {
     args <- list2(...)
     names <- names(args)
@@ -165,30 +175,38 @@ with_mar <- function(mar, ...) {
     mar_(unit.c(new_mar$top, new_mar$right, new_mar$bottom, new_mar$left))
 }
 
+#' @export
 outermost_op <- function(x)  UseMethod("outermost_op")
 
+#' @export
 outermost_op.unit <- function(x) NA_character_
 
+#' @export
 outermost_op.unit.list <- function(x) {
     map_chr(x, ~ ifelse(inherits(.x, "unit.arithmetic"), .x$fname, NA_character_))
 }
 
+#' @export
 outermost_op.unit.arithmetic <- function(x) {
     vec_repeat(x$fname, length(x))
 }
 
+#' @export
 custom_format <- function(x) {
     UseMethod("custom_format")
 }
 
+#' @export
 custom_format.unit <- function(x) {
     grid:::as.character.unit(x)
 }
 
+#' @export
 custom_format.unit.list <- function(x) {
     map_chr(x, custom_format)
 }
 
+#' @export
 custom_format.unit.arithmetic <- function(x) {
     f_name <- x$fname
 
@@ -205,19 +223,23 @@ custom_format.unit.arithmetic <- function(x) {
     }
 }
 
+#' @export
 as.character.unit.arithmetic <- function(x, ...) {
     custom_format(x)
 }
 
+#' @export
 as.character.unit.list <- function(x, ...) {
     custom_format(x)
 }
 
+#' @export
 print.unit.list <- function(x, ...) {
 
     print(as.character(x), quote = FALSE, ...)
 }
 
+#' @export
 print.unit.arithmetic <- function(x, ...) {
     print(as.character(x), quote = FALSE, ...)
 }
@@ -228,6 +250,7 @@ as_list_unit <- function(x) {
     `class<-`(purrr::map(seq_len(len), ~ x[.x]), vctrs::vec_c("unit.list", "unit"))
 }
 
+#' @export
 flatten_unit <- function(x) {
     if (inherits_only(x, "list"))
         result <- map(x, flatten_unit)
@@ -242,6 +265,7 @@ flatten_unit <- function(x) {
     #grid:::unit.list.from.list(result)
 }
 
+#' @export
 unit_max <- function(..., .item_wise = FALSE) {
     vctrs::vec_assert(.item_wise, logical(), 1L)
 
@@ -254,6 +278,7 @@ unit_max <- function(..., .item_wise = FALSE) {
     rlang::exec(grid::unit.pmax, !!!units)
 }
 
+#' @export
 unit_min <- function(..., .item_wise = FALSE) {
     vctrs::vec_assert(.item_wise, logical(), 1L)
 

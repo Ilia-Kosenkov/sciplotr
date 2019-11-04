@@ -1,4 +1,4 @@
-
+#' @export
 # https://github.com/tidyverse/ggplot2/blob/269be6fe56a71bef2687ac4c1f39992de45ae87a/R/facet-grid-.r#L111
 facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
                       space = "fixed", shrink = TRUE,
@@ -26,7 +26,7 @@ facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
     # Check for deprecated labellers
     labeller <- ggplot2:::check_labeller(labeller)
 
-    ggproto(NULL, FacetSci,
+    ggplot2::ggproto(NULL, FacetSci,
         shrink = shrink,
         params = list(
             rows = facets_list$rows, cols = facets_list$cols,
@@ -39,8 +39,9 @@ facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
             as.table = as.table, drop = drop))
 }
 
+#' @export
 # https://github.com/tidyverse/ggplot2/blob/269be6fe56a71bef2687ac4c1f39992de45ae87a/R/facet-grid-.r#L189
-FacetSci <- ggproto("FacetSci", FacetGrid,
+FacetSci <- ggplot2::ggproto("FacetSci", ggplot2::FacetGrid,
     compute_layout = function(data, params) {
         rows <- params$rows
         cols <- params$cols
@@ -284,7 +285,7 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
 
     ## For weird compatibility with `ggplot2:::ggstrip`
     
-    labels <- purrr::map_if(labeller(list(cols = cols, rows = rows)), ~not(rlang::is_null(.x)),
+    labels <- purrr::map_if(labeller(list(cols = cols, rows = rows)), ~!(rlang::is_null(.x)),
                          ~ `dim<-`(unlist(.x), vctrs::vec_c(vctrs::vec_size(.x), 1L)))
 
     if (rlang::inherits_any(element_y, "element_blank")) {
@@ -465,25 +466,25 @@ nullify_axes_tick_labels <- function(axes_desc) {
 }
 
 
-(mtcars %>%
-    ggplot_sci(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
-    geom_point() +
-    scale_x_log10_sci(name = NULL,
-        breaks_n = 3,
-        sec.axis = sec_axis_sci(~ 0.5 * .)) +
-    scale_y_sci(name = NULL, breaks_n = 3) +
-    facet_sci(am ~ gear, # ncol = 1,
-        inner.ticks = TRUE,
-        scales = "free_x")
-    ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
+#(mtcars %>%
+    #ggplot_sci(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
+    #geom_point() +
+    #scale_x_log10_sci(name = NULL,
+        #breaks_n = 3,
+        #sec.axis = sec_axis_sci(~ 0.5 * .)) +
+    #scale_y_sci(name = NULL, breaks_n = 3) +
+    #facet_sci(am ~ gear, # ncol = 1,
+        #inner.ticks = TRUE,
+        #scales = "free_x")
+    #) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
 
-plt %>%
-    postprocess_axes(
-        axes_margin = mar_(h = u_(1 ~ cm), v = u_(1 ~ cm)),
-        text_margin = mar_(h = u_(0 ~ null), v = u_(0 ~ null))
-        ) -> tbl
-grid.newpage()
-grid.draw(tbl)
+#plt %>%
+    #postprocess_axes(
+        #axes_margin = mar_(h = u_(1 ~ cm), v = u_(1 ~ cm)),
+        #text_margin = mar_(h = u_(0 ~ null), v = u_(0 ~ null))
+        #) -> tbl
+#grid.newpage()
+#grid.draw(tbl)
 #print(tbl)
 
 

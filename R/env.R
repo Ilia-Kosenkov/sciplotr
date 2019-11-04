@@ -1,4 +1,8 @@
-sciplotr_global <- env()
+#' @import rlang vctrs dplyr purrr ggplot2 grid gridExtra gtable tidyr tibble scales
+#' @importFrom stats median
+NULL
+
+sciplotr_global <- rlang::env()
 
 theme_gen <- function(name, class, inherit = NULL, description = NULL) {
     name <- rlang::quo_name(rlang::ensym(name))

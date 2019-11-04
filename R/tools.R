@@ -239,8 +239,12 @@ adjust_angle <- function(x) {
 `%vec_in%` <- vctrs::vec_in
 cc <- vctrs::vec_c
 
+## Temporary solution
+#' @export
 len <- function(x) UseMethod("len")
+#' @export
 len.default <- vctrs::vec_size
+#' @export
 len.unit <- length
 
 split_ex <- function(.data, col, name = NULL, keep = FALSE) {
