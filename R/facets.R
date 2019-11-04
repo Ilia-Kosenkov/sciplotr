@@ -2,7 +2,7 @@
 # https://github.com/tidyverse/ggplot2/blob/269be6fe56a71bef2687ac4c1f39992de45ae87a/R/facet-grid-.r#L111
 facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
                       space = "fixed", shrink = TRUE,
-                      labeller = label_f(), as.table = TRUE,
+                      labeller = label_f(.f_left = ~.x$rows), as.table = TRUE,
                       rotate.y = TRUE, margins = FALSE,
                       panel.labels = TRUE,
                       inner.ticks = TRUE,
@@ -96,12 +96,7 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
         panels$SCALE_X <- if (params$free$x) panels$COL else 1L
         panels$SCALE_Y <- if (params$free$y) panels$ROW else 1L
 
-        panels %T>% print
-    },
-    train_scales = function(x_scale = NULL, y_scale = NULL, layout, data, params) {
-        FacetGrid$train_scales(x_scale, y_scale, layout, data, params)
-        #print(x_scale)
-        #print(y_scale)
+        panels 
     },
     draw_panels = function(panels, layout, x_scales, y_scales, ranges, coord, data, theme, params) {
         if ((params$free$x || params$free$y) && !coord$is_free())
@@ -110,7 +105,7 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
                     class(coord),
                     " doesn't support free scales"),
                 "sciplotr_invalid_arg")
-        
+
         cols <- which(layout$ROW %==% 1L)
         rows <- which(layout$COL %==% 1L)
 
@@ -258,7 +253,7 @@ FacetSci <- ggproto("FacetSci", FacetGrid,
 
         panel_table <- gtable::gtable_add_rows(panel_table, unit_max(get_height(strips$x$bottom)), -1)
         panel_table <- gtable::gtable_add_rows(panel_table, unit_max(get_height(strips$x$top)), 0)
-
+        
         if (!rlang::is_null(strips$x$bottom))
             panel_table <- gtable::gtable_add_grob(panel_table, strips$x$bottom, -1, panel_pos_col$l, clip = "on", name = paste0("strip-b-", seq_along(strips$x$bottom)), z = 2)
         if (!rlang::is_null(strips$x$top))
@@ -288,9 +283,9 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
     element_y <- calc_element("strip.text.y", theme)
 
     ## For weird compatibility with `ggplot2:::ggstrip`
-
+    
     labels <- purrr::map_if(labeller(list(cols = cols, rows = rows)), ~not(rlang::is_null(.x)),
-                         ~ `dim<-`(.x, vctrs::vec_c(vctrs::vec_size(.x), 1L)))
+                         ~ `dim<-`(unlist(.x), vctrs::vec_c(vctrs::vec_size(.x), 1L)))
 
     if (rlang::inherits_any(element_y, "element_blank")) {
         y_strips <- list(
@@ -298,13 +293,14 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
             right = rep(list(ggplot2::zeroGrob()), vctrs::vec_size(rows)))
     }
     else {
+        
         gp_y <- grid::gpar(
             fontsize = element_y$size,
             col = element_y$colour,
             fontfamily = element_y$family,
             fontface = element_y$face,
             lineheight = element_y$lineheight)
-
+        
         if (rlang::is_null(labels$left))
             left_grobs <-
                 rep(list(ggplot2::zeroGrob()), vctrs::vec_size(rows))
@@ -478,7 +474,7 @@ nullify_axes_tick_labels <- function(axes_desc) {
     scale_y_sci(name = NULL, breaks_n = 3) +
     facet_sci(am ~ gear, # ncol = 1,
         inner.ticks = TRUE,
-        scales = "fixed")
+        scales = "free_x")
     ) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
 
 plt %>%

@@ -23,7 +23,6 @@ CoordSci <-
                 guide <- ggplot2:::guide_geom(guide, layers, default_mapping)
                 guide
             })
-
             panel_params
         },
         # https://github.com/tidyverse/ggplot2/blob/115c3960d0fd068f1ca4cfe4650c0e0474aabba5/R/coord-cartesian-.r#L185

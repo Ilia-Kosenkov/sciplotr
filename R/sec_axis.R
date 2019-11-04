@@ -49,6 +49,7 @@ AxisSecondarySci <- ggproto("AxisSecondarySci", AxisSecondary,
         if (ggplot2:::is.derived(self$guide)) self$guide <- scale$guide
         if (ggplot2:::is.derived(self$temp_trans)) self$temp_trans <- scale$trans
         if (rlang::is_null(self$temp_trans)) self$temp_trans <- identity_sci_trans()
+        #rlang::abort(" ")
     },
     ### ------------------ ###
     break_info = function(self, range, scale) {
