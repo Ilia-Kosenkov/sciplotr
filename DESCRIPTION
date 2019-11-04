@@ -1,6 +1,6 @@
 Package: sciplotr
 Title: GGplots with scientific themes
-Version: 0.0.1
+Version: 0.0.3
 Authors@R: 
     person(given = "Ilia",
            family = "Kosenkov",
@@ -14,7 +14,6 @@ Imports:
 	assertthat,
 	purrr,
 	vctrs,
-	grid, 
 	gridExtra,
 	dplyr,
 	zeallot,

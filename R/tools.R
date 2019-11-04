@@ -266,3 +266,11 @@ split_ex <- function(.data, col, name = NULL, keep = FALSE) {
 
     dplyr::bind_cols(.data, result)
 }
+
+#' @export
+empty_labels <- function() {
+    empty_seq
+}
+
+empty_seq <- function(x)
+    vctrs::vec_repeat(" ", len(x))

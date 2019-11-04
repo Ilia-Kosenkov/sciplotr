@@ -31,8 +31,16 @@ dup_axis_sci <- function(
     name = derive(),
     breaks = derive(),
     labels = derive(),
-    breaks_trans = NULL) {
-    sec_axis_sci(~., name, breaks, labels, derive())
+    breaks_trans = derive()) {
+    sec_axis_sci(~., name, breaks, labels, breaks_trans)
+}
+
+dup_axis_sci_weak <- function(
+        name = NULL,
+        breaks = derive(),
+        labels = empty_labels(),
+        breaks_trans = derive()) {
+    sec_axis_sci(~., name, breaks, labels, breaks_trans)
 }
 
 #' @export
@@ -138,7 +146,7 @@ AxisSecondarySci <- ggplot2::ggproto("AxisSecondarySci", ggplot2::AxisSecondary,
         range_info$minor_source[] <- old_val_minor_trans
 
         names(range_info) <- paste0("sec.", names(range_info))
-        range_info 
+        range_info
     },
 
     ### ------------------ ###
@@ -151,8 +159,8 @@ AxisSecondarySci <- ggplot2::ggproto("AxisSecondarySci", ggplot2::AxisSecondary,
         #ggproto_parent(AxisSecondary, self)$create_scale(range, trans)
         scale <- ggplot2::ggproto(NULL, ggplot2::ScaleContinuousPosition,
                      name = self$name,
-                     #breaks = breaks,
-                     #labels = labels,
+                     breaks = breaks,
+                     labels = labels,
                      limits = range,
                      expand = c(0, 0),
                      trans = trans)

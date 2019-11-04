@@ -2,35 +2,43 @@
 postprocess_axes <- function(
     gg,
     axes_margin = NULL, text_margin = NULL,
+    strip_margin = NULL,
     unit_strategy = unit_max) {
 
     UseMethod("postprocess_axes")
 }
 
+#' @export
 postprocess_axes.default <- function(
     gg,
     axes_margin = NULL, text_margin = NULL,
+    strip_margin = NULL,
     unit_strategy = unit_max) {
 
     rlang::abort("Cannot process object of unsupported type.", "sciplotr_invalid_arg")
 
 }
 
+#' @export
 postprocess_axes.ggplot <- function(
     gg,
     axes_margin = NULL, text_margin = NULL,
+    strip_margin = NULL,
     unit_strategy = unit_max) {
 
     postprocess_axes(
         ggplot2::ggplot_gtable(
             ggplot2::ggplot_build(
                 gg)),
-        axes_margin, text_margin, unit_strategy)
+        axes_margin, text_margin, strip_margin, unit_strategy)
 }
 
+#' @importFrom vctrs %0%
+#' @export
 postprocess_axes.gtable <- function(
     gg,
     axes_margin = NULL, text_margin = NULL,
+    strip_margin = NULL,
     unit_strategy = unit_max) {
     # Assuming label occupies exactly one grid cell
 
@@ -47,6 +55,7 @@ postprocess_axes.gtable <- function(
 
     }
     else {
+        text_margin <- mar_(text_margin)
         inds <- grobs %>% filter(Type == "xlab", Side == "t") %>% pull(T)
         gg$heights[inds] <- at_(text_margin, t)
 
@@ -75,6 +84,7 @@ postprocess_axes.gtable <- function(
         gg$widths[inds] <- y_val
     }
     else {
+        axes_margin <- mar_(axes_margin)
         subset <- grobs %>% filter(Side == "t")
         inds <- subset %>% filter(T %==% min(T)) %>% pull("T")
         gg$heights[inds] <- at_(axes_margin, t)
@@ -108,8 +118,21 @@ postprocess_axes.gtable <- function(
         inds <- subset %>% filter(L %!=% max(L)) %>% pull("L")
         if (vctrs::vec_size(inds) > 0)
             gg$widths[inds] <- u_(0 ~ null)
-    }
+        }
 
+    if (!rlang::is_null(strip_margin)) {
+        strip_margin <- mar_(strip_margin)
+        strips <- get_grobs_desc(gg, "^strip")
+
+        left <- dplyr::pull(dplyr::filter(strips, Side == "l"), L)
+        right <- dplyr::pull(dplyr::filter(strips, Side == "r"), R)
+        bot <- dplyr::pull(dplyr::filter(strips, Side == "b"), B)
+        top <- dplyr::pull(dplyr::filter(strips, Side == "t"), T)
+        gg$widths[left] <- at_(strip_margin, left)
+        gg$widths[right] <- at_(strip_margin, right)
+        gg$heights[top] <- at_(strip_margin, top)
+        gg$heights[bot] <- at_(strip_margin, bottom)
+    }
     gg
 }
 

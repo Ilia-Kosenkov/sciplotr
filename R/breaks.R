@@ -107,7 +107,7 @@ generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
     else {
         df <- median(diff(breaks))
         delta <- 0.1 * log10_floor(df)
-        steps <- cc(1, 5)
+        steps <- cc(-0.1, 1, 10) #cc(1, 5)
         extra_rng <- cc(min(breaks) - df, max(breaks) + df)
 
         sizes <- abs(diff(extra_rng) / (delta * steps) - n)
