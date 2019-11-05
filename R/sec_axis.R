@@ -35,6 +35,7 @@ dup_axis_sci <- function(
     sec_axis_sci(~., name, breaks, labels, breaks_trans)
 }
 
+#' @export
 dup_axis_sci_weak <- function(
         name = NULL,
         breaks = derive(),
