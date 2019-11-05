@@ -136,13 +136,17 @@ generate_simple_log10_breaks <- function(lim, n = 5L) {
     #vctrs::vec_c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50),
                     #vctrs::vec_c(0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100),
                     vctrs::vec_c(0.01, 0.1, 1, 10, 100))
-    if (diff(log10(lim)) <= 2) {
-        mult <- log10_floor(min(lim))
-        y_dig <- lim / mult
+    if (diff(log10(lim)) <= 2.1) {
+        print(lim)
+        breaks <- generate_simple_breaks(lim, step = fancy_step(lim, n = n, modifier = vctrs::vec_c(1, 2, 2.5, 5))) %>% print
+        #mult <- log10_floor(min(lim))
+        #y_dig <- lim / mult
 
-        step <- fancy_step(y_dig, n = n, modifier = scales::discard(tick_set[[1]], vctrs::vec_c(1, 10)))
+        #step <- fancy_step(y_dig, n = n, modifier = scales::discard(tick_set[[1]],
+            #cc(0.1, 0.2, 0.5, 1, 2, 5, 10)))
 
-        breaks <- mult * generate_simple_breaks(y_dig, step)
+        #print(step)
+        #breaks <- mult * generate_simple_breaks(y_dig, step)
     }
     else {
         breaks <- 10 ^ generate_simple_breaks(log10(lim), 1)
@@ -170,10 +174,11 @@ generate_simple_log10_minor_breaks <- function(brs, lim, n = 30L) {
                     vctrs::vec_c(0.1, 0.5, 1, 5, 10, 50),
                     vctrs::vec_c(0.1, 1, 10))
 
-    if (diff(log10(lim)) <= 1L) {
-        mult <- log10_floor(min(lim))
-        y_dig <- lim / mult
-        breaks <- mult * (generate_simple_minor_breaks(brs / mult, y_dig, n = n))
+    if (diff(log10(lim)) <= 2.1) {
+        breaks <- generate_simple_minor_breaks(brs, lim, n)
+        #mult <- log10_floor(min(lim))
+        #y_dig <- lim / mult
+        #breaks <- mult * (generate_simple_minor_breaks(brs / mult, y_dig, n = n))
     }
     else {
         brs_2 <- unique_f(log10_floor(brs))
