@@ -274,3 +274,19 @@ empty_labels <- function() {
 
 empty_seq <- function(x)
     vctrs::vec_repeat(" ", len(x))
+
+#' @export
+lin_unit <- function(x0, x, y) {
+    x0 <- vec_assert_numeric(x0)
+    x <- vec_assert_numeric(x, size = 2L)
+    assertthat::assert_that(len(y) %==% 2L)
+
+    dx <- x[2] - x[1]
+    dy <- y[2] - y[1]
+
+    purrr::map(x0, ~ y[1] + dy / dx * (.x - x[1])) -> result
+    if (grid::is.unit(y))
+        rlang::exec(grid::unit.c, !!!result)
+    else
+        vctrs::vec_cast(result, vctrs::vec_ptype_common(!!!result))
+}
