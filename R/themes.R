@@ -20,23 +20,51 @@ theme_scientific <- function(
     title.size = 15,
     text.margin = u_(5$pt),
     title.margin = u_(5$pt),
+    plot.margin = u_(0 ~ npc),
     text.color = "#000000",
+    facet.lab.x = npc_(0.07),
+    facet.lab.y = npc_(0.93),
+    facet.lab = ggplot2::element_text(size = title.size),
+    #--------------------------------------------------#
+    legend.position = vctrs::vec_c(1, 0),
+    legend.justification = vctrs::vec_c(1.05, -0.05),
+    legend.background = element_blank(),
+    legend.spacing = u_(0 ~ null),
+    #--------------------------------------------------#
+    panel.grid.major.x = ggplot2::element_blank(),
+    panel.grid.major.y = ggplot2::element_blank(),
+    panel.grid.minor.x = ggplot2::element_blank(),
+    panel.grid.minor.y = ggplot2::element_blank(),
+    strip.text.x = ggplot2::element_text(size = title.size, margin = title.margin),
+    strip.text.y = ggplot2::element_text(size = title.size, margin = title.margin, angle = 90),
+    panel.spacing = u_(0 ~ null),
+    strip.switch.pad.grid = u_(0 ~ null),
+    strip.switch.pad.wrap = u_(0 ~ null),
+    strip.placement = "outside",
+    strip.background = ggplot2::element_blank(),
     ..., validate = TRUE) {
 
+    # Asserts
     assertthat::assert_that(grid::is.unit(ticks), length(ticks) == 1L)
     assertthat::assert_that(grid::is.unit(ticks.minor), length(ticks.minor) == 1L)
     vec_assert_numeric(text.size, size = 1L)
     vec_assert_numeric(title.size, size = 1L)
     assertthat::assert_that(grid::is.unit(text.margin), grid::is.unit(title.margin))
+    assertthat::assert_that(grid::is.unit(plot.margin))
     vctrs::vec_assert(text.color, character(), 1L)
 
     text.margin <- mar_(text.margin)
     title.margin <- mar_(title.margin)
+    plot.margin <- mar_(plot.margin)
+
     theme_val <-
         ggplot2::theme_bw() +
         ggplot2::theme(
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
+            plot.margin = plot.margin,
+            panel.grid.major.x = panel.grid.major.x,
+            panel.grid.major.y = panel.grid.major.y,
+            panel.grid.minor.x = panel.grid.minor.x,
+            panel.grid.minor.y = panel.grid.minor.y,
             axis.ticks.length = ticks,
             axis.text.x =
                  ggplot2::element_text(size = text.size,
@@ -72,19 +100,19 @@ theme_scientific <- function(
                          margin = with_mar(title.margin, b := ~.x - ticks),
                          colour = text.color),
     #---------------------------------#
-            legend.position = vctrs::vec_c(1, 0),
-            legend.justification = vctrs::vec_c(1.05, -0.05),
-            legend.background = element_blank(),
-            legend.spacing = u_(0 ~ null),
+            legend.position = legend.position,
+            legend.justification = legend.justification,
+            legend.background = legend.background,
+            legend.spacing = legend.spacing,
     #---------------------------------#
-            strip.placement = "outside",
-            strip.background = element_blank(),
-            strip.text.x = element_text(size = title.size, margin = title.margin),
-            strip.text.y = element_text(size = title.size, margin = title.margin, angle = 90),
-            strip.switch.pad.grid = u_(0 ~ null),
-            strip.switch.pad.wrap = u_(0 ~ null),
+            strip.placement = strip.placement,
+            strip.background = strip.background,
+            strip.text.x = strip.text.x,
+            strip.text.y = strip.text.y,
+            strip.switch.pad.grid = strip.switch.pad.grid,
+            strip.switch.pad.wrap = strip.switch.pad.wrap,
     #---------------------------------#
-            panel.spacing = u_(0 ~ null),
+            panel.spacing = panel.spacing,
     #---------------------------------#
 
     ..., validate = validate)
@@ -97,9 +125,9 @@ theme_scientific <- function(
             theme_val,
             list(
                 axis.ticks.minor.length = ticks.minor,
-                facet.lab = ggplot2::element_text(size = title.size),
-                facet.lab.x = npc_(0.07),
-                facet.lab.y = npc_(0.93)))
+                facet.lab = facet.lab,
+                facet.lab.x = facet.lab.x,
+                facet.lab.y = facet.lab.y))
 
     attributes(theme_val) <- append(attrs, list(names = names(theme_val)))
 
