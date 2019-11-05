@@ -22,7 +22,10 @@ Imports:
 	tibble,
 	stats,
 	stringr,
-	scales
+	scales,
+	digest,
+	forcats,
+	readr
 Depends:
     R (>= 3.5.0)
 Description: What the package does (one paragraph).
