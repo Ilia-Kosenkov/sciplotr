@@ -136,17 +136,17 @@ generate_simple_log10_breaks <- function(lim, n = 5L) {
     #vctrs::vec_c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50),
                     #vctrs::vec_c(0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100),
                     vctrs::vec_c(0.01, 0.1, 1, 10, 100))
-    if (diff(log10(lim)) <= 2.1) {
-        print(lim)
-        breaks <- generate_simple_breaks(lim, step = fancy_step(lim, n = n, modifier = vctrs::vec_c(1, 2, 2.5, 5))) %>% print
-        #mult <- log10_floor(min(lim))
-        #y_dig <- lim / mult
-
-        #step <- fancy_step(y_dig, n = n, modifier = scales::discard(tick_set[[1]],
-            #cc(0.1, 0.2, 0.5, 1, 2, 5, 10)))
-
-        #print(step)
-        #breaks <- mult * generate_simple_breaks(y_dig, step)
+    if (diff(log10(lim)) <= 1) {
+        breaks <- generate_simple_breaks(lim,
+            step = fancy_step(lim, n = floor(1.25 * n), modifier = vctrs::vec_c(1, 2, 5)))
+    }
+    else if (diff(log10(lim)) <= 2.1) {
+        order <- log10_floor(lim)
+        ticks <- cc(1, 2, 5)
+        ticks <- cc(0.1 * ticks, ticks, 10 * ticks)
+        ticks <- cc(ticks * order[1], ticks * order[2])
+        ticks <- unique_f(ticks)
+        breaks <- ticks
     }
     else {
         breaks <- 10 ^ generate_simple_breaks(log10(lim), 1)
@@ -162,6 +162,7 @@ generate_simple_log10_breaks <- function(lim, n = 5L) {
 
         breaks <- breaks[[id]]
     }
+    breaks <- sort(breaks[breaks >= lim[1] & breaks <= lim[2]])
     return(breaks)
 }
 
@@ -173,12 +174,17 @@ generate_simple_log10_minor_breaks <- function(brs, lim, n = 30L) {
                     vctrs::vec_c(0.1 * (1:9), 1:9, 10 * (1:9)),
                     vctrs::vec_c(0.1, 0.5, 1, 5, 10, 50),
                     vctrs::vec_c(0.1, 1, 10))
-
-    if (diff(log10(lim)) <= 2.1) {
+    if (diff(log10(lim)) <= 1) {
         breaks <- generate_simple_minor_breaks(brs, lim, n)
-        #mult <- log10_floor(min(lim))
-        #y_dig <- lim / mult
-        #breaks <- mult * (generate_simple_minor_breaks(brs / mult, y_dig, n = n))
+    }
+    else if (diff(log10(lim)) <= 2.1) {
+        order <- log10_floor(lim)
+        small_ticks <- cc(1:9)
+        small_ticks <- cc(0.1 * small_ticks, small_ticks, 10 * small_ticks)
+        small_ticks <- cc(small_ticks * order[1], small_ticks * order[2])
+        small_ticks <- unique_f(small_ticks)
+        small_ticks <- outer_unique(small_ticks, brs)[[1]]
+        breaks <- small_ticks
     }
     else {
         brs_2 <- unique_f(log10_floor(brs))
@@ -195,6 +201,7 @@ generate_simple_log10_minor_breaks <- function(brs, lim, n = 30L) {
         breaks <- breaks[[id]]
         breaks <- breaks[outer_unique_which(brs, breaks)$y]
     }
+    breaks <- sort(breaks[breaks >= lim[1] & breaks <= lim[2]])
     breaks <- log10(breaks)
     return(breaks)
 }
