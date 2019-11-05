@@ -492,11 +492,6 @@ nullify_axes_tick_labels <- function(axes_desc) {
     #geom_point() +
     #scale_x_sci(sec.axis = dup_axis_sci(),
         #breaks_n = 4L,
-        #minor_breaks_n = 20L) +
-    #scale_y_log10_sci(
-        #name = expression(F[y]),
-        #sec.axis = sec_axis_sci(~-2.5 * log10(.) + 15,
-            #name = expression(m[y]),
-            #breaks_trans = identity_sci_trans(n = 7, cc(1, 2, 5), n_small = 80))) -> plt
+        #minor_breaks_n = 20L)  -> plt
 
 #print(plt)
