@@ -192,19 +192,20 @@ FacetSci <- ggplot2::ggproto("FacetSci", ggplot2::FacetGrid,
             panel_pos_cols <- ggplot2::panel_cols(panel_table)$l
             for (i in seq_len(nrow - 1L)) {
                 pos <- 3L * (i - 1L) + 1L
+                print(pos)
                 panel_table <- gtable::gtable_add_rows(panel_table, npc_(0), pos)
                 panel_table <- gtable::gtable_add_rows(panel_table, npc_(0), pos + 1L)
                 panel_table <- gtable::gtable_add_grob(
                     panel_table,
                     stripped_axes$x$bottom,
-                    pos + 1L, panel_pos_cols, clip = "off",
-                    name = paste("axis-b", i, 1:ncol, sep = "-"),
+                    pos + 2L, panel_pos_cols, clip = "off",
+                    name = paste("axis-b", 1:ncol, i + 0L, sep = "-"),
                     z = 3)
                 panel_table <- gtable::gtable_add_grob(
                     panel_table,
                     stripped_axes$x$top,
-                    pos + 2L, panel_pos_cols, clip = "off",
-                    name = paste("axis-t", i + 1L, 1:ncol, sep = "-"),
+                    pos + 1L, panel_pos_cols, clip = "off",
+                    name = paste("axis-t", 1:ncol, i + 1L, sep = "-"),
                     z = 3)
 
             }
@@ -217,18 +218,17 @@ FacetSci <- ggplot2::ggproto("FacetSci", ggplot2::FacetGrid,
                     panel_table,
                     stripped_axes$y$right,
                     panel_pos_rows, pos + 1L, clip = "off",
-                    name = paste("axis-r", 1:nrow, i, sep = "-"),
+                    name = paste("axis-r", i + 0L, 1:nrow, sep = "-"),
                     z = 3)
                 panel_table <- gtable::gtable_add_grob(
                     panel_table,
                     stripped_axes$y$left,
                     panel_pos_rows, pos + 2L, clip = "off",
-                    name = paste("axis-l", 1:nrow, i + 1L, sep = "-"),
+                    name = paste("axis-l", i + 1L, 1:nrow, sep = "-"),
                     z = 3)
 
             }
         }
-
 
         # Add axes
         panel_table <- gtable::gtable_add_rows(panel_table, ggplot2::max_height(axes$x$top), 0)
@@ -240,16 +240,17 @@ FacetSci <- ggplot2::ggproto("FacetSci", ggplot2::FacetGrid,
 
         panel_table <- gtable::gtable_add_grob(
             panel_table, axes$x$top, 1, panel_pos_col$l,
-            clip = "off", name = paste("axis-t", 1, seq_along(axes$x$top), sep = "-"), z = 3)
+            clip = "off", name = paste("axis-t", seq_along(axes$x$top), 1L, sep = "-"), z = 3)
         panel_table <- gtable::gtable_add_grob(
             panel_table, axes$x$bottom, -1, panel_pos_col$l,
-            clip = "off", name = paste("axis-b", nrow, seq_along(axes$x$bottom), sep = "-"), z = 3)
+            clip = "off", name = paste("axis-b", seq_along(axes$x$bottom), nrow, sep = "-"), z = 3)
         panel_table <- gtable::gtable_add_grob(
             panel_table, axes$y$left, panel_pos_rows$t, 1,
-            clip = "off", name = paste("axis-l", seq_along(axes$y$left), 1, sep = "-"), z = 3)
+            clip = "off", name = paste("axis-l", 1, seq_along(axes$y$left), sep = "-"), z = 3)
         panel_table <- gtable::gtable_add_grob(
             panel_table, axes$y$right, panel_pos_rows$t, -1,
-            clip = "off", name = paste("axis-r", seq_along(axes$y$right), ncol, sep = "-"), z = 3)
+            clip = "off", name = paste("axis-r", ncol, seq_along(axes$y$right), sep = "-"), z = 3)
+
         # Add strips
         panel_pos_col <- ggplot2::panel_cols(panel_table)
 
@@ -270,8 +271,6 @@ FacetSci <- ggplot2::ggproto("FacetSci", ggplot2::FacetGrid,
             panel_table <- gtable::gtable_add_grob(panel_table, strips$y$left, panel_pos_rows$t, 1, clip = "on", name = paste0("strip-l-", seq_along(strips$y$left)), z = 2)
         if (!rlang::is_null(strips$y$right)) 
             panel_table <- gtable::gtable_add_grob(panel_table, strips$y$right, panel_pos_rows$t, -1, clip = "on", name = paste0("strip-r-", seq_along(strips$y$right)), z = 2)
-
-        #stop(NULL)
 
         panel_table
     }
@@ -466,5 +465,5 @@ nullify_axes_tick_labels <- function(axes_desc) {
     axes_desc <- purrr::assign_in(axes_desc, vctrs::vec_c("x", "top"), worker(purrr::pluck(axes_desc, "x", "top")))
     axes_desc <- purrr::assign_in(axes_desc, vctrs::vec_c("y", "left"), worker(purrr::pluck(axes_desc, "y", "left")))
     axes_desc <- purrr::assign_in(axes_desc, vctrs::vec_c("y", "right"), worker(purrr::pluck(axes_desc, "y", "right")))
-    
+
 }
