@@ -69,49 +69,49 @@
 
 #}
 
-name_of <- function(x) {
-    y <- enexpr(x)
-}
+#name_of <- function(x) {
+    #y <- enexpr(x)
+#}
 
-vec_assert_numeric <- function(x, size = NULL, arg = rlang::as_label(substitute(x))) {
-    if (!vctrs::vec_is(x, integer(), size = size) && !vctrs::vec_is(x, double(), size = size))
-        vctrs::stop_incompatible_type(x, numeric(), x_arg = arg)
+#vec_assert_numeric <- function(x, size = NULL, arg = rlang::as_label(substitute(x))) {
+    #if (!vctrs::vec_is(x, integer(), size = size) && !vctrs::vec_is(x, double(), size = size))
+        #vctrs::stop_incompatible_type(x, numeric(), x_arg = arg)
 
-    invisible(vec_cast(x, double(), x_arg = rlang::as_label(x)))
-}
+    #invisible(vec_cast(x, double(), x_arg = rlang::as_label(x)))
+#}
 
-vec_cast_integerish <- function(x, x_arg = "x") {
-    if (vec_is(x, integer()))
-        return(x)
+#vec_cast_integerish <- function(x, x_arg = "x") {
+    #if (vec_is(x, integer()))
+        #return(x)
 
-    if (vec_is(x, double())) {
-        diffs <- (abs(x) - floor(abs(x))) %==% 0
-        inds <- which(!diffs)
-        if (vec_is_empty(inds))
-            return(vctrs::allow_lossy_cast(vec_cast(x, integer(), x_arg = rlang::as_label(x))))
+    #if (vec_is(x, double())) {
+        #diffs <- (abs(x) - floor(abs(x))) %==% 0
+        #inds <- which(!diffs)
+        #if (vec_is_empty(inds))
+            #return(vctrs::allow_lossy_cast(vec_cast(x, integer(), x_arg = rlang::as_label(x))))
 
-        vctrs::stop_incompatible_cast(x[inds[1]], integer(), x_arg = rlang::as_label(x[inds[1]]))
-    }
-}
+        #vctrs::stop_incompatible_cast(x[inds[1]], integer(), x_arg = rlang::as_label(x[inds[1]]))
+    #}
+#}
 
-vec_assert_integerish <- function(x, size = NULL, x_arg = "x") {
-    if (vec_is(x, integer()))
-        result <- x
+#vec_assert_integerish <- function(x, size = NULL, x_arg = "x") {
+    #if (vec_is(x, integer()))
+        #result <- x
 
-    if (vec_is(x, double())) {
-        diffs <- (abs(x) - floor(abs(x))) %==% 0
-        inds <- which(!diffs)
-        if (vec_is_empty(inds))
-            result <- vctrs::allow_lossy_cast(vec_cast(x, integer(), x_arg = rlang::as_label(x)))
-        else
-            vctrs::stop_incompatible_cast(x[inds[1]], integer(), x_arg = rlang::as_label(x[inds[1]]))
-    }
-    if (!rlang::is_null(size)) {
-        vctrs::vec_assert(result, size = size)
-    }
+    #if (vec_is(x, double())) {
+        #diffs <- (abs(x) - floor(abs(x))) %==% 0
+        #inds <- which(!diffs)
+        #if (vec_is_empty(inds))
+            #result <- vctrs::allow_lossy_cast(vec_cast(x, integer(), x_arg = rlang::as_label(x)))
+        #else
+            #vctrs::stop_incompatible_cast(x[inds[1]], integer(), x_arg = rlang::as_label(x[inds[1]]))
+    #}
+    #if (!rlang::is_null(size)) {
+        #vctrs::vec_assert(result, size = size)
+    #}
 
-    invisible(result)
-}
+    #invisible(result)
+#}
 
 log10_floor <- function(x) 10 ^ floor(log10(x))
 
@@ -149,17 +149,17 @@ round_interval <- function(rng, by) {
 
 
 
-lin <- function(x, x0, y0) {
-    dx <- diff(x0)
-    dy <- diff(y0)
-    sz <- len(x)
-    if (sz %==% 0L)
-        return(x)
-    else if (sz %==% 1L)
-        (x - x0[1]) * dy / dx + y0[1]
-    else
-        purrr::map_dbl(x, ~ (.x - x0[1]) * dy / dx + y0[1])
-}
+#lin <- function(x, x0, y0) {
+    #dx <- diff(x0)
+    #dy <- diff(y0)
+    #sz <- len(x)
+    #if (sz %==% 0L)
+        #return(x)
+    #else if (sz %==% 1L)
+        #(x - x0[1]) * dy / dx + y0[1]
+    #else
+        #purrr::map_dbl(x, ~ (.x - x0[1]) * dy / dx + y0[1])
+#}
 
 utils::globalVariables(c("id_l"))
 
