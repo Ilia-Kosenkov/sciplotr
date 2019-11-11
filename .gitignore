@@ -326,3 +326,4 @@ $RECYCLE.BIN/
 **/Rplots.pdf
 *.fth
 R/injection.R
+*.db

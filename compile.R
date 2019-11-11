@@ -31,6 +31,7 @@ if (interactive()) {
     library(scales)
     library(magrittr)
     library(zeallot)
+    library(RLibs)
     purrr::walk(fs::dir_ls("R", glob = "*R"), source)
 } else {
 

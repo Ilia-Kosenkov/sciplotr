@@ -215,15 +215,15 @@ FacetSci <- ggplot2::ggproto("FacetSci", ggplot2::FacetGrid,
                 panel_table <- gtable::gtable_add_cols(panel_table, npc_(0), pos + 1L)
                 panel_table <- gtable::gtable_add_grob(
                     panel_table,
-                    stripped_axes$y$left,
+                    stripped_axes$y$right,
                     panel_pos_rows, pos + 1L, clip = "off",
-                    name = paste("axis-l", 1:nrow, i, sep = "-"),
+                    name = paste("axis-r", 1:nrow, i, sep = "-"),
                     z = 3)
                 panel_table <- gtable::gtable_add_grob(
                     panel_table,
-                    stripped_axes$y$right,
+                    stripped_axes$y$left,
                     panel_pos_rows, pos + 2L, clip = "off",
-                    name = paste("axis-r", 1:nrow, i + 1L, sep = "-"),
+                    name = paste("axis-l", 1:nrow, i + 1L, sep = "-"),
                     z = 3)
 
             }
@@ -246,11 +246,10 @@ FacetSci <- ggplot2::ggproto("FacetSci", ggplot2::FacetGrid,
             clip = "off", name = paste("axis-b", nrow, seq_along(axes$x$bottom), sep = "-"), z = 3)
         panel_table <- gtable::gtable_add_grob(
             panel_table, axes$y$left, panel_pos_rows$t, 1,
-            clip = "off", name = paste("axis-l", 1, seq_along(axes$y$left), sep = "-"), z = 3)
+            clip = "off", name = paste("axis-l", seq_along(axes$y$left), 1, sep = "-"), z = 3)
         panel_table <- gtable::gtable_add_grob(
             panel_table, axes$y$right, panel_pos_rows$t, -1,
-            clip = "off", name = paste("axis-r", ncol, seq_along(axes$y$right), sep = "-"), z = 3)
-
+            clip = "off", name = paste("axis-r", seq_along(axes$y$right), ncol, sep = "-"), z = 3)
         # Add strips
         panel_pos_col <- ggplot2::panel_cols(panel_table)
 
