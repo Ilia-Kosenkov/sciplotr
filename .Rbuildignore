@@ -9,3 +9,6 @@ UnitTests
 .*md$
 .*tex$
 Compile.R
+.*ionide
+README
+README.*
