@@ -141,11 +141,12 @@ generate_simple_log10_breaks <- function(lim, n = 5L) {
     #vctrs::vec_c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50),
                     #vctrs::vec_c(0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100),
                     vctrs::vec_c(0.01, 0.1, 1, 10, 100))
-    if (diff(log10(lim)) <= 1) {
+    diff <- abs(diff(log10(abs(lim))))
+    if (diff <= 1) {
         breaks <- generate_simple_breaks(lim,
             step = fancy_step(lim, n = floor(1.25 * n), modifier = vctrs::vec_c(1, 2, 5)))
     }
-    else if (diff(log10(lim)) <= 2.1) {
+    else if (diff <= 2.1) {
         order <- log10_floor(lim)
         ticks <- cc(1, 2, 5)
         ticks <- cc(0.1 * ticks, ticks, 10 * ticks)
