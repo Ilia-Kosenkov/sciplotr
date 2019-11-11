@@ -192,7 +192,6 @@ FacetSci <- ggplot2::ggproto("FacetSci", ggplot2::FacetGrid,
             panel_pos_cols <- ggplot2::panel_cols(panel_table)$l
             for (i in seq_len(nrow - 1L)) {
                 pos <- 3L * (i - 1L) + 1L
-                print(pos)
                 panel_table <- gtable::gtable_add_rows(panel_table, npc_(0), pos)
                 panel_table <- gtable::gtable_add_rows(panel_table, npc_(0), pos + 1L)
                 panel_table <- gtable::gtable_add_grob(
