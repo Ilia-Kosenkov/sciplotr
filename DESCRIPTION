@@ -1,21 +1,21 @@
 Package: sciplotr
 Title: GGplots with scientific themes
-Version: 0.0.9
+Version: 0.0.12
 Authors@R: 
     person(given = "Ilia",
            family = "Kosenkov",
            role = c("aut", "cre"),
            email = "ilia.kosenkov.at.gm@gmail.com")
 Imports:
+	RLibs,
+	rlang,
+	vctrs,
+	ggplot2,
 	grid,
 	gtable,
-	ggplot2,
-	rlang,
-	assertthat,
-	purrr,
-	vctrs,
-	gridExtra,
 	dplyr,
+	purrr,
+	assertthat,
 	zeallot,
 	magrittr,
 	tidyr,
@@ -28,8 +28,9 @@ Imports:
 	readr
 Depends:
     R (>= 3.5.0)
-Description: What the package does (one paragraph).
-License: GPL2 + file LICENSE
+Description: This package provides a set of tools built atop of the `ggplot2` and `grid` packages (and friends), that improves the layout 
+of plots produced using `ggplot2` syntax.
+License: GPL-2 | file LICENSE
 Encoding: UTF-8
 LazyData: true
 ByteCompile: true

@@ -1,73 +1,73 @@
-are_equal_f <- function(x, y, eps = 1) {
-    vctrs::vec_assert(eps, size = 1L)
-    assertthat::assert_that(eps > 0)
+#are_equal_f <- function(x, y, eps = 1) {
+    #vctrs::vec_assert(eps, size = 1L)
+    #assertthat::assert_that(eps > 0)
 
-    vec_assert_numeric(x, arg = name_of(x))
-    vec_assert_numeric(y, arg = name_of(y))
+    #vec_assert_numeric(x, arg = name_of(x))
+    #vec_assert_numeric(y, arg = name_of(y))
 
-    rec <- vctrs::vec_recycle_common(x = x, y = y)
+    #rec <- vctrs::vec_recycle_common(x = x, y = y)
 
-    x <- rec$x
-    y <- rec$y
+    #x <- rec$x
+    #y <- rec$y
 
-    comparator <- function(p, q) {
-        if (is.na(p) || is.na(q))
-            return(FALSE)
+    #comparator <- function(p, q) {
+        #if (is.na(p) || is.na(q))
+            #return(FALSE)
 
-        if (is.infinite(p) || is.infinite(q))
-            return(p == q)
+        #if (is.infinite(p) || is.infinite(q))
+            #return(p == q)
 
-        if (p == q)
-            return(TRUE)
+        #if (p == q)
+            #return(TRUE)
 
-        p_abs <- abs(p)
-        q_abs <- abs(q)
-        diff <- abs(p - q)
+        #p_abs <- abs(p)
+        #q_abs <- abs(q)
+        #diff <- abs(p - q)
 
-        delta <- eps * .Machine$double.eps
-        # According to IEEE-754 https://en.wikipedia.org/wiki/IEEE_754
-        # -0 and 0 are equal, therefore p_abs and q_abs
-        # cannot be 0 at the same time
-        if (p_abs == 0 && q_abs == 0)
-            rlang::abort("Should not happen", "impossible_exception", trace = rlang::trace_back())
-        else if (p_abs == 0)
-            fact <- q_abs
-        else if (q_abs == 0)
-            fact <- p_abs
-        else
-            fact <- min(vctrs::vec_c(p_abs, q_abs))
+        #delta <- eps * .Machine$double.eps
+        ## According to IEEE-754 https://en.wikipedia.org/wiki/IEEE_754
+        ## -0 and 0 are equal, therefore p_abs and q_abs
+        ## cannot be 0 at the same time
+        #if (p_abs == 0 && q_abs == 0)
+            #rlang::abort("Should not happen", "impossible_exception", trace = rlang::trace_back())
+        #else if (p_abs == 0)
+            #fact <- q_abs
+        #else if (q_abs == 0)
+            #fact <- p_abs
+        #else
+            #fact <- min(vctrs::vec_c(p_abs, q_abs))
 
-        return(diff < fact * delta)
-    }
+        #return(diff < fact * delta)
+    #}
 
-    purrr::map2_lgl(x, y, comparator)
-}
+    #purrr::map2_lgl(x, y, comparator)
+#}
 
-`%==%` <- function(e1, e2) {
-    vctrs::vec_recycle_common(!!!vctrs::vec_cast_common(e1, e2)) %->% c(x, y)
-    if (vctrs::vec_is(x, complex()))
-        return(are_equal_f(Re(x), Re(y)) & are_equal_f(Im(x), Im(y)))
-    if (vctrs::vec_is(x, double()))
-        return(are_equal_f(x, y))
-    return(x == y)
-}
+#`%==%` <- function(e1, e2) {
+    #vctrs::vec_recycle_common(!!!vctrs::vec_cast_common(e1, e2)) %->% c(x, y)
+    #if (vctrs::vec_is(x, complex()))
+        #return(are_equal_f(Re(x), Re(y)) & are_equal_f(Im(x), Im(y)))
+    #if (vctrs::vec_is(x, double()))
+        #return(are_equal_f(x, y))
+    #return(x == y)
+#}
 
-`%!=%` <- function(e1, e2) {
-    !(e1 %==% e2)
-}
+#`%!=%` <- function(e1, e2) {
+    #!(e1 %==% e2)
+#}
 
-are_same_all <- function(x, eps = 1) {
-    # `eps` is tested in `are_equal_f`
-    vec_assert_numeric(x, arg = name_of(x))
+#are_same_all <- function(x, eps = 1) {
+    ## `eps` is tested in `are_equal_f`
+    #vec_assert_numeric(x, arg = name_of(x))
 
-    if (vec_size(x) == 0L)
-        return(FALSE)
-    if (vec_size(x) == 1L)
-        return(TRUE)
+    #if (vec_size(x) == 0L)
+        #return(FALSE)
+    #if (vec_size(x) == 1L)
+        #return(TRUE)
 
-    all(are_equal_f(vctrs::vec_slice(x, 1L), vctrs::vec_slice(x, 2L:vctrs::vec_size(x)), eps = eps))
+    #all(are_equal_f(vctrs::vec_slice(x, 1L), vctrs::vec_slice(x, 2L:vctrs::vec_size(x)), eps = eps))
 
-}
+#}
 
 name_of <- function(x) {
     y <- enexpr(x)
@@ -161,6 +161,7 @@ lin <- function(x, x0, y0) {
         purrr::map_dbl(x, ~ (.x - x0[1]) * dy / dx + y0[1])
 }
 
+utils::globalVariables(c("id_l"))
 
 locate_inrange <- function(x, range) {
     test <-
@@ -236,16 +237,16 @@ adjust_angle <- function(x) {
     x
 }
 
-`%vec_in%` <- vctrs::vec_in
-cc <- vctrs::vec_c
+#`%vec_in%` <- vctrs::vec_in
+#cc <- vctrs::vec_c
 
-## Temporary solution
-#' @export
-len <- function(x) UseMethod("len")
-#' @export
-len.default <- vctrs::vec_size
-#' @export
-len.unit <- length
+### Temporary solution
+##' @export
+#len <- function(x) UseMethod("len")
+##' @export
+#len.default <- vctrs::vec_size
+##' @export
+#len.unit <- length
 
 split_ex <- function(.data, col, name = NULL, keep = FALSE) {
     content <- dplyr::pull(.data, {{ col }})

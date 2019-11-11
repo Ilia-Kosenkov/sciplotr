@@ -39,6 +39,8 @@ facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
             as.table = as.table, drop = drop))
 }
 
+utils::globalVariables(c("data", "cols"))
+
 #' @export
 # https://github.com/tidyverse/ggplot2/blob/269be6fe56a71bef2687ac4c1f39992de45ae87a/R/facet-grid-.r#L189
 FacetSci <- ggplot2::ggproto("FacetSci", ggplot2::FacetGrid,
@@ -363,6 +365,7 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
     return(list(x = x_strips, y = y_strips))
 }
 
+utils::globalVariables(c("Cols", "Rows"))
 
 make_panel_labs <- function(cols, rows, .f) {
     assertthat::assert_that(vctrs::vec_size(cols) %==% vctrs::vec_size(rows))
@@ -389,6 +392,8 @@ make_panel_labs <- function(cols, rows, .f) {
     .f <- rlang::as_function(.f)
     tbl <- dplyr::mutate(tbl, Label = purrr::pmap(tbl, ~.f(rlang::list2(...))))
 }
+
+utils::globalVariables(c("T", "R", "B", "L", "Label", "Name"))
 
 gen_panel_labs_grobs <- function(panel, labs_table, theme) {
 
@@ -462,37 +467,5 @@ nullify_axes_tick_labels <- function(axes_desc) {
     axes_desc <- purrr::assign_in(axes_desc, vctrs::vec_c("x", "top"), worker(purrr::pluck(axes_desc, "x", "top")))
     axes_desc <- purrr::assign_in(axes_desc, vctrs::vec_c("y", "left"), worker(purrr::pluck(axes_desc, "y", "left")))
     axes_desc <- purrr::assign_in(axes_desc, vctrs::vec_c("y", "right"), worker(purrr::pluck(axes_desc, "y", "right")))
-
+    
 }
-
-
-#(mtcars %>%
-    #ggplot_sci(aes(x = hp, y = mpg, col = as_factor(cyl), shape = as_factor(gear))) +
-    #geom_point() +
-    #scale_x_log10_sci(name = NULL,
-        #breaks_n = 3,
-        #sec.axis = sec_axis_sci(~ 0.5 * .)) +
-    #scale_y_sci(name = NULL, breaks_n = 3) +
-    #facet_sci(am ~ gear, # ncol = 1,
-        #inner.ticks = TRUE,
-        #scales = "free_x")
-    #) %T>% { assign("temp_plot", ., envir = .GlobalEnv) } -> plt #%>%
-
-#plt %>%
-    #postprocess_axes(
-        #axes_margin = mar_(h = u_(1 ~ cm), v = u_(1 ~ cm)),
-        #text_margin = mar_(h = u_(0 ~ null), v = u_(0 ~ null))
-        #) -> tbl
-#grid.newpage()
-#grid.draw(tbl)
-#print(tbl)
-
-
-#ggplot_sci(tibble(y = runif(100, 0.51, 20), x = 1:100), aes(x, y)) +
-    #geom_point() +
-    #scale_y_log10_sci() +
-    #scale_x_sci(sec.axis = dup_axis_sci(),
-        #breaks_n = 4L,
-        #minor_breaks_n = 20L)  -> plt
-
-#print(plt)

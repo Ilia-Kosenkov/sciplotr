@@ -127,7 +127,7 @@ at_ <- function(item, what) UseMethod("at_")
 `at_<-` <- function(item, what, value) UseMethod("at_<-")
 #' @export
 ### Requried
-at_.margin <- function(mar, what) {
+at_.margin <- function(item, what) {
     what <- as.character(ensym(what))
 
     what <- match.arg(what, vec_c("top", "right", "bottom", "left"))
@@ -136,7 +136,7 @@ at_.margin <- function(mar, what) {
             "right" = 2L,
             "bottom" = 3L,
             "left" = 4L)
-    mar[pos] -> val
+    item[pos] -> val
     mar_class_pos <- which("margin" == class(val))
     if (!is_empty(mar_class_pos))
         class(val) <- class(val)[-mar_class_pos]
@@ -146,10 +146,10 @@ at_.margin <- function(mar, what) {
 
 #' @export
 ### Requried
-`at_<-.margin` <- function(mar, what, value) {
+`at_<-.margin` <- function(item, what, value) {
     what <- ensym(what)
 
-    with_mar(mar, !!what := ~value)
+    with_mar(item, !!what := ~value)
 }
 
 #' @export

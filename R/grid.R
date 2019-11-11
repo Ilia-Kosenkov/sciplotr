@@ -33,7 +33,7 @@ postprocess_axes.ggplot <- function(
         axes_margin, text_margin, strip_margin, unit_strategy)
 }
 
-#' @importFrom vctrs %0%
+utils::globalVariables(c("Height", "Width", "bottom"))
 #' @export
 postprocess_axes.gtable <- function(
     gg,
@@ -136,6 +136,7 @@ postprocess_axes.gtable <- function(
     gg
 }
 
+utils::globalVariables(c("name", "rowid"))
 ### Required
 get_grob_ids_raw <- function(grid, pattern) {
     grid$layout %>%
@@ -144,6 +145,8 @@ get_grob_ids_raw <- function(grid, pattern) {
         dplyr::transmute(Name = name, Id = rowid) %>%
         as.list
 }
+
+utils::globalVariables(c("grob_names", "ids", "l", "r", "t", "b"))
 
 #' @importFrom zeallot %->%
 #' @importFrom magrittr %$%
@@ -189,6 +192,8 @@ get_grobs_size <- function(grid, pattern) {
             height = sum(grid$heights[seq(from = .x[3], to = .x[4], by = 1L)])))
 }
 
+
+utils::globalVariables(c("GrobName", "Matches", "X", "Y", "Type", "Side", "value"))
 #' @export
 ### Requried
 get_grobs_desc <- function(grid, pattern) {

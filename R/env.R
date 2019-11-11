@@ -1,6 +1,4 @@
-#' @import rlang vctrs dplyr purrr ggplot2 grid gridExtra gtable tidyr tibble scales
-#' @importFrom stats median
-NULL
+
 
 sciplotr_global <- rlang::env()
 

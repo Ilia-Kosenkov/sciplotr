@@ -59,7 +59,7 @@ generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
     ## Probably can handle this case also
     ##stop("Unequally spaced major breaks")
     #print(RLibs::glue_fmt("{diffs:%26.16e}"))
-    
+
     df <- diffs[1L]
 
     digit <- abs(df / log10_floor(df))
@@ -68,14 +68,17 @@ generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
     #modifier <- cc(0.1 * modifier, modifier, 10 * modifier)
 
     if (digit %==% 2)
-        modifier <- cc(1, 2.5,  5)
+        modifier <- cc(0.5, 2.5,  5)
     if (digit %==% 3)
-        modifier <- cc(1, 3)
+        modifier <- cc(1)#, 3) # Not sure how to resolve this
     if (digit %==% 5)
-        modifier <- cc(1, 2.5, 5)
+        modifier <- cc(1, 2)
     if (digit %==% 2.5)
-        modifier <- cc(0.4, 1, 2)
+        modifier <- cc(0.4, 2)
 
+    modifier <- cc(0.1 * modifier, modifier, 10 * modifier)
+    #print(digit)
+    #print(modifier)
     step <- 0.1 * df#log10_floor(df)
 
     extra_rng <- cc(min(breaks) - df, max(breaks) + df)
@@ -85,6 +88,8 @@ generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
     ind <- which(are_equal_f(sizes, min(sizes)))[1]
 
     small_breaks <- generate_simple_breaks(cc(0, df), modifier[ind] * step)
+
+    #print(modifier[ind] * step)
 
     extended_breaks <-
         purrr::map(cc(min(breaks) - df, breaks, max(breaks) + df), ~ .x + small_breaks) %>%

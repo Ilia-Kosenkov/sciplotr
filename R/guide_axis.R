@@ -1,3 +1,5 @@
+
+utils::globalVariables(c(".label", ".state"))
 # https://github.com/tidyverse/ggplot2/blob/fa000f786cb0b641600b6de68ae0f96e2ffc5e75/R/guides-axis.r#L64
 guide_train.axis <- function(guide, scale, aesthetic = NULL) {
 
@@ -26,6 +28,21 @@ guide_train.axis <- function(guide, scale, aesthetic = NULL) {
         ticks <- vctrs::new_data_frame(rlang::set_names(list(scale$map(breaks)), aesthetic))
         ticks$.value <- breaks
         ticks$.label <- scale$get_labels(breaks)
+
+        lims <- scale$continuous_range %||% scale$get_limits()
+
+
+        delta <- abs(diff(lims)) * 0.03
+        ticks$.state <- purrr::map2_dbl(
+            abs(ticks$.value - lims[1]),
+            abs(ticks$.value - lims[2]),
+            min) / delta
+        ticks <-
+            dplyr::select(
+                dplyr::mutate(
+                    ticks,
+                    .label = dplyr::if_else(.state < 1, " ", .label)),
+                - .state)
 
         ## Addung minor ticks to the existing set
         ticks$.type <- "major"

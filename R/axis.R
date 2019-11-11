@@ -21,7 +21,7 @@ draw_axis <- function(break_positions, break_labels, axis_position, theme,
     ###
     tick_minor_length <- calc_element(tick_minor_length_element_name, theme)
     ###
-
+    
     # override label element parameters for rotation
     if (rlang::inherits_any(label_element, "element_text")) {
         label_overrides <- ggplot2:::axis_label_element_overrides(axis_position, angle)
