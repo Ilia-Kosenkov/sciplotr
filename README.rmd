@@ -1,6 +1,8 @@
 ---
 title: "sciplotr"
-output: md_document
+output: 
+    github_document:
+        html_preview: false
 ---
 
 # `sciplotr`
@@ -11,12 +13,10 @@ output: md_document
 There are also extension methods to work with units (as in [`grid`](https://github.com/cran/grid)'s `unit`).
 
 ## Units support
-
 ```{r echo = FALSE}
 library(sciplotr)
 library(grid)
 library(ggplot2)
-library(scales)
 ```
 ```{r}
 # {grid}'s way
@@ -44,7 +44,7 @@ at_(m, top) + at_(m, left)
 ## `gtable`-like methods
 [`gtable`](https://github.com/r-lib/gtable) provides tools to manipulate grobs.
 `sciplotr` has a few extra functions to inspect layout.
-`postprocess_axes` is a handy method that sets up margins of a typical `ggplot2` plot, that is, modifying heights/widths of axis name grobs, axis ticks grobs and facet strips. It is possible to produce plots with **exactly same** plot are size to nicely align them in the manuscript.
+`postprocess_axes` is a handy method that sets up margins of a typical `ggplot2` plot, that is, modifying heights/widths of axis name grobs, axis ticks grobs and facet strips. It is possible to produce plots with **exactly same** plot area sizes to nicely align them in the manuscript.
 
 There are also some other tools of the family `get_grob_*`
 
@@ -57,7 +57,7 @@ There are also some other tools of the family `get_grob_*`
 - `sec_axis_sci` and friends provide better support for secondary axes and secondary axes minor ticks,
 - `facet_sci` works similar to `ggplot2::facet_grid`, but applies different panel styling and also different strip labeling.
 
-To warp things up, here is an example
+To wrap things up, here is an example
 ```{r plot_1}
 # Generate strip labels as list of expressions
 labeller <- label_f(
