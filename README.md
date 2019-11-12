@@ -1,5 +1,3 @@
-sciplotr
-================
 
 # `sciplotr`
 
@@ -15,6 +13,12 @@ There are also extension methods to work with units (as in
 [`grid`](https://github.com/cran/grid)’s `unit`).
 
 ## Units support
+
+``` r
+library(grid)
+library(ggplot2)
+library(sciplotr, quietly = TRUE, warn.conflicts = FALSE)
+```
 
 ``` r
 # {grid}'s way
@@ -126,6 +130,7 @@ time, surface and frequency) and secondary y-axis shows “magnitudes”
 (`2.5 * log10(F / F0)`).
 
 ``` r
+set.seed(1)
 data <- data.frame(x = 1:1000, y = 10 ^ runif(1000, 3, 5));
 ggplot_sci(data, aes(x, y)) +
      geom_point() +

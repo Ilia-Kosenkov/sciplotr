@@ -1,5 +1,4 @@
 ---
-title: "sciplotr"
 output: 
     github_document:
         html_preview: false
@@ -13,10 +12,10 @@ output:
 There are also extension methods to work with units (as in [`grid`](https://github.com/cran/grid)'s `unit`).
 
 ## Units support
-```{r echo = FALSE}
-library(sciplotr)
+```{r}
 library(grid)
 library(ggplot2)
+library(sciplotr, quietly = TRUE, warn.conflicts = FALSE)
 ```
 ```{r}
 # {grid}'s way
@@ -87,6 +86,7 @@ grid.draw(postprocess_axes(plt,
 Another example shows different secondary axes scales. The main use case is plots with sophisticated secondary axes, like astrophysical plots where y-axis shows logarithmic fluxes (e.g. incident energy per unit time, surface and frequency) and secondary y-axis shows "magnitudes" (`2.5 * log10(F / F0)`).
 
 ```{r plot_3}
+set.seed(1)
 data <- data.frame(x = 1:1000, y = 10 ^ runif(1000, 3, 5));
 ggplot_sci(data, aes(x, y)) +
      geom_point() +
