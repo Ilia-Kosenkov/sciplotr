@@ -197,13 +197,13 @@ FacetSci <- ggplot2::ggproto("FacetSci", ggplot2::FacetGrid,
                 panel_table <- gtable::gtable_add_grob(
                     panel_table,
                     stripped_axes$x$bottom,
-                    pos + 2L, panel_pos_cols, clip = "off",
+                    pos + 1L, panel_pos_cols, clip = "off",
                     name = paste("axis-b", 1:ncol, i + 0L, sep = "-"),
                     z = 3)
                 panel_table <- gtable::gtable_add_grob(
                     panel_table,
                     stripped_axes$x$top,
-                    pos + 1L, panel_pos_cols, clip = "off",
+                    pos + 2L, panel_pos_cols, clip = "off",
                     name = paste("axis-t", 1:ncol, i + 1L, sep = "-"),
                     z = 3)
 

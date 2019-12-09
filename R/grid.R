@@ -209,18 +209,15 @@ get_grobs_desc <- function(grid, pattern) {
         dplyr::mutate_at(dplyr::vars(X, Y), replace_na, 0L) %>%
         dplyr::mutate_at(dplyr::vars(Type, Side), forcats::as_factor) -> grobs
 
-    
     layout %>%
-        enframe  %>%
+        enframe %>%
         split_ex(value) %>%
         set_names(vctrs::vec_c("GrobName", "L", "R", "T", "B")) %>%
         mutate(
-            Width = grid:::unit.list.from.list(
-                map2(L, R,
-                    ~ if (.x == .y) grid$widths[.x:.y] else sum(grid$widths[.x:.y]))),
-            Height = grid:::unit.list.from.list(
-                map2(T, B,
-                    ~ if (.x == .y) grid$heights[.x:.y] else sum(grid$heights[.x:.y])))) -> layout
+            Width = map2(L, R,
+                    ~ if (.x == .y) grid$widths[.x:.y] else sum(grid$widths[.x:.y])),
+            Height = map2(T, B,
+                    ~ if (.x == .y) grid$heights[.x:.y] else sum(grid$heights[.x:.y]))) -> layout
 
     grobs %>% inner_join(layout, by = "GrobName")
 }
