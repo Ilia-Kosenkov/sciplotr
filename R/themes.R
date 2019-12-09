@@ -115,7 +115,7 @@ theme_scientific <- function(
             panel.spacing = panel.spacing,
     #---------------------------------#
 
-    ..., validate = validate)
+    ..., validate = FALSE)
 
     attrs <- attributes(theme_val)
     attrs <- attrs[which(attrs != "names")]
