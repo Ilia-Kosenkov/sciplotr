@@ -1,5 +1,22 @@
+## https://github.com/tidyverse/ggplot2/blob/269be6fe56a71bef2687ac4c1f39992de45ae87a/R/facet-grid-.r#L111
+#' @title Fcet Sci
+#' @description Generates a facet similar to \code{ggplot2::facet_grid}.
+#' @param rows Rows variable (or a formula).
+#' @param cols Columns variable.
+#' @param scales Controls whetehre scales are shared between different panels.
+#' @param space Controls the space.
+#' @param shrink Controls behaviour depending on the statistics.
+#' @param labeller A set of up to four \code{rlang}-lambdas that control how
+#' different panel labels are generated based on the facetting variables.
+#' @param as.table Controls the arrangement of plots.
+#' @param rotate.y Should the y labels be rotated (compared to default behaviour of \code{facet_grid}).
+#' @param margins Should the marginal (i.e. combined) plots be added to the layout?
+#' @param panel.labels Controls whether panel labels are generated.
+#' @param inner.ticks Controls whether inner ticks are generated.
+#' @param panel.labeller Function that generated panel labels (i.e. (a), (b), (c), etc)
+#' @param drop Should empty factor levels be dropped.
+#'
 #' @export
-# https://github.com/tidyverse/ggplot2/blob/269be6fe56a71bef2687ac4c1f39992de45ae87a/R/facet-grid-.r#L111
 facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
                       space = "fixed", shrink = TRUE,
                       labeller = label_f(.f_left = ~.x$rows), as.table = TRUE,
@@ -41,8 +58,10 @@ facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
 
 utils::globalVariables(c("data", "cols"))
 
-#' @export
+
 # https://github.com/tidyverse/ggplot2/blob/269be6fe56a71bef2687ac4c1f39992de45ae87a/R/facet-grid-.r#L189
+#' @title FacetSci
+#' @export
 FacetSci <- ggplot2::ggproto("FacetSci", ggplot2::FacetGrid,
     compute_layout = function(data, params) {
         rows <- params$rows

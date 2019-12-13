@@ -1,9 +1,10 @@
-#' Unit division
-#'
+#' @title Unit functions
+#' @rdname unit
 #' @param e1 \code{unit} on the lhs.
 #' @param e2 Number on the rhs.
-#'
-#' @return Modified \code{unit}
+#' @param x,... Values to convert to unit.
+#' @param .data Data associated with a unit (like \code{grob}).
+
 #' @export
 `/.unit` <- function(e1, e2) {
     assertthat::assert_that(is.unit(e1))
@@ -13,6 +14,7 @@
     e1 * (1 / e2)
 }
 
+#' @rdname unit
 #' @export
 `-.unit` <- function(e1, e2) {
     assertthat::assert_that(grid::is.unit(e1))
@@ -21,6 +23,7 @@
     assertthat::assert_that(grid::is.unit(e2))
     grid:::unit.arithmetic("-", e1, e2)
 }
+
 
 f_u_ <- function(x, .data = NULL) {
     assert_that(is_formula(x))
@@ -32,6 +35,8 @@ f_u_ <- function(x, .data = NULL) {
     grid::unit(val, as.character(unit), data = .data)
 }
 
+
+#' @rdname unit
 #' @export
 u_ <- function(..., .data = NULL) {
     args <- rlang::enquos(...)
@@ -51,16 +56,19 @@ u_ <- function(..., .data = NULL) {
         else
             rlang::eval_tidy(arg, data = list(`$` = `$`))
         })
-
     rlang::exec(grid::unit.c, !!!result)
 }
 
+#' @rdname unit
 #' @export
 npc_ <- function(x) u_(x$npc)
+#' @rdname unit
 #' @export
 cm_ <- function(x) u_(x$cm)
+#' @rdname unit
 #' @export
 in_ <- function(x) u_(x$`in`)
+#' @rdname unit
 #' @export
 pt_ <- function(x) u_(x$pt)
 
@@ -119,12 +127,19 @@ mar_ <- function(...) {
     margin
 }
 
+#' @title Margin accessors
+#' @rdname mar
+#' @param item Margin.
+#' @param what Id or name of the side to get margin values.
+#' @param value Value to assign.
 #' @export
 ### Requried
 at_ <- function(item, what) UseMethod("at_")
+#' @rdname mar
 #' @export
 ### Requried
 `at_<-` <- function(item, what, value) UseMethod("at_<-")
+#' @rdname mar
 #' @export
 ### Requried
 at_.margin <- function(item, what) {
@@ -144,6 +159,7 @@ at_.margin <- function(item, what) {
     val
 }
 
+#' @rdname mar
 #' @export
 ### Requried
 `at_<-.margin` <- function(item, what, value) {
