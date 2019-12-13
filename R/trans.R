@@ -1,3 +1,11 @@
+#' @title Transforms
+#' @rdname trans
+#' @param n Parameter that weakly controls the number of generated large breaks.
+#' @param modifier Affect the set of allowed step sizes for a given \code{n}.
+#' @param n_small Same as \code{n}, but for small breaks.
+#' @param format Formatter that generates large breaks' labels.
+#'
+#' @return A \code{ggplot2}'s \code{trans} object
 #' @export
 identity_sci_trans <- function(
     n = 5L, modifier = vctrs::vec_c(1, 2, 2.5, 5), n_small = 50L,
@@ -8,6 +16,7 @@ identity_sci_trans <- function(
               format = format)
 }
 
+#' @rdname trans
 #' @export
 log10_sci_trans <- function(n = 5L, n_small = 30L, format = scales::format_format()) {
     trans <- function(x) log10(x)
@@ -19,6 +28,7 @@ log10_sci_trans <- function(n = 5L, n_small = 30L, format = scales::format_forma
               domain = vctrs::vec_c(1e-300, Inf))
 }
 
+#' @rdname trans
 #' @export
 reverse_sci_trans <- function(
     n = 5L, modifier = vctrs::vec_c(1, 2, 2.5, 5), n_small = 50L,

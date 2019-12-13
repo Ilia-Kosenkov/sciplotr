@@ -5,11 +5,18 @@
 
 #' @title theme_scientific
 #' @description Generates scientific theme.
-#' @param ticks Controls the tick size (and direction).
+#' @param ticks Controls the ticks size (and direction).
+#' @param ticks.minor Controls the minor ticks size (and direction).
 #' @param text.size Text font size by default.
 #' @param title.size Title (labels') font size by default.
 #' @param text.margin Text margin (added to the tick offset)
 #' @param title.margin Title margin (added to the tick offset)
+#' @param text.color Color of the text.
+#' @param plot.margin,legend.position,legend.justification,legend.background,legend.spacing,panel.grid.major.x,panel.grid.major.y,panel.grid.minor.x,panel.grid.minor.y,strip.text.x,strip.text.y,panel.spacing,strip.switch.pad.grid,strip.switch.pad.wrap,strip.placement,strip.background Explicitly overriden base parameters.
+#' @param facet.lab.x,facet.lab.y Position of facet labels, in \code{unit}.
+#' @param facet.lab A \code{ggplot2::element_text} representing facet label.
+#' @param validate Indicates whetehr \code{theme} should be validated.
+#'  \strong{Currently only works when} \code{FALSE} (which is the default value).
 #' @param ... Other parameters passed to \code{ggplot2::theme}
 #' @return A theme object.
 #' @export
@@ -42,7 +49,7 @@ theme_scientific <- function(
     strip.switch.pad.wrap = u_(0 ~ null),
     strip.placement = "outside",
     strip.background = ggplot2::element_blank(),
-    ..., validate = TRUE) {
+    ..., validate = FALSE) {
 
     # Asserts
     assertthat::assert_that(grid::is.unit(ticks), length(ticks) == 1L)
@@ -115,7 +122,7 @@ theme_scientific <- function(
             panel.spacing = panel.spacing,
     #---------------------------------#
 
-    ..., validate = FALSE)
+    ..., validate = validate)
 
     attrs <- attributes(theme_val)
     attrs <- attrs[which(attrs != "names")]
