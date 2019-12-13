@@ -18,3 +18,13 @@ log10_sci_trans <- function(n = 5L, n_small = 30L, format = scales::format_forma
               format = format,
               domain = vctrs::vec_c(1e-300, Inf))
 }
+
+#' @export
+reverse_sci_trans <- function(
+    n = 5L, modifier = vctrs::vec_c(1, 2, 2.5, 5), n_small = 50L,
+    format = scales:::format_format()) {
+    trans_new("identity_sci", function(x) -x, function(x) -x,
+              breaks = simple_breaks(n = n, modifier = modifier),
+              minor_breaks = simple_minor_breaks(n = n_small),
+              format = format)
+}

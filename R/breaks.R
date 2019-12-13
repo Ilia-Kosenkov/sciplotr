@@ -60,7 +60,7 @@ generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
     ##stop("Unequally spaced major breaks")
     #print(RLibs::glue_fmt("{diffs:%26.16e}"))
 
-    df <- diffs[1L]
+    df <- abs(diffs[1L])
 
     digit <- abs(df / log10_floor(df))
 
