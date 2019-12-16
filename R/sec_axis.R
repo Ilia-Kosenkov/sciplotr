@@ -97,7 +97,7 @@ AxisSecondarySci <- ggplot2::ggproto("AxisSecondarySci", ggplot2::AxisSecondary,
         }
         else {
             trans <- self$temp_trans
-            temp_scale <- self$create_scale(trans$transform(new_range))
+            temp_scale <- self$create_scale(sort(trans$transform(new_range)))
             ## Here the break info is obtained for the sec axis
 
             range_info <- temp_scale$break_info()
