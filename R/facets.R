@@ -384,6 +384,7 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
 utils::globalVariables(c("Cols", "Rows"))
 
 make_panel_labs <- function(cols, rows, .f) {
+
     assertthat::assert_that(vctrs::vec_size(cols) %==% vctrs::vec_size(rows))
     if (ggplot2:::is.waive(.f))
         .f <- ~paste0("(", letters[.x$Id], ")")
@@ -393,12 +394,12 @@ make_panel_labs <- function(cols, rows, .f) {
     if (ncol(rows) %==% 0L)
         row_comb <- forcats::as_factor(rep(0, vctrs::vec_size(rows)))
     else
-        row_comb <- interaction(rows, sep = ":")
+        row_comb <- forcats::fct_drop(interaction(rows, sep = ":"))
 
     if (ncol(cols) %==% 0L)
         col_comb <- forcats::as_factor(rep(0, vctrs::vec_size(cols)))
     else
-        col_comb <- interaction(cols, sep = ":")
+        col_comb <- forcats::fct_drop(interaction(cols, sep = ":"))
 
     tbl <- dplyr::mutate(tibble::tibble(Cols = col_comb, Rows = row_comb),
                          ColId = as.integer(Cols),
@@ -406,7 +407,7 @@ make_panel_labs <- function(cols, rows, .f) {
     tbl <- dplyr::mutate(dplyr::arrange(tbl, Rows, Cols), Id = 1:n())
 
     .f <- rlang::as_function(.f)
-    tbl <- dplyr::mutate(tbl, Label = purrr::pmap(tbl, ~.f(rlang::list2(...))))
+    tbl <- dplyr::mutate(tbl, Label = purrr::pmap_chr(tbl, ~.f(rlang::list2(...))))
 }
 
 utils::globalVariables(c("T", "R", "B", "L", "Label", "Name"))
