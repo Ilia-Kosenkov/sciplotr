@@ -117,8 +117,10 @@ get_id_var <- function(x) {
     structure(id, n = n)
 }
 
-adjust_angle <- function(x) {
-    x$angle <- ggplot2:::adjust_angle(x$angle)
+adjust_angle <- function(x, by = 180) {
+    for (i in seq_len(length(x$children))) {
+        x$children[[i]]$rot <- x$children[[i]]$rot + by
+    }
     x
 }
 

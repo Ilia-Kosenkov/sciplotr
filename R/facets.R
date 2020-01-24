@@ -19,7 +19,7 @@
 #' @export
 facet_sci <- function(rows = NULL, cols = NULL, scales = "fixed",
                       space = "fixed", shrink = TRUE,
-                      labeller = label_f(.f_left = ~.x$rows), as.table = TRUE,
+                      labeller = label_f(.f_left = ~.x$rows[[1]]), as.table = TRUE,
                       rotate.y = TRUE, margins = FALSE,
                       panel.labels = TRUE,
                       inner.ticks = TRUE,
@@ -274,7 +274,8 @@ FacetSci <- ggplot2::ggproto("FacetSci", ggplot2::FacetGrid,
 
         panel_table <- gtable::gtable_add_rows(panel_table, unit_max(get_height(strips$x$bottom)), -1)
         panel_table <- gtable::gtable_add_rows(panel_table, unit_max(get_height(strips$x$top)), 0)
-        
+
+
         if (!rlang::is_null(strips$x$bottom))
             panel_table <- gtable::gtable_add_grob(panel_table, strips$x$bottom, -1, panel_pos_col$l, clip = "on", name = paste0("strip-b-", seq_along(strips$x$bottom)), z = 2)
         if (!rlang::is_null(strips$x$top))
@@ -293,93 +294,6 @@ FacetSci <- ggplot2::ggproto("FacetSci", ggplot2::FacetGrid,
         panel_table
     }
 )
-
-# https://github.com/tidyverse/ggplot2/blob/269be6fe56a71bef2687ac4c1f39992de45ae87a/R/labeller.r#L486
-build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
-    labeller <- match.fun(labeller)
-
-    element_x <- calc_element("strip.text.x", theme)
-    element_y <- calc_element("strip.text.y", theme)
-
-    ## For weird compatibility with `ggplot2:::ggstrip`
-    
-    labels <- purrr::map_if(labeller(list(cols = cols, rows = rows)), ~!(rlang::is_null(.x)),
-                         ~ `dim<-`(unlist(.x), vctrs::vec_c(vctrs::vec_size(.x), 1L)))
-
-    if (rlang::inherits_any(element_y, "element_blank")) {
-        y_strips <- list(
-            left = rep(list(ggplot2::zeroGrob()), vctrs::vec_size(rows)),
-            right = rep(list(ggplot2::zeroGrob()), vctrs::vec_size(rows)))
-    }
-    else {
-        
-        gp_y <- grid::gpar(
-            fontsize = element_y$size,
-            col = element_y$colour,
-            fontfamily = element_y$family,
-            fontface = element_y$face,
-            lineheight = element_y$lineheight)
-        
-        if (rlang::is_null(labels$left))
-            left_grobs <-
-                rep(list(ggplot2::zeroGrob()), vctrs::vec_size(rows))
-        else {
-            left_grobs <- ggplot2:::create_strip_labels(labels$left, element_y, gp_y)
-            left_grobs <- ggplot2:::ggstrip(left_grobs, theme, element_y, gp_y, FALSE, "on")
-        }
-
-        element_y_rot <-
-            if (rlang::inherits_any(element_y, "element_text") && rotate_y)
-                adjust_angle(element_y)
-            else
-                element_y
-
-        if (rlang::is_null(labels$right))
-            right_grobs <-
-                rep(list(ggplot2::zeroGrob()), vctrs::vec_size(rows))
-        else {
-
-            right_grobs <- ggplot2:::create_strip_labels(labels$right, element_y_rot, gp_y)
-            right_grobs <- ggplot2:::ggstrip(right_grobs, theme, element_y_rot, gp_y, FALSE, "on")
-        }
-
-        y_strips <- list(left = left_grobs, right = right_grobs)
-    }
-
-    if (rlang::inherits_any(element_x, "element_blank")) {
-        x_strips <- list(
-            top = rep(list(ggplot2::zeroGrob()), vctrs::vec_size(cols)),
-            bottom = rep(list(ggplot2::zeroGrob()), vctrs::vec_size(cols)))
-    }
-    else {
-
-        gp_x <- grid::gpar(
-            fontsize = element_x$size,
-            col = element_x$colour,
-            fontfamily = element_x$family,
-            fontface = element_x$face,
-            lineheight = element_x$lineheight)
-
-        if (rlang::is_null(labels$bottom))
-            bottom_grobs <-
-                rep(list(ggplot2::zeroGrob()), vctrs::vec_size(cols))
-        else {
-            bottom_grobs <- ggplot2:::create_strip_labels(labels$bottom, element_x, gp_x)
-            bottom_grobs <- ggplot2:::ggstrip(bottom_grobs, theme, element_x, gp_x, TRUE, "on")
-        }
-
-        if (rlang::is_null(labels$top))
-            top_grobs <-
-                rep(list(ggplot2::zeroGrob()), vctrs::vec_size(cols))
-        else {
-            top_grobs <- ggplot2:::create_strip_labels(labels$top, element_x, gp_x)
-            top_grobs <- ggplot2:::ggstrip(top_grobs, theme, element_x, gp_x, TRUE, "on")
-        }
-        x_strips <- list(top = top_grobs, bottom = bottom_grobs)
-    }
-
-    return(list(x = x_strips, y = y_strips))
-}
 
 utils::globalVariables(c("Cols", "Rows"))
 
@@ -484,5 +398,62 @@ nullify_axes_tick_labels <- function(axes_desc) {
     axes_desc <- purrr::assign_in(axes_desc, vctrs::vec_c("x", "top"), worker(purrr::pluck(axes_desc, "x", "top")))
     axes_desc <- purrr::assign_in(axes_desc, vctrs::vec_c("y", "left"), worker(purrr::pluck(axes_desc, "y", "left")))
     axes_desc <- purrr::assign_in(axes_desc, vctrs::vec_c("y", "right"), worker(purrr::pluck(axes_desc, "y", "right")))
+
+}
+
+
+# https://github.com/tidyverse/ggplot2/blob/214f3148d8a9a25ce80859645dbef38f9632b4fa/R/labeller.r#L487
+build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
+    labeller <- match.fun(labeller)
+
+    labels <- labeller(list(cols = cols, rows = rows))
+
+    if (!is_null(labels$left)) {
+        grobs_left <- purrr::map(labels$left, ggplot2::element_render, theme = theme,
+            element = "strip.text.y.left", margin_x = TRUE, margin_y = TRUE)
+
+        grobs_left <- ggplot2:::assemble_strips(grobs_left, theme, horizontal = FALSE, clip = "on")
+    }
+    else
+        grobs_left <- NULL
+
+    if (!is_null(labels$right)) {
+        grobs_right <- purrr::map(labels$right, ggplot2::element_render, theme = theme,
+            element = "strip.text.y.right", margin_x = TRUE, margin_y = TRUE)
+
+        if (rotate_y)
+            grobs_right <- purrr::map(grobs_right, adjust_angle)
+
+        grobs_right <- ggplot2:::assemble_strips(grobs_right, theme, horizontal = FALSE, clip = "on")
+    }
+    else
+        grobs_right <- NULL
+
+    if (!is_null(labels$bottom)) {
+        grobs_bottom <- purrr::map(labels$bottom, ggplot2::element_render, theme = theme,
+            element = "strip.text.x.bottom", margin_x = TRUE, margin_y = TRUE)
+
+        grobs_bottom <- ggplot2:::assemble_strips(grobs_bottom, theme, horizontal = TRUE, clip = "on")
+    }
+    else
+        grobs_bottom <- NULL
+
+    if (!is_null(labels$top)) {
+        grobs_top <- purrr::map(labels$top, ggplot2::element_render, theme = theme,
+            element = "strip.text.x.top", margin_x = TRUE, margin_y = TRUE)
+
+        grobs_top <- ggplot2:::assemble_strips(grobs_top, theme, horizontal = TRUE, clip = "on")
+    }
+    else
+        grobs_top <- NULL
+
+
+    return(list(
+        y = list(
+            left = grobs_left,
+            right = grobs_right),
+        x = list(
+            bottom = grobs_bottom,
+            top = grobs_top)))
 
 }
