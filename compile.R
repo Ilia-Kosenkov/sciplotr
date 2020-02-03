@@ -7,8 +7,7 @@ if (interactive()) {
     library(vctrs)
     library(scales)
     library(magrittr)
-    library(zeallot)
-    library(RLibs)
+    library(primitiveR)
     purrr::walk(fs::dir_ls("R", glob = "*R"), source)
 } else {
 
@@ -50,4 +49,4 @@ if (interactive()) {
         shell(cmd_2, mustWork = TRUE)
     else
         system(cmd_2)
-}
+    }
