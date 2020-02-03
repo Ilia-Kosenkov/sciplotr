@@ -1,13 +1,13 @@
 Package: sciplotr
 Title: GGplots with scientific themes
-Version: 0.1.9
+Version: 0.2.0
 Authors@R: 
     person(given = "Ilia",
            family = "Kosenkov",
            role = c("aut", "cre"),
            email = "ilia.kosenkov.at.gm@gmail.com")
 Imports:
-	RLibs,
+	primitiveR,
 	rlang,
 	vctrs,
 	ggplot2,

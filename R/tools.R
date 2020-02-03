@@ -1,7 +1,7 @@
 log10_floor <- function(x) 10 ^ floor(log10(x))
 
 unique_f <- function(x, eps = 1L) {
-    x <- vec_assert_numeric(x)
+    x <- vec_cast(x, double())
 
     prod <- outer(x, x, are_equal_f, eps = eps)
 
@@ -12,8 +12,8 @@ unique_f <- function(x, eps = 1L) {
 }
 
 outer_unique_which <- function(x, y, eps = 1L) {
-    x <- vec_assert_numeric(x)
-    y <- vec_assert_numeric(y)
+    x <- vec_cast(x, double())
+    y <- vec_cast(y, double())
 
     prod <- !outer(x, y, are_equal_f, eps = eps)
     list(x = which(apply(prod, 1, all)), y = which(apply(prod, 2, all)))
@@ -25,8 +25,8 @@ outer_unique <- function(x, y, eps = 1L) {
 }
 
 round_interval <- function(rng, by) {
-    rng <- vec_assert_numeric(rng)
-    by <- vec_assert_numeric(by, size = 1L)
+    rng <- vec_cast(rng, double())
+    by <- vec_assert(vec_cast(by, double), size = 1L)
 
     by * cc(floor(rng[1] / by), ceiling(rng[2] / by))
 }
@@ -165,9 +165,9 @@ empty_seq <- function(x)
 
 #' @export
 lin_unit <- function(x0, x, y) {
-    x0 <- vec_assert_numeric(x0)
-    x <- vec_assert_numeric(x, size = 2L)
-    assertthat::assert_that(len(y) %==% 2L)
+    x0 <- vec_cast(x0, double())
+    x <- vec_assert(vec_cast(x, double()), size = 2L)
+    assertthat::assert_that(len(y) %===% 2L)
 
     dx <- x[2] - x[1]
     dy <- y[2] - y[1]

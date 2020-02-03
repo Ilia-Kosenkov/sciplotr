@@ -54,8 +54,8 @@ theme_scientific <- function(
     # Asserts
     assertthat::assert_that(grid::is.unit(ticks), length(ticks) == 1L)
     assertthat::assert_that(grid::is.unit(ticks.minor), length(ticks.minor) == 1L)
-    vec_assert_numeric(text.size, size = 1L)
-    vec_assert_numeric(title.size, size = 1L)
+    text.size <- vec_assert(vec_cast(text.size, double()), size = 1L)
+    title.size <- vec_assert(vec_cast(title.size, double()), size = 1L)
     assertthat::assert_that(grid::is.unit(text.margin), grid::is.unit(title.margin))
     assertthat::assert_that(grid::is.unit(plot.margin))
     vctrs::vec_assert(text.color, character(), 1L)

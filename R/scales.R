@@ -24,8 +24,8 @@ scale_x_sci <- function(name = waiver(), breaks = waiver(), minor_breaks = waive
     breaks_modifiers = vctrs::vec_c(1, 2, 2.5, 5),
     minor_breaks_n = 50L) {
 
-    breaks_n <- vec_assert_integerish(breaks_n, size = 1L)
-    breaks_modifiers <- vec_assert_numeric(breaks_modifiers)
+    breaks_n <- vec_assert(vec_cast(breaks_n, integer()), size = 1L)
+    breaks_modifiers <- vec_cast(breaks_modifiers, double())
 
     scale_x_continuous(name = name, breaks = breaks, minor_breaks = minor_breaks,
         labels = labels, limits = NULL, expand = expand, oob = oob,
@@ -44,8 +44,8 @@ scale_y_sci <- function(name = waiver(), breaks = waiver(), minor_breaks = waive
     breaks_modifiers = vctrs::vec_c(1, 2, 2.5, 5),
     minor_breaks_n = 50L) {
 
-    breaks_n <- vec_assert_integerish(breaks_n, size = 1L)
-    breaks_modifiers <- vec_assert_numeric(breaks_modifiers)
+    breaks_n <- vec_assert(vec_cast(breaks_n, integer()), size = 1L)
+    breaks_modifiers <- vec_cast(breaks_modifiers, double())
 
     scale_y_continuous(name = name, breaks = breaks, minor_breaks = minor_breaks,
         labels = labels, limits = NULL, expand = expand, oob = oob,
@@ -98,8 +98,8 @@ scale_x_rev_sci <- function(
     breaks_modifiers = vctrs::vec_c(1, 2, 2.5, 5),
     minor_breaks_n = 50L) {
 
-    breaks_n <- vec_assert_integerish(breaks_n, size = 1L)
-    breaks_modifiers <- vec_assert_numeric(breaks_modifiers)
+    breaks_n <- vec_assert(vec_cast(breaks_n, integer()), size = 1L)
+    breaks_modifiers <- vec_cast(breaks_modifiers, double())
 
     scale_x_continuous(name = name, breaks = breaks, minor_breaks = minor_breaks,
         labels = labels, limits = NULL, expand = expand, oob = oob,
@@ -119,8 +119,8 @@ scale_y_rev_sci <- function(
     breaks_modifiers = vctrs::vec_c(1, 2, 2.5, 5),
     minor_breaks_n = 50L) {
 
-    breaks_n <- vec_assert_integerish(breaks_n, size = 1L)
-    breaks_modifiers <- vec_assert_numeric(breaks_modifiers)
+    breaks_n <- vec_assert(vec_cast(breaks_n, integer()), size = 1L)
+    breaks_modifiers <- vec_cast(breaks_modifiers, double())
 
     scale_y_continuous(name = name, breaks = breaks, minor_breaks = minor_breaks,
         labels = labels, limits = NULL, expand = expand, oob = oob,
