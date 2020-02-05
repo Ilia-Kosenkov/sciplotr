@@ -1,6 +1,6 @@
 
 ![](https://www.r-pkg.org/badges/version/sciplotr)![GitHub](https://img.shields.io/github/license/Ilia-Kosenkov/sciplotr)[![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)[![](https://img.shields.io/badge/Imports-primitiveR-informational)](https://github.com/Ilia-Kosenkov/primitiveR)
 
 # `sciplotr`
 
