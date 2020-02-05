@@ -1,4 +1,7 @@
 
+![](https://www.r-pkg.org/badges/version/sciplotr)![GitHub](https://img.shields.io/github/license/Ilia-Kosenkov/sciplotr)[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+
 # `sciplotr`
 
 `sciplotr` is built on the basis of
@@ -19,11 +22,6 @@ library(grid)
 library(ggplot2)
 library(sciplotr, quietly = TRUE, warn.conflicts = FALSE)
 ```
-
-    ## Registered S3 methods overwritten by 'sciplotr':
-    ##   method                       from
-    ##   as.character.unit.arithmetic grid
-    ##   as.character.unit.list       grid
 
 ``` r
 # {grid}'s way

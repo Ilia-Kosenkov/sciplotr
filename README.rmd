@@ -3,6 +3,9 @@ output:
     github_document:
         html_preview: false
 ---
+![](https://www.r-pkg.org/badges/version/sciplotr)![GitHub](https://img.shields.io/github/license/Ilia-Kosenkov/sciplotr)[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+
+
 
 # `sciplotr`
 `sciplotr` is built on the basis of [`ggplot2`](https://github.com/tidyverse/ggplot2) (and includes parts of the `ggplot2` distributed under [`GPLv2`](https://github.com/tidyverse/ggplot2/blob/master/LICENSE)).
