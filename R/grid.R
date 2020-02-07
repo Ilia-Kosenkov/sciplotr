@@ -203,7 +203,7 @@ get_grobs_desc <- function(grid, pattern) {
     grobs %>%
         dplyr::mutate(Matches = purrr::map(GrobName,
             stringr::str_match, 
-            stringr::regex("^(\\w*?)(?:-([trbl]))?(?:-(\\d+))?(?:-(\\d+))?$", ignore_case = TRUE))) %>%
+            stringr::regex("^([\\w\\-]*?)(?:-([trbl]))?(?:-(\\d+))?(?:-(\\d+))?$", ignore_case = TRUE))) %>%
         dplyr::mutate(Matches = purrr::map_chr(Matches, ~ paste(.x[1, -1], collapse = ":"))) %>%
         tidyr::separate(Matches, vctrs::vec_c("Type", "Side", "X", "Y"), sep = ":") %>%
         dplyr::mutate_at(dplyr::vars(X, Y), readr::parse_integer) %>%

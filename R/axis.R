@@ -104,12 +104,17 @@ draw_axis <- function(break_positions, break_labels, axis_position, theme,
 
     tick_length_actual[break_types == "minor"] <- tick_minor_length
 
-    if (axis_position %vin% vctrs::vec_c("top", "left"))
-        actual_tick_pos <- unit.c(non_position_panel + tick_direction * (tick_length_actual - u_(1 ~ pt)),
-                              rep(non_position_panel, n_breaks))
-    else
-        actual_tick_pos <- unit.c(non_position_panel + tick_direction * tick_length_actual,
-                              rep(non_position_panel, n_breaks))
+    # Using options to get a fix for axis ticks, can be switched on/off
+    tick_offset_fix <- getOption("sciplotr_tick_offset_mar") %||% mar_(t = -1$pt, r = 0$pt, b = 0$pt, l = -1$pt)
+
+    tick_offset <- at_(tick_offset_fix, !!axis_position)
+
+    actual_tick_pos <- unit.c(
+        non_position_panel + tick_direction * (tick_length_actual + tick_offset),
+        rep(non_position_panel, n_breaks))
+    #else
+        #actual_tick_pos <- unit.c(non_position_panel + tick_direction * tick_length_actual,
+                            #rep(non_position_panel, n_breaks))
 
     actual_tick_pos <-
         actual_tick_pos[as.vector(sapply(1:n_breaks - 1, function(x) x + c(1, n_breaks + 1)[tick_coordinate_order]))]
