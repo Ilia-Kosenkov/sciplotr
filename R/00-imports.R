@@ -6,7 +6,7 @@
 #' @importFrom dplyr      %>% inner_join mutate n pull filter
 #' @importFrom purrr      imap map map_chr map2 map2_chr pluck detect_index
 #' @importFrom primitiveR %==% %!=% are_equal_f are_same_all cc len %vin% lin
-#' @importFrom primitiveR %===%
+#' @importFrom primitiveR %===% %->%
 NULL
 
 utils::globalVariables(c("."))

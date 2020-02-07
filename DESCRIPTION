@@ -1,23 +1,21 @@
 Package: sciplotr
 Title: GGplots with scientific themes
-Version: 0.2.1
+Version: 0.2.3
 Authors@R: 
     person(given = "Ilia",
            family = "Kosenkov",
            role = c("aut", "cre"),
            email = "ilia.kosenkov.at.gm@gmail.com")
 Imports:
-	primitiveR,
-	rlang,
-	vctrs,
+	primitiveR (>= 0.0.16),
+	rlang (>= 0.4.4.9000),
+	vctrs (>= 0.2.99.9005),
 	ggplot2 (>= 3.3.0.9000),
 	grid,
 	gtable,
 	dplyr,
 	purrr,
 	assertthat,
-	zeallot,
-	magrittr,
 	tidyr,
 	tibble,
 	stats,

@@ -63,7 +63,8 @@ locate_inrange <- function(x, range) {
 
     purrr::map(x,
         ~ dplyr::filter(data, test(.x, l, r)) %>%
-            magrittr::extract(1, cc("id_l", "id_r")) %>%
+            dplyr::select(id_l, id_r) %>%
+            dplyr::slice(1L) %>%
             purrr::flatten_int %>%
             unname)
 }

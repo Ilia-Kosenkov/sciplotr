@@ -7,8 +7,7 @@ testthat::setup({
 })
 
 testthat::test_that("Plot is built without error", {
-    mtcars %>%
-        ggplot(aes(hp, mpg, col = factor(gear))) +
+    ggplot(mtcars, aes(hp, mpg, col = factor(gear))) +
         coord_sci() +
         theme_sci() +
         geom_point() +

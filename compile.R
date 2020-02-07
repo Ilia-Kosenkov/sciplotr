@@ -6,7 +6,6 @@ if (interactive()) {
     library(rlang)
     library(vctrs)
     library(scales)
-    library(magrittr)
     library(primitiveR)
     purrr::walk(fs::dir_ls("R", glob = "*R"), source)
 } else {

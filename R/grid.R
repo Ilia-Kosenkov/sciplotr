@@ -148,8 +148,6 @@ get_grob_ids_raw <- function(grid, pattern) {
 
 utils::globalVariables(c("grob_names", "ids", "l", "r", "t", "b"))
 
-#' @importFrom zeallot %->%
-#' @importFrom magrittr %$%
 #' @export
 ### Required
 get_grobs_layout <- function(grid, pattern) {
@@ -160,10 +158,13 @@ get_grobs_layout <- function(grid, pattern) {
     grid$layout %>%
         dplyr::slice(ids) %>%
         dplyr::mutate(data = purrr::pmap(list(l, r, t, b), vctrs::vec_c)) %>%
-        dplyr::select(name, data) %$% {
-            rlang::set_names(data, name) %>%
-                purrr::map(~vctrs::allow_lossy_cast(vctrs::vec_cast(.x, integer())))
-        }
+         dplyr::select(name, data) %->% c(name, data)
+
+    purrr::map(rlang::set_names(data, name), ~ vctrs::allow_lossy_cast(vec_cast(.x, integer())))
+    #%$% {
+    #rlang::set_names(data, name) %>%
+    #purrr::map(~vctrs::allow_lossy_cast(vctrs::vec_cast(.x, integer())))
+    #}
 }
 
 #' @export
