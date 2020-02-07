@@ -408,11 +408,14 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
 
     labels <- labeller(list(cols = cols, rows = rows))
 
+    # matrix(grobs, ...) is used for compatibility
     if (!is_null(labels$left)) {
         grobs_left <- purrr::map(labels$left, ggplot2::element_render, theme = theme,
             element = "strip.text.y.left", margin_x = TRUE, margin_y = TRUE)
 
-        grobs_left <- ggplot2:::assemble_strips(grobs_left, theme, horizontal = FALSE, clip = "on")
+        grobs_left <- ggplot2:::assemble_strips(
+            matrix(grobs_left, nrow = vctrs::vec_size(labels$left), ncol = 1L),
+            theme, horizontal = FALSE, clip = "on")
     }
     else
         grobs_left <- NULL
@@ -424,7 +427,9 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
         if (rotate_y)
             grobs_right <- purrr::map(grobs_right, adjust_angle)
 
-        grobs_right <- ggplot2:::assemble_strips(grobs_right, theme, horizontal = FALSE, clip = "on")
+        grobs_right <- ggplot2:::assemble_strips(
+            matrix(grobs_right, nrow = vctrs::vec_size(labels$right), ncol = 1L),
+            theme, horizontal = FALSE, clip = "on")
     }
     else
         grobs_right <- NULL
@@ -433,7 +438,9 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
         grobs_bottom <- purrr::map(labels$bottom, ggplot2::element_render, theme = theme,
             element = "strip.text.x.bottom", margin_x = TRUE, margin_y = TRUE)
 
-        grobs_bottom <- ggplot2:::assemble_strips(grobs_bottom, theme, horizontal = TRUE, clip = "on")
+        grobs_bottom <- ggplot2:::assemble_strips(
+            matrix(grobs_bottom, nrow = vctrs::vec_size(labels$bottom), ncol = 1L),
+            theme, horizontal = TRUE, clip = "on")
     }
     else
         grobs_bottom <- NULL
@@ -442,7 +449,9 @@ build_strip <- function(cols, rows, labeller, theme, rotate_y = TRUE) {
         grobs_top <- purrr::map(labels$top, ggplot2::element_render, theme = theme,
             element = "strip.text.x.top", margin_x = TRUE, margin_y = TRUE)
 
-        grobs_top <- ggplot2:::assemble_strips(grobs_top, theme, horizontal = TRUE, clip = "on")
+        grobs_top <- ggplot2:::assemble_strips(
+            matrix(grobs_top, nrow = vctrs::vec_size(labels$top), ncol = 1L),
+            theme, horizontal = TRUE, clip = "on")
     }
     else
         grobs_top <- NULL
