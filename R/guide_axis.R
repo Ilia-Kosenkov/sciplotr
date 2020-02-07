@@ -32,17 +32,17 @@ guide_train.axis <- function(guide, scale, aesthetic = NULL) {
         lims <- scale$continuous_range %||% scale$get_limits()
 
 
-        delta <- abs(diff(lims)) * 0.03
-        ticks$.state <- purrr::map2_dbl(
-            abs(ticks$.value - lims[1]),
-            abs(ticks$.value - lims[2]),
-            min) / delta
-        ticks <-
-            dplyr::select(
-                dplyr::mutate(
-                    ticks,
-                    .label = dplyr::if_else(.state < 1, " ", .label)),
-                - .state)
+        #delta <- abs(diff(lims)) * vctrs::vec_cast(axis_end_magrin %||% 0.05, double())
+        #ticks$.state <- purrr::map2_dbl(
+            #abs(ticks$.value - lims[1]),
+            #abs(ticks$.value - lims[2]),
+            #min) / delta
+        #ticks <-
+            #dplyr::select(
+                #dplyr::mutate(
+                    #ticks,
+                    #.label = dplyr::if_else(.state < 1, " ", .label)),
+                #- .state)
 
         ## Addung minor ticks to the existing set
         ticks$.type <- "major"
@@ -69,6 +69,19 @@ guide_train.axis <- function(guide, scale, aesthetic = NULL) {
     }
 
     guide$name <- paste0(guide$name, "_", aesthetic)
-    guide$hash <- digest::digest(list(guide$title, guide$key$.value, guide$key$.label, guide$name))
+    guide$hash <- digest::digest(list(guide$title, guide$key$.value, guide$key$.label, guide$key$.type, guide$name))
+    guide
+}
+
+guide_axis_censor <- function(guide, scale, axis_end_offset = c(0.05, 0.05)) {
+    axis_end_offset <- vctrs::vec_recycle(vctrs::vec_cast(axis_end_offset %||% 0.05, double()), size = 2L)
+
+    lims <- scale$continuous_range %||% scale$get_limits()
+
+    delta <- abs(diff(lims)) * axis_end_offset
+
+    idx <- (abs(guide$key$.value - lims[1]) < delta[1]) | (abs(guide$key$.value - lims[2]) < delta[2])
+    guide$key <- dplyr::mutate(guide$key, .label = dplyr::if_else(idx, " ", .label))
+    guide$hash <- digest::digest(list(guide$title, guide$key$.value, guide$key$.label, guide$key$.type, guide$name))
     guide
 }
