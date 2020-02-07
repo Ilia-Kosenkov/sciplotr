@@ -6,10 +6,10 @@ if (interactive()) {
     is_null <- rlang::is_null
     testthat::test_dir(file.path("tests", "testthat"))
 } else {
-    #library(testthat)
+    library(testthat)
     library(sciplotr)
     library(ggplot2)
     library(magrittr)
 
-    testthat::test_check("sciplotr")
+    testthat::test_check("sciplotr", reporter = testthat::CheckReporter)
 }

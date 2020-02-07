@@ -8,7 +8,7 @@ testthat::setup({
 
 testthat::test_that("Plot is built without error", {
     mtcars %>%
-        ggplot(aes(hp, mpg, col = as_factor(gear))) +
+        ggplot(aes(hp, mpg, col = factor(gear))) +
         coord_sci() +
         theme_sci() +
         geom_point() +
@@ -23,15 +23,15 @@ testthat::test_that("Plot is built without error", {
     message(paste("Using temp file", tmp))
     pdf(tmp)
     tryCatch({
-        
+
         postprocess_axes(
             plt,
             strip_margin = 0.5 * mar_(1 ~ cm, 2 ~ cm, 3 ~ cm, 4 ~ cm),
             text_margin = 0.5 * mar_(4 ~ cm, 3 ~ cm, 2 ~ cm, 1 ~ cm),
             axes_margin = mar_(0.5 ~ cm, 0.5 ~ cm, 0.5 ~ cm, 0.5 ~ cm)) -> g
-        grid::grid.newpage()
-        grid::grid.draw(g)
-        }, finally = dev.off())
+    grid::grid.newpage()
+    grid::grid.draw(g)
+    }, finally = dev.off())
 
     testthat::succeed("No errors were thrown.")
 })
