@@ -19,9 +19,9 @@ draw_axis <- function(break_positions, break_labels, axis_position, theme,
     tick_length <- calc_element(tick_length_element_name, theme)
     label_element <- calc_element(label_element_name, theme)
     ###
-    tick_minor_length <- calc_element(tick_minor_length_element_name, theme)
+    tick_minor_length <- calc_element(tick_minor_length_element_name, theme) %||% u_(0 ~ pt)
     ###
-    
+
     # override label element parameters for rotation
     if (rlang::inherits_any(label_element, "element_text")) {
         label_overrides <- ggplot2:::axis_label_element_overrides(axis_position, angle)
@@ -46,7 +46,7 @@ draw_axis <- function(break_positions, break_labels, axis_position, theme,
     # the axis is on
     is_second <- axis_position %vin% cc("right", "top")
 
-    tick_direction <- if (is_second) 1 else-1
+    tick_direction <- if (is_second) 1 else -1
     non_position_panel <- if (is_second) u_(0 ~ npc) else u_(1 ~ npc)
     tick_coordinate_order <- if (is_second) vctrs::vec_c(2L, 1L) else vctrs::vec_c(1L, 2L)
 
@@ -101,13 +101,20 @@ draw_axis <- function(break_positions, break_labels, axis_position, theme,
 
     ## Generating variable length ticks
     tick_length_actual <- rep(tick_length, n_breaks)
+
     tick_length_actual[break_types == "minor"] <- tick_minor_length
 
-    actual_tick_pos <- unit.c(non_position_panel + tick_direction * tick_length_actual,
+    if (axis_position %vin% vctrs::vec_c("top", "left"))
+        actual_tick_pos <- unit.c(non_position_panel + tick_direction * (tick_length_actual - u_(1 ~ pt)),
+                              rep(non_position_panel, n_breaks))
+    else
+        actual_tick_pos <- unit.c(non_position_panel + tick_direction * tick_length_actual,
                               rep(non_position_panel, n_breaks))
 
     actual_tick_pos <-
         actual_tick_pos[as.vector(sapply(1:n_breaks - 1, function(x) x + c(1, n_breaks + 1)[tick_coordinate_order]))]
+
+
     ##
     ticks_grob <- exec(
         element_grob, tick_element,
