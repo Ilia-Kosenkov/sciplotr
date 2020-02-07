@@ -32,18 +32,6 @@ guide_train.axis <- function(guide, scale, aesthetic = NULL) {
         lims <- scale$continuous_range %||% scale$get_limits()
 
 
-        #delta <- abs(diff(lims)) * vctrs::vec_cast(axis_end_magrin %||% 0.05, double())
-        #ticks$.state <- purrr::map2_dbl(
-            #abs(ticks$.value - lims[1]),
-            #abs(ticks$.value - lims[2]),
-            #min) / delta
-        #ticks <-
-            #dplyr::select(
-                #dplyr::mutate(
-                    #ticks,
-                    #.label = dplyr::if_else(.state < 1, " ", .label)),
-                #- .state)
-
         ## Addung minor ticks to the existing set
         ticks$.type <- "major"
         df <-
