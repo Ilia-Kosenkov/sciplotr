@@ -10,7 +10,7 @@ Imports:
 	primitiveR,
 	rlang,
 	vctrs,
-	ggplot2,
+	ggplot2 (>= 3.3.0.9000),
 	grid,
 	gtable,
 	dplyr,
