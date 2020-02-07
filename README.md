@@ -23,6 +23,11 @@ library(ggplot2)
 library(sciplotr, quietly = TRUE, warn.conflicts = FALSE)
 ```
 
+    ## Registered S3 methods overwritten by 'sciplotr':
+    ##   method                       from
+    ##   as.character.unit.arithmetic grid
+    ##   as.character.unit.list       grid
+
 ``` r
 # {grid}'s way
 unit(5, "cm") + unit(1, "pt")
