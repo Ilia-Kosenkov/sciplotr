@@ -62,6 +62,8 @@ guide_train.axis <- function(guide, scale, aesthetic = NULL) {
 }
 
 guide_axis_censor <- function(guide, scale, axis_end_offset = c(0.05, 0.05)) {
+    if (rlang::is_null(guide$key))
+        return(guide)
     axis_end_offset <- vctrs::vec_recycle(vctrs::vec_cast(axis_end_offset %||% 0.05, double()), size = 2L)
 
     lims <- scale$continuous_range %||% scale$get_limits()
