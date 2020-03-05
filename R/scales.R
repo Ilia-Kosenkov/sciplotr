@@ -28,7 +28,7 @@ scale_x_sci <- function(name = waiver(), breaks = waiver(), minor_breaks = waive
     breaks_modifiers <- vec_cast(breaks_modifiers, double())
 
     scale_x_continuous(name = name, breaks = breaks, minor_breaks = minor_breaks,
-        labels = labels, limits = NULL, expand = expand, oob = oob,
+        labels = labels, limits = limits, expand = expand, oob = oob,
         na.value = na.value, trans = identity_sci_trans(breaks_n, breaks_modifiers, minor_breaks_n),
         position = position,
         sec.axis = sec.axis)
@@ -48,7 +48,7 @@ scale_y_sci <- function(name = waiver(), breaks = waiver(), minor_breaks = waive
     breaks_modifiers <- vec_cast(breaks_modifiers, double())
 
     scale_y_continuous(name = name, breaks = breaks, minor_breaks = minor_breaks,
-        labels = labels, limits = NULL, expand = expand, oob = oob,
+        labels = labels, limits = limits, expand = expand, oob = oob,
         na.value = na.value, trans = identity_sci_trans(breaks_n, breaks_modifiers, minor_breaks_n),
         position = position,
         sec.axis = sec.axis)
@@ -64,7 +64,7 @@ scale_x_log10_sci <- function(name = waiver(), breaks = waiver(), minor_breaks =
     sec.axis = waiver()) {
 
     scale_x_continuous(name = name, breaks = breaks, minor_breaks = minor_breaks,
-        labels = labels, limits = NULL, expand = expand, oob = oob,
+        labels = labels, limits = limits, expand = expand, oob = oob,
         na.value = na.value,
         trans = log10_sci_trans(breaks_n, minor_breaks_n),
         position = position,
@@ -80,7 +80,7 @@ scale_y_log10_sci <- function(name = waiver(), breaks = waiver(), minor_breaks =
     sec.axis = waiver()) {
 
     scale_y_continuous(name = name, breaks = breaks, minor_breaks = minor_breaks,
-        labels = labels, limits = NULL, expand = expand, oob = oob,
+        labels = labels, limits = limits, expand = expand, oob = oob,
         na.value = na.value,
         trans = log10_sci_trans(breaks_n, minor_breaks_n),
         position = position,
@@ -102,7 +102,7 @@ scale_x_rev_sci <- function(
     breaks_modifiers <- vec_cast(breaks_modifiers, double())
 
     scale_x_continuous(name = name, breaks = breaks, minor_breaks = minor_breaks,
-        labels = labels, limits = NULL, expand = expand, oob = oob,
+        labels = labels, limits = limits, expand = expand, oob = oob,
         na.value = na.value, trans = reverse_sci_trans(breaks_n, breaks_modifiers, minor_breaks_n),
         position = position,
         sec.axis = sec.axis)
@@ -123,7 +123,7 @@ scale_y_rev_sci <- function(
     breaks_modifiers <- vec_cast(breaks_modifiers, double())
 
     scale_y_continuous(name = name, breaks = breaks, minor_breaks = minor_breaks,
-        labels = labels, limits = NULL, expand = expand, oob = oob,
+        labels = labels, limits = limits, expand = expand, oob = oob,
         na.value = na.value, trans = reverse_sci_trans(breaks_n, breaks_modifiers, minor_breaks_n),
         position = position,
         sec.axis = sec.axis)
