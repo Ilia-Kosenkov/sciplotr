@@ -20,7 +20,10 @@ draw_axis <- function(break_positions, break_labels, axis_position, theme,
     label_element <- calc_element(label_element_name, theme)
     ###
     tick_minor_length <- calc_element(tick_minor_length_element_name, theme) %||% u_(0 ~ pt)
+    #panel_border_size  <- unit(calc_element("panel.border", theme)$size %||% 0, "mm")
     ###
+
+
 
     # override label element parameters for rotation
     if (rlang::inherits_any(label_element, "element_text")) {
@@ -45,6 +48,13 @@ draw_axis <- function(break_positions, break_labels, axis_position, theme,
     # conditionally set parameters that depend on which side of the panel
     # the axis is on
     is_second <- axis_position %vin% cc("right", "top")
+
+    ### Experimetnal
+    #if (is_vertical && !is_second) {
+        #tick_length <- tick_length - panel_border_size * 0
+        #tick_minor_length <- tick_minor_length - panel_border_size * 0
+    #}
+    ###
 
     tick_direction <- if (is_second) 1 else -1
     non_position_panel <- if (is_second) u_(0 ~ npc) else u_(1 ~ npc)
@@ -104,13 +114,8 @@ draw_axis <- function(break_positions, break_labels, axis_position, theme,
 
     tick_length_actual[break_types == "minor"] <- tick_minor_length
 
-    # Using options to get a fix for axis ticks, can be switched on/off
-    tick_offset_fix <- getOption("sciplotr_tick_offset_mar") %||% mar_(t = -1$pt, r = 0$pt, b = 0$pt, l = -1$pt)
-
-    tick_offset <- at_(tick_offset_fix, !!axis_position)
-
     actual_tick_pos <- unit.c(
-        non_position_panel + tick_direction * (tick_length_actual + tick_offset),
+        non_position_panel + tick_direction * tick_length_actual,
         rep(non_position_panel, n_breaks))
     #else
         #actual_tick_pos <- unit.c(non_position_panel + tick_direction * tick_length_actual,
