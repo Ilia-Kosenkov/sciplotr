@@ -8,6 +8,7 @@ if (interactive()) {
     library(scales)
     library(primitiveR)
     purrr::walk(fs::dir_ls("R", glob = "*R"), source)
+    .onLoad()
 } else {
 
     message("Running `roxygen2::roxygenize`...")
