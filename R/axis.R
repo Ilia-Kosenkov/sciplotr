@@ -10,7 +10,7 @@ draw_axis <- function(break_positions, break_labels, axis_position, theme,
     tick_element_name <- paste0("axis.ticks.", aesthetic, ".", axis_position)
     tick_length_element_name <- paste0("axis.ticks.length.", aesthetic, ".", axis_position)
     ## WATCH: obtaining minor tick element
-    tick_minor_length_element_name <- paste0("axis.ticks.minor.length.", aesthetic, ".", axis_position)
+    tick_minor_length_element_name <- paste0("sciplotr.axis.ticks.minor.length.", aesthetic, ".", axis_position)
     ##
     label_element_name <- paste0("axis.text.", aesthetic, ".", axis_position)
 

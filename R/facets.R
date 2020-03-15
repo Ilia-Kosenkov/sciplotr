@@ -328,9 +328,9 @@ utils::globalVariables(c("T", "R", "B", "L", "Label", "Name"))
 
 gen_panel_labs_grobs <- function(panel, labs_table, theme) {
 
-    elem <- calc_element("facet.lab", theme)
-    x_pos <- calc_element("facet.lab.x", theme) %||% npc_(0.1)
-    y_pos <- calc_element("facet.lab.y", theme) %||% npc_(0.9)
+    elem <- calc_element("sciplotr.facet.lab", theme)
+    x_pos <- calc_element("facet.lab.pos.x", theme) %||% npc_(0.1)
+    y_pos <- calc_element("facet.lab.pos.y", theme) %||% npc_(0.9)
     panel_desc <- dplyr::select(get_grobs_desc(panel, "panel"), X, Y, L, R, T, B)
 
     panel_desc <- dplyr::inner_join(panel_desc, labs_table, by = c("X" = "ColId", "Y" = "RowId"))
