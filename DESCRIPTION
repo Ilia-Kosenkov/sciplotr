@@ -36,5 +36,4 @@ ByteCompile: true
 RoxygenNote: 7.0.2
 Suggests: 
     testthat,
-	magrittr,
-	glue
+	magrittr

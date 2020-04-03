@@ -1,3 +1,8 @@
+#' @title density2d_sci
+#' @rdname density2d_sci
+#'
+#' @param mapping,data,geom,position,contour,contour_var,n,h,adjust,na.rm,show.legend,inherit.aes,stat,lineend,linejoin,linemitre,... Passed to \code{ggplot2} functions.
+#' @export
 stat_density2d_sci <- function(
     mapping = NULL, data = NULL, geom = "density_2d",
     position = "identity", ..., contour = TRUE, contour_var = "density",
@@ -12,6 +17,8 @@ stat_density2d_sci <- function(
             h = h, adjust = adjust, ...))
 }
 
+#' @rdname density2d_sci
+#' @export
 stat_density2d_filled_sci <- function(
     mapping = NULL, data = NULL, geom = "density_2d_filled",
     position = "identity", ..., contour = TRUE, contour_var = "density",
@@ -26,6 +33,8 @@ stat_density2d_filled_sci <- function(
             h = h, adjust = adjust, ...))
 }
 
+#' @rdname density2d_sci
+#' @export
 geom_density2d_sci <- function(
     mapping = NULL, data = NULL, stat = "density_2d_sci",
     position = "identity", ..., contour_var = "density",
@@ -40,6 +49,8 @@ geom_density2d_sci <- function(
             contour_var = contour_var, na.rm = na.rm, ...))
 }
 
+#' @rdname density2d_sci
+#' @export
 geom_density2d_filled_sci <- function(
     mapping = NULL, data = NULL, stat = "density_2d_filled_sci",
     position = "identity", ..., contour_var = "density",
@@ -52,11 +63,21 @@ geom_density2d_filled_sci <- function(
                 na.rm = na.rm, contour = TRUE,
                 contour_var = contour_var, ...))
 }
+#' @rdname density2d_sci
+#' @export
 stat_density_2d_sci <- stat_density2d_sci
+#' @rdname density2d_sci
+#' @export
 stat_density_2d_filled_sci <- stat_density2d_filled_sci
+#' @rdname density2d_sci
+#' @export
 geom_density_2d_sci <- geom_density2d_sci
+#' @rdname density2d_sci
+#' @export
 geom_density_2d_fill_sci <- geom_density2d_filled_sci
 
+#' @rdname density2d_sci
+#' @export
 StatDensity2dSci <- ggproto("StatDensity2dSci", StatDensity2d,
     compute_layer = function(self, data, params, layout) {
         # first run the regular layer calculation to infer densities
@@ -94,11 +115,15 @@ StatDensity2dSci <- ggproto("StatDensity2dSci", StatDensity2d,
         })
     })
 
+#' @rdname density2d_sci
+#' @export
 StatDensity2dFilledSci <- ggproto("StatDensity2dFilledSci", StatDensity2dSci,
     default_aes = aes(colour = NA, fill = after_stat(level)),
     contour_type = "bands"
 )
 
+#' @rdname density2d_sci
+#' @export
 StatContourSci <- ggproto("StatContourSci", StatContour,
     compute_group = function(data, scales, z.range, bins = NULL, binwidth = NULL,
                            breaks = NULL, na.rm = FALSE) {
@@ -126,6 +151,8 @@ StatContourSci <- ggproto("StatContourSci", StatContour,
     }
 )
 
+#' @rdname density2d_sci
+#' @export
 StatContourFilledSci <- ggproto("StatContourFilledSci", StatContourFilled,
     compute_group = function(data, scales, z.range, bins = NULL, binwidth = NULL, breaks = NULL, na.rm = FALSE) {
         ### Custom density
@@ -162,13 +189,3 @@ StatContourFilledSci <- ggproto("StatContourFilledSci", StatContourFilled,
 
         path_df
     })
-
-ggplot_sci(mtcars, aes(hp, mpg)) +
-    geom_density2d_filled_sci(aes(fill = as_factor(..prob..)), breaks = c(0.16, 0.32, 0.68, 0.84, 0.975)) +
-    geom_density2d_sci(col = "black", breaks = c(0.16, 0.32, 0.68, 0.84, 0.975)) +
-    scale_fill_viridis_d(direction = -1) +
-    scale_x_sci() +
-    scale_y_sci() +
-    geom_point() -> plt
-
-print(plt)
