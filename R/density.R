@@ -6,7 +6,8 @@ stat_density2d_sci <- function(
 
     layer(data = data, mapping = mapping, stat = StatDensity2dSci,
         geom = geom, position = position, show.legend = show.legend,
-        inherit.aes = inherit.aes, params = list(na.rm = na.rm,
+        inherit.aes = inherit.aes, params = list(
+            na.rm = na.rm,
             contour = contour, contour_var = contour_var, n = n,
             h = h, adjust = adjust, ...))
 }
@@ -17,26 +18,44 @@ stat_density2d_filled_sci <- function(
     n = 100, h = NULL, adjust = c(1, 1), na.rm = FALSE, show.legend = NA,
     inherit.aes = TRUE) {
 
-    layer(
-    data = data,
-    mapping = mapping,
-    stat = StatDensity2dFilledSci,
-    geom = geom,
-    position = position,
-    show.legend = show.legend,
-    inherit.aes = inherit.aes,
-    params = list(
-      na.rm = na.rm,
-      contour = contour,
-      contour_var = contour_var,
-      n = n,
-      h = h,
-      adjust = adjust,
-      ...
-    )
-  )
+    layer(data = data, mapping = mapping, stat = StatDensity2dFilledSci,
+        geom = geom, position = position, show.legend = show.legend,
+        inherit.aes = inherit.aes,  params = list(
+            na.rm = na.rm,
+            contour = contour, contour_var = contour_var, n = n,
+            h = h, adjust = adjust, ...))
 }
 
+geom_density2d_sci <- function(
+    mapping = NULL, data = NULL, stat = "density_2d_sci",
+    position = "identity", ..., contour_var = "density",
+    lineend = "butt", linejoin = "round", linemitre = 10,
+    na.rm = FALSE, show.legend = NA, inherit.aes = TRUE) {
+    layer(data = data, mapping = mapping,
+        stat = stat, geom = GeomDensity2d,
+        position = position, show.legend = show.legend,
+        inherit.aes = inherit.aes, params = list(
+            lineend = lineend, linejoin = linejoin,
+            linemitre = linemitre, contour = TRUE,
+            contour_var = contour_var, na.rm = na.rm, ...))
+}
+
+geom_density2d_filled_sci <- function(
+    mapping = NULL, data = NULL, stat = "density_2d_filled_sci",
+    position = "identity", ..., contour_var = "density",
+    na.rm = FALSE, show.legend = NA, inherit.aes = TRUE) {
+
+    layer(data = data, mapping = mapping, stat = stat,
+          geom = GeomDensity2dFilled, position = position,
+          show.legend = show.legend, inherit.aes = inherit.aes,
+            params = list(
+                na.rm = na.rm, contour = TRUE,
+                contour_var = contour_var, ...))
+}
+stat_density_2d_sci <- stat_density2d_sci
+stat_density_2d_filled_sci <- stat_density2d_filled_sci
+geom_density_2d_sci <- geom_density2d_sci
+geom_density_2d_fill_sci <- geom_density2d_filled_sci
 
 StatDensity2dSci <- ggproto("StatDensity2dSci", StatDensity2d,
     compute_layer = function(self, data, params, layout) {
@@ -110,7 +129,7 @@ StatContourSci <- ggproto("StatContourSci", StatContour,
 StatContourFilledSci <- ggproto("StatContourFilledSci", StatContourFilled,
     compute_group = function(data, scales, z.range, bins = NULL, binwidth = NULL, breaks = NULL, na.rm = FALSE) {
         ### Custom density
-        default_levels <- c(0.2, 0.3, 0.5, 0.7, 0.9)
+        default_levels <- c(0.2, 0.5, 0.7, 0.9)
         z <- sort(data$density)
         dx <- mean(diff(data$x %>% unique), na.rm = TRUE)
         dy <- mean(diff(data$y %>% unique), na.rm = TRUE)
@@ -144,10 +163,12 @@ StatContourFilledSci <- ggproto("StatContourFilledSci", StatContourFilled,
         path_df
     })
 
-ggplot(mtcars, aes(hp, mpg)) +
-    stat_density2d_filled_sci(aes(fill = as_factor(..prob..)), breaks = c(0.16, 0.2, 0.32, 0.68, 0.84, 0.975)) +
-    stat_density2d_sci(col = "black", breaks = c(0.16, 0.2, 0.32, 0.68, 0.84, 0.975)) +
-
+ggplot_sci(mtcars, aes(hp, mpg)) +
+    geom_density2d_filled_sci(aes(fill = as_factor(..prob..)), breaks = c(0.16, 0.32, 0.68, 0.84, 0.975)) +
+    geom_density2d_sci(col = "black", breaks = c(0.16, 0.32, 0.68, 0.84, 0.975)) +
+    scale_fill_viridis_d(direction = -1) +
+    scale_x_sci() +
+    scale_y_sci() +
     geom_point() -> plt
 
 print(plt)
