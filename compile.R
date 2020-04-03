@@ -7,6 +7,7 @@ if (interactive()) {
     library(vctrs)
     library(scales)
     library(primitiveR)
+    library(magrittr)
     purrr::walk(fs::dir_ls("R", glob = "*R"), source)
     .onLoad()
 } else {
