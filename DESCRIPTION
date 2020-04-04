@@ -1,6 +1,6 @@
 Package: sciplotr
 Title: GGplots with scientific themes
-Version: 0.4.0
+Version: 0.4.1
 Authors@R: 
     person(given = "Ilia",
            family = "Kosenkov",
@@ -9,7 +9,7 @@ Authors@R:
 Imports:
 	primitiveR (>= 0.0.19),
 	rlang (>= 0.4.5),
-	vctrs (>= 0.2.99.9005),
+	vctrs (>= 0.2.99.9010),
 	ggplot2 (>= 3.3.0.9000),
 	glue,
 	grid,
@@ -33,7 +33,7 @@ License: GPL-2 | file LICENSE
 Encoding: UTF-8
 LazyData: true
 ByteCompile: true
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Suggests: 
     testthat,
 	magrittr
