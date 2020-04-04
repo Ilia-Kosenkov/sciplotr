@@ -141,7 +141,7 @@ split_ex <- function(.data, col, name = NULL, keep = FALSE) {
     content <- vctrs::vec_recycle_common(!!!content)
     size <- vctrs::vec_size_common(!!!content)
     transposed <- purrr::map(seq_len(size), ~ purrr::map(content, .x))
-    result <- purrr::map(transposed, ~ vctrs::vec_cast(.x, vctrs::vec_ptype_common(!!!.x)))
+    result <- purrr::map(transposed, ~ vec_c(!!!.x))
 
     if (rlang::is_null(name) || rlang::is_empty(name))
         names <- paste0("Split_", seq_len(size))
