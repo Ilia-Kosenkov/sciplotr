@@ -65,7 +65,7 @@ locate_inrange <- function(x, range) {
         ~ dplyr::filter(data, test(.x, l, r)) %>%
             dplyr::select(id_l, id_r) %>%
             dplyr::slice(1L) %>%
-            purrr::flatten_int %>%
+            purrr::flatten_int() %>%
             unname)
 }
 

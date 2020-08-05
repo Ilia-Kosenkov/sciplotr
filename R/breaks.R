@@ -109,7 +109,7 @@ generate_simple_minor_breaks <- function(breaks, limits, n = 40L) {
 
     extended_breaks <-
         purrr::map(cc(min(breaks) - df, breaks, max(breaks) + df), ~ .x + small_breaks) %>%
-        purrr::flatten_dbl %>%
+        purrr::flatten_dbl() %>%
         unique_f
 
     extended_breaks <- outer_unique(extended_breaks, breaks)$x

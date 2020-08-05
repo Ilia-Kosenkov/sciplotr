@@ -1,6 +1,6 @@
 Package: sciplotr
 Title: GGplots with scientific themes
-Version: 0.4.1
+Version: 0.4.2
 Authors@R: 
     person(given = "Ilia",
            family = "Kosenkov",
@@ -26,14 +26,14 @@ Imports:
 	forcats,
 	readr
 Depends:
-    R (>= 3.5.0)
+    R (>= 4.0.0)
 Description: This package provides a set of tools built atop of the `ggplot2` and `grid` packages (and friends), that improves the layout 
 	of plots produced using `ggplot2` syntax.
 License: GPL-2 | file LICENSE
 Encoding: UTF-8
 LazyData: true
 ByteCompile: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Suggests: 
     testthat,
 	magrittr

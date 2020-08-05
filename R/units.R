@@ -14,15 +14,13 @@
     e1 * (1 / e2)
 }
 
-#' @rdname unit
-#' @export
-`-.unit` <- function(e1, e2) {
-    assertthat::assert_that(grid::is.unit(e1))
-    if (missing(e2))
-        return(-1 * e1)
-    assertthat::assert_that(grid::is.unit(e2))
-    grid:::unit.arithmetic("-", e1, e2)
-}
+# `-.unit` <- function(e1, e2) {
+#     assertthat::assert_that(grid::is.unit(e1))
+#     if (missing(e2))
+#         return(-1 * e1)
+#     assertthat::assert_that(grid::is.unit(e2))
+#     grid:::unit.arithmetic("-", e1, e2)
+# }
 
 
 f_u_ <- function(x, .data = NULL) {

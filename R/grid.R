@@ -140,7 +140,7 @@ utils::globalVariables(c("name", "rowid"))
 ### Required
 get_grob_ids_raw <- function(grid, pattern) {
     grid$layout %>%
-        tibble::rowid_to_column %>%
+        tibble::rowid_to_column() %>%
         dplyr::filter(stringr::str_detect(name, pattern)) %>%
         dplyr::transmute(Name = name, Id = rowid) %>%
         as.list
