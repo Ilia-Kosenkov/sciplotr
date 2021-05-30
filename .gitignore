@@ -327,3 +327,4 @@ $RECYCLE.BIN/
 *.fth
 R/injection.R
 *.db
+.Rproj.user

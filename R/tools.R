@@ -50,23 +50,33 @@ utils::globalVariables(c("id_l"))
 
 locate_inrange <- function(x, range) {
     test <-
-        if (range[1] < range[2])
-            function(x, l, r)
-                x >= l & x < r
-        else
-            function(x, l, r)
-                x <= l & x > r
+        if (range[1] < range[2]) {
+            function(x, l, r) {
+                x >= l & x <= r
+            }
+        } else {
+            function(x, l, r) {
+                x <= l & x >= r
+            }
+        }
 
-    tibble::tibble(l = range, r = dplyr::lead(range)) %>%
-        dplyr::mutate(id_l = 1L:n(), id_r = id_l + 1L) %>%
-        dplyr::slice(-n()) -> data
+    tibble::tibble(
+        l = range,
+        r = dplyr::lead(range)
+    ) %>%
+    dplyr::mutate(
+        id_l = 1L:dplyr::n(),
+        id_r = .data$id_l + 1L
+    ) %>%
+    dplyr::slice(-n()) -> data
 
     purrr::map(x,
         ~ dplyr::filter(data, test(.x, l, r)) %>%
-            dplyr::select(id_l, id_r) %>%
+            dplyr::select(.data$id_l, .data$id_r) %>%
             dplyr::slice(1L) %>%
             purrr::flatten_int() %>%
-            unname)
+            unname
+    )
 }
 
 df_grid <- function(rows, cols, margin = FALSE) {
@@ -174,8 +184,9 @@ lin_unit <- function(x0, x, y) {
     dy <- y[2] - y[1]
 
     purrr::map(x0, ~ y[1] + dy / dx * (.x - x[1])) -> result
-    if (grid::is.unit(y))
+    if (grid::is.unit(y)) {
         rlang::exec(grid::unit.c, !!!result)
-    else
+    } else {
         vctrs::vec_cast(result, vctrs::vec_ptype_common(!!!result))
+    }
 }

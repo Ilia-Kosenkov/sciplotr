@@ -40,8 +40,8 @@ guide_train.axis <- function(guide, scale, aesthetic = NULL) {
                     list(
                         scale$map(breaks_minor),
                         breaks_minor,
-                        vctrs::vec_repeat("", vctrs::vec_size(breaks_minor)),
-                        vctrs::vec_repeat("minor", vctrs::vec_size(breaks_minor))),
+                        vctrs::vec_rep("", vctrs::vec_size(breaks_minor)),
+                        vctrs::vec_rep("minor", vctrs::vec_size(breaks_minor))),
                     names(ticks)))
 
         ticks <- vctrs::vec_rbind(ticks, df)
