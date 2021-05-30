@@ -1,0 +1,64 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+#
+# See https://github.com/r-lib/actions/tree/master/examples#readme for
+# additional example workflows available for the R community.
+
+name: R
+
+on:
+  push:
+    branches: [ master ]
+    tags-ignore: 
+      - 'v*'
+  pull_request:
+    branches: [ master ]
+    tags-ignore: 
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    
+
+    name: ${{ matrix.os }}
+            
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['Windows-latest', 'ubuntu-latest', 'macOS-latest']
+
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up R 4.0
+        uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: release
+      
+      - name: Install dependencies
+        run: |
+          install.packages("remotes")
+          remotes::install_github("Ilia-Kosenkov/primitiveR")
+          remotes::install_deps(pkgdir = ".", dependencies = NA)
+          remotes::install_cran(c("rcmdcheck", "testthat"))
+        shell: Rscript {0}
+        
+      - name: Build & Check package
+        id: integration_tests
+        run: |
+          # Allow warnings for now
+          rcmdcheck::rcmdcheck(path = ".", args = c("--no-manual", "--force-multiarch"), check_dir = "check")
+        shell: Rscript {0}
+        
+      - name: Upload check results from R integration tests
+        if: failure()
+        uses: actions/upload-artifact@main
+        with:
+          name:  ${{ matrix.os }}
+          path: check
+
+        
