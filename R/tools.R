@@ -65,8 +65,8 @@ locate_inrange <- function(x, range) {
         r = dplyr::lead(range)
     ) %>%
     dplyr::mutate(
-        .data$id_l := 1L:dplyr::n(),
-        .data$id_r := .data$id_l + 1L
+        id_l := 1L:dplyr::n(),
+        id_r := .data$id_l + 1L
     ) %>%
     dplyr::slice(-n()) -> data
 
