@@ -61,18 +61,18 @@ locate_inrange <- function(x, range) {
         }
 
     tibble::tibble(
-        l = range, 
+        l = range,
         r = dplyr::lead(range)
     ) %>%
     dplyr::mutate(
-        id_l := 1L:dplyr::n(),
-        id_r := .data$id_l + 1L
+        id_l = 1L:dplyr::n(),
+        id_r = .data$id_l + 1L
     ) %>%
     dplyr::slice(-n()) -> data
 
     purrr::map(x,
         ~ dplyr::filter(data, test(.x, l, r)) %>%
-            dplyr::select(id_l, id_r) %>%
+            dplyr::select(.data$id_l, .data$id_r) %>%
             dplyr::slice(1L) %>%
             purrr::flatten_int() %>%
             unname

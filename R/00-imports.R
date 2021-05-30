@@ -8,7 +8,6 @@
 #' @importFrom assertthat   assert_that
 #' @importFrom primitiveR   %==% %!=% are_equal_f are_same_all cc len %vin% lin
 #' @importFrom primitiveR   %===% %->%
-#' @importFrom rlang        .data .env
 NULL
 
 
