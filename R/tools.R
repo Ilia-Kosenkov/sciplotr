@@ -9,8 +9,8 @@ unique_f <- function(x, eps = 1L) {
     magrittr::equals(
       purrr::map_int(
         vctrs::vec_seq_along(x),
-          ~ sum(prod[1:.x, .x])
-        ),
+        ~ sum(prod[1:.x, .x])
+      ),
       1L
     )
   )
@@ -63,10 +63,10 @@ locate_inrange <- function(x, range) {
     r = dplyr::lead(range)
   ) %>%
     dplyr::mutate(
-      id_l = 1L:dplyr::n(),
+      id_l = 1L:(dplyr::n()),
       id_r = .data$id_l + 1L
     ) %>%
-    dplyr::slice(-n()) -> data
+    dplyr::slice(-dplyr::n()) -> data
 
   purrr::map(
     x,
@@ -80,7 +80,7 @@ locate_inrange <- function(x, range) {
 
 df_grid <- function(rows, cols, margin = FALSE) {
   vars <- purrr::map(
-    append(
+    vctrs::vec_c(
       purrr::map(rows, unique),
       purrr::map(cols, unique)
     ),
@@ -88,31 +88,32 @@ df_grid <- function(rows, cols, margin = FALSE) {
   )
 
   if (margin) {
-    vars <- purrr::map(vars, cc, forcats::as_factor("(all)"))
+    vars <- purrr::map(vars, vctrs::vec_c, forcats::as_factor("(all)"))
   }
 
   tidyr::expand_grid(!!!vars)
 }
 
-get_id <- function(.variables) {
-  lengths <- purrr::map_int(.variables, len)
-  .vars <- .variables[lengths %!=% 0L]
-  vars_len <- len(.vars)
+get_id <- function(variables) {
+  # `variables` is a `data.frame`
+  lengths <- purrr::map_int(variables, vctrs::vec_size)
+  vars <- dplyr::select(variables, which(lengths != 0L))
+  vars_len <- vctrs::vec_size(vars)
 
-  if (vars_len %==% 0L) {
-    n <- len(.variables) %||% 0L
+  if (isTRUE(vars_len == 0L)) {
+    n <- vctrs::vec_size(variables)
     return(structure(seq_len(n), n = n))
   }
-  if (vars_len %==% 1L) {
-    return(get_id_var(.vars[[1]]))
+  if (isTRUE(vars_len == 1L)) {
+    return(get_id_var(vars[[1]]))
   }
-  ids <- rev(purrr::map(.variables, get_id_var))
-  p <- len(ids)
+  ids <- rev(purrr::map(variables, get_id_var))
+  p <- vctrs::vec_size(ids)
 
   ndistinct <- purrr::map_int(ids, attr, "n")
   n <- prod(ndistinct)
 
-  combs <- cc(1, cumprod(ndistinct[-p]))
+  combs <- vctrs::vec_c(1, cumprod(vctrs::vec_slice(ndistinct, -p)))
   mat <- rlang::exec(cbind, !!!ids)
   res <- as.vector((mat - 1L) %*% combs + 1L)
   attr(res, "n") <- n
@@ -121,7 +122,7 @@ get_id <- function(.variables) {
 }
 
 get_id_var <- function(x) {
-  if (length(x) == 0) {
+  if (isTRUE(vctrs::vec_size(x) == 0)) {
     return(structure(integer(), n = 0L))
   }
   levels <- sort(unique(x), na.last = TRUE)
@@ -142,7 +143,7 @@ split_ex <- function(.data, col, name = NULL, keep = FALSE) {
   content <- vctrs::vec_recycle_common(!!!content)
   size <- vctrs::vec_size_common(!!!content)
   transposed <- purrr::map(seq_len(size), ~ purrr::map(content, .x))
-  result <- purrr::map(transposed, ~ vec_c(!!!.x))
+  result <- purrr::map(transposed, ~ vctrs::vec_c(!!!.x))
 
   if (rlang::is_null(name) || rlang::is_empty(name)) {
     names <- paste0("Split_", seq_len(size))
@@ -165,14 +166,17 @@ empty_labels <- function() {
 }
 
 empty_seq <- function(x) {
-  vctrs::vec_repeat(" ", len(x))
+  vctrs::vec_repeat(" ", vctrs::vec_size(x))
 }
 
 #' @export
 lin_unit <- function(x0, x, y) {
-  x0 <- vec_cast(x0, double())
-  x <- vec_assert(vec_cast(x, double()), size = 2L)
-  assertthat::assert_that(len(y) %===% 2L)
+  x0 <- vctrs::vec_cast(x0, double())
+  x <- vctrs::vec_assert(
+    vctrs::vec_cast(x, double()),
+    size = 2L
+  )
+  assertthat::assert_that(isTRUE(length(y) == 2L))
 
   dx <- x[2] - x[1]
   dy <- y[2] - y[1]

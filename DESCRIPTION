@@ -1,6 +1,6 @@
 Package: sciplotr
 Title: GGplots with scientific themes
-Version: 0.4.3
+Version: 0.5.0
 Authors@R: 
     person(given = "Ilia",
            family = "Kosenkov",
