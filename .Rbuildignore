@@ -12,3 +12,5 @@ Compile.R
 .*ionide
 README
 README.*
+^\.github$
+^\.vscode$

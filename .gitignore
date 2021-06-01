@@ -328,3 +328,4 @@ $RECYCLE.BIN/
 R/injection.R
 *.db
 .Rproj.user
+.vscode/*
