@@ -169,6 +169,14 @@ empty_seq <- function(x) {
   vctrs::vec_repeat(" ", vctrs::vec_size(x))
 }
 
+#' Linearly interpolate [grid::unit]
+#'
+#' Performs a linear interpolation in the unit space.
+#' @param x0 \[`double(n)`\] Interpolation points.
+#' @param x \[`double(2)`\] Two boundary points for interpoaltion,
+#'   such that `x[1] <= x0 <= x[2]`.
+#' @param y \[`grid::unit(2)`\] Values at boundary points.
+#' @return \[`grid::unit(n)`\] Interpolated unit values.
 #' @export
 lin_unit <- function(x0, x, y) {
   x0 <- vctrs::vec_cast(x0, double())
